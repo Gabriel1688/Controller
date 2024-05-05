@@ -102,42 +102,4 @@ void Controller::OnProxyRequest()
 		f = send_queue_.Pop();
 	}
 }
-     
-Controller::OamAmoCommandType Controller::MapAmoCommandTypeToEnum(const std::string& p_topic)
-{
-    if( p_topic =="GET_REQ" )
-        return OamAmoCommandType::EN_AMO_CMD_GET_AO_REQ;
-    else if(p_topic =="CREATE_AO_REQ") 
-        return OamAmoCommandType::EN_AMO_CMD_CREATE_AO_REQ;
-    else if(p_topic =="DELETE_AO_REQ")
-        return OamAmoCommandType::EN_AMO_CMD_DELETE_AO_REQ;
-    else if(p_topic =="UPDATE_AO_REQ")
-        return OamAmoCommandType::EN_AMO_CMD_UPDATE_AO_REQ;
-    else if( p_topic =="GET_CFM" )
-        return OamAmoCommandType::EN_AMO_CMD_GET_CFM;
-    else if(p_topic =="ADD_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_ADD_CFM;
-    else if(p_topic =="ADD_NRCELLCU_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_ADD_NRCELLCU_CFM;
-    else if(p_topic =="SETUP_NRCELLCU_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_SETUP_NRCELLCU_CFM;
-    else if(p_topic =="ACTIVE_NRCELLCU_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_ACTIVE_NRCELLCU_CFM;
-    else if(p_topic =="DEACTIVE_NRCELLCU_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_DEACTIVE_NRCELLCU_CFM;
-    else if(p_topic =="RELEASE_NRCELLCU_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_RELEASE_NRCELLCU_CFM;
-    else if(p_topic =="DELETE_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_DELETE_CFM;
-    else if(p_topic =="UPDATE_CFM")
-        return OamAmoCommandType::EN_AMO_CMD_UPDATE_CFM;
-    else if(p_topic =="NRCELLCU_STATUS_UPDATE")
-        return OamAmoCommandType::EN_AMO_CMD_UPDATE_IND;
-    else if(p_topic =="FAULT_INDICATION")
-        return OamAmoCommandType::EN_AMO_CMD_FAULT_INDICATION;
-    else if(p_topic =="FAULTCEASE_INDICATION")
-        return OamAmoCommandType::EN_AMO_CMD_FAULTCEASE_INDICATION;
-    else 
-        return OamAmoCommandType::EN_AMO_CMD_UNDEFINE;
-}
-
+   
