@@ -1,14 +1,3 @@
-/*
- * lws-minimal-mqtt-client
- *
- * Written in 2010-2020 by Andy Green <andy@warmcat.com>
- *                         Sakthi Kannan <saktr@amazon.com>
- *
- * This file is made available under the Creative Commons CC0 1.0
- * Universal Public Domain Dedication.
- */
-
-
 #include <libwebsockets.h>
 #include <string.h>
 #include <signal.h>
