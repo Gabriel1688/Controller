@@ -1,0 +1,88 @@
+/*
+ * lws-minimal-mqtt-client
+ *
+ * Written in 2010-2020 by Andy Green <andy@warmcat.com>
+ *                         Sakthi Kannan <saktr@amazon.com>
+ *
+ * This file is made available under the Creative Commons CC0 1.0
+ * Universal Public Domain Dedication.
+ */
+
+
+#include <libwebsockets.h>
+#include <string.h>
+#include <signal.h>
+#if defined(WIN32)
+#define HAVE_STRUCT_TIMESPEC
+#if defined(pid_t)
+#undef pid_t
+#endif
+#endif
+#include <pthread.h>
+#include <assert.h>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"  
+#include "spdlog/fmt/ostr.h" 
+#include <memory>
+#include "agent.h"
+#include <chrono>
+#include "console.h"
+#include "wrapper.h"
+
+using namespace spdlog;
+
+void loadConfig(const std::string& fileName, std::string& mode);
+int main(int argc, const char **argv)
+{
+    spdlog::warn("Easy padding in numbers like {:08d}", 12);
+    spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR,SPDLOG_VER_PATCH);
+    std::string mode;
+    std::string configFile = "../../config/config.txt";
+    loadConfig(configFile,mode);
+    if (mode == "robot") 
+    {
+       spdlog::info("run as robot.");
+       client_create();
+       g_mqttClient_ptr->loadConfig(configFile);
+       g_mqttClient_ptr->Start();
+
+       std::shared_ptr<Console> console = std::make_shared<Console>();
+       console->setClient(g_mqttClient_ptr);
+       console->Start();
+       while(1) {
+           std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+       }
+    }
+    else 
+    {
+       spdlog::info("run as robot agent.");
+       std::shared_ptr<Agent> agent = std::make_shared<Agent>(configFile);
+       agent->Start();
+       while(1) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+       }
+    }
+}
+
+void loadConfig(const std::string& fileName, std::string& mode)
+{
+     std::string line;
+     std::size_t pos;
+     std::string result;
+
+     std::ifstream ifs(fileName);
+
+     while (std::getline(ifs, line)) {
+         line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
+         pos = line.find("=");
+         if (pos != std::string::npos) {
+             std::string key = line.substr(0, pos);
+             std::string value = line.substr(pos + 1);
+             if (key == "mode") {
+                 mode = value;
+             } 
+         }
+     }
+}
+
