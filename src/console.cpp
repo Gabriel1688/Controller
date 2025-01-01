@@ -1,3 +1,10 @@
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+
 #include "console.h"
 #include "mqttClient.h"
 #include "spdlog/spdlog.h"
@@ -59,8 +66,8 @@ void Console::Run() {
   while(!shutdown_) {
       //readInput();
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-      execute();
+// enable below when mqtt server and another client is ready.
+//      execute();
       
       counter = (counter++)%65535;
       if (counter == 0) {

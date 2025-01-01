@@ -19,7 +19,6 @@ include(FetchContent)
 FetchContent_Declare(libwebsockets URL https://github.com/warmcat/libwebsockets/archive/refs/tags/v4.3.3.tar.gz)
 FetchContent_MakeAvailable(libwebsockets)
 
-find_package(libwebsockets REQUIRED )
 find_package(spdlog REQUIRED)
 
 add_executable(

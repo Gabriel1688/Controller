@@ -1,6 +1,11 @@
-#ifndef __mqtt_client_h
-#define __mqtt_client_h
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
 
+#pragma once
 #include <vector>
 #include <string>
 #include <chrono>
@@ -223,4 +228,3 @@ public:
         std::mutex mqttMutex;
 
 };
-#endif 

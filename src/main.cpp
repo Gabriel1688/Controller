@@ -1,12 +1,13 @@
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+
 #include <libwebsockets.h>
 #include <string.h>
 #include <signal.h>
-#if defined(WIN32)
-#define HAVE_STRUCT_TIMESPEC
-#if defined(pid_t)
-#undef pid_t
-#endif
-#endif
 #include <pthread.h>
 #include <assert.h>
 

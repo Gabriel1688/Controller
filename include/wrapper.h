@@ -1,5 +1,11 @@
-#ifndef __client_h
-#define __client_h
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+
+#pragma once
 #include <libwebsockets.h>
 
 #ifdef __cplusplus
@@ -23,6 +29,3 @@ int system_notify_cb(lws_state_manager_t *mgr,
 #ifdef __cplusplus
 }
 #endif
-
-
-#endif 

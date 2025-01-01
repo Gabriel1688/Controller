@@ -1,6 +1,10 @@
-#ifndef _ROBOT_MSGDEF_H_
-#define _ROBOT_MSGDEF_H_
-
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+#pragma once
 #include <memory>
 
 class Message {
@@ -66,4 +70,3 @@ private:
     */
     std::unique_ptr<T> payload;
 };
-#endif 

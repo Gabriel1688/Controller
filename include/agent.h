@@ -1,5 +1,12 @@
-#ifndef _agent_h
-#define _agent_h
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+
+#pragma once
+
 #include <pthread.h>
 #include "mqttClient.h"
 #include <deque>
@@ -46,4 +53,4 @@ class Agent {
   std::string configFile;
   unsigned int counter;
 };
-#endif
+
