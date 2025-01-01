@@ -10,6 +10,7 @@
 #include "message.h"
 #include "agent.h"
 #include <fstream>
+#include <algorithm>
 
 using namespace std::placeholders;
 static const int BUFSIZE=1024;
@@ -38,7 +39,7 @@ void DSService::loadConfig(const std::string& fileName)
      std::ifstream ifs(fileName);
 
      while (std::getline(ifs, line)) {
-         line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
+         line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
          pos = line.find("=");
          if (pos != std::string::npos) {
              std::string key = line.substr(0, pos);

@@ -19,7 +19,8 @@ include(FetchContent)
 FetchContent_Declare(libwebsockets URL https://github.com/warmcat/libwebsockets/archive/refs/tags/v4.3.3.tar.gz)
 FetchContent_MakeAvailable(libwebsockets)
 
-find_package(spdlog REQUIRED)
+FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.0.tar.gz)
+FetchContent_MakeAvailable(spdlog)
 
 add_executable(
         agent
