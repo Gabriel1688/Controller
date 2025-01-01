@@ -12,6 +12,7 @@
 #include "message.h"
 #include <utility>
 #include <mutex>
+#include "libwebsockets/lws-mqtt.h"
 
 
 class Agent;
