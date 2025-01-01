@@ -1,5 +1,10 @@
-#ifndef _FIFO_H
-#define _FIFO_H
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+#pragma once
 
 #include <pthread.h>
 #include <queue>
@@ -52,5 +57,4 @@ class Fifo
 		std::queue<T*> queue_;
 		FdEvent fd_event_;
 };
-#endif 
 

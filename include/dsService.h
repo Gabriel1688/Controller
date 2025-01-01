@@ -1,5 +1,11 @@
-#ifndef __DS_SERVICE_H
-#define __DS_SERVICE_H
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+
+#pragma once
 #include <string>
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
@@ -45,5 +51,4 @@ class DSService {
   Agent* agent;
   pthread_t thread_id;
 };
-#endif
 

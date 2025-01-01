@@ -1,3 +1,10 @@
+/*
+ * The Driver Station Library (LibDS)
+ * Copyright (c) Lily Wang and other contributors.
+ * Open Source Software; you can modify and/or share it under the terms of
+ * the MIT license file in the root directory of this project.
+ */
+
 #include <libwebsockets.h>
 #include <string.h>
 #include <signal.h>
@@ -146,7 +153,8 @@ void Agent::OnMessage(std::shared_ptr<MESSAGE> message, TCallback callback)
              std::string topic = "test/topic0";
              message->sid = COM_AGENT; 
              message->did = COM_CONTROLLER; 
-             g_mqttClient_ptr->publish(topic, message);
+// Enable it when the mqtt server and another client is ready.
+//             g_mqttClient_ptr->publish(topic, message);
           }
           break;
        case COM_CONTROLLER:
