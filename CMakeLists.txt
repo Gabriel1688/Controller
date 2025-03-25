@@ -4,7 +4,7 @@ find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PA
 
 project(Controller)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs -Werror -fPIC -g -O0")
@@ -37,11 +37,12 @@ add_executable(
         lib/ds/BooleanEvent.cpp
         lib/ds/EventLoop.cpp
         lib/ds/DriverStation.cpp
-#        lib/framework/TimedRobot.cpp
+        lib/framework/TimedRobot.cpp
         lib/framework/IterativeRobotBase.cpp
         lib/framework/RobotBase.cpp
         lib/ds/DSControlWord.cpp
         lib/ds/FRCComm.cpp
+        lib/common/priority_queue.h
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 

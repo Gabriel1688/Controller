@@ -51,6 +51,9 @@ TimedRobot::TimedRobot(int period) : IterativeRobotBase(period) {
     AddPeriodic([=, this] { LoopFunc(); }, period);
     int32_t status = 0;
 }
+void TimedRobot::EndCompetition() {
+    int32_t status = 0;
+}
 
 TimedRobot::~TimedRobot() {
 }

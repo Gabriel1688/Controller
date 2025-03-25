@@ -243,11 +243,13 @@ HAL_Bool HAL_RefreshDSData(void) {
     return prev != nullptr;
 }
 
-
-//void InitializeDriverStation() {
-//    // Set up the occur function internally with NetComm
-//    // NetCommRPCProxy_SetOccurFuncPointer(newDataOccur);
-//    // Set up our occur reference number
-////        setNewDataOccurRef(refNumber);
-//}
+namespace hal {
+    void InitializeDriverStation() {
+        //NOTE::Need the mqtt client to link this for data process.
+        // Set up the occur function internally with NetComm
+        // NetCommRPCProxy_SetOccurFuncPointer(newDataOccur);
+        // Set up our occur reference number
+        //  setNewDataOccurRef(refNumber);
+    }
+}
 }

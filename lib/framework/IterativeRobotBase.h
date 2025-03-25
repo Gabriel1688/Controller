@@ -42,7 +42,8 @@
  * \li TeleopExit() -- called each and every time teleop is exited
  * \li TestExit() -- called each and every time test is exited
  */
-class IterativeRobotBase {
+#include "RobotBase.h"
+class IterativeRobotBase : public RobotBase {
 public:
     /**
      * Robot-wide initialization code should go here.
@@ -139,7 +140,7 @@ public:
      */
     explicit IterativeRobotBase(int  period);
 
-    ~IterativeRobotBase() ;
+    ~IterativeRobotBase() {};
     virtual void StartCompetition();
 
 protected:

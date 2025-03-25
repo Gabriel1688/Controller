@@ -4,11 +4,11 @@
 #include <functional>
 #include <utility>
 #include <vector>
+#include "../common/priority_queue.h"
 
 //#include <hal/Notifier.h>
 //#include <hal/Types.h>
 //#include <units/math.h>
-#include <queue>
 #include "IterativeRobotBase.h"
 
 /**
@@ -51,6 +51,7 @@ public:
      */
     void AddPeriodic(std::function<void()> callback, int  period,int  offset = 0);
     void StartCompetition();
+    void EndCompetition();
 private:
     class Callback {
     public:
@@ -80,5 +81,5 @@ private:
     std::chrono::microseconds m_startTime;
     uint64_t m_loopStartTimeUs = 0;
 
-    std::priority_queue<Callback, std::vector<Callback>, std::greater<Callback>>  m_callbacks;
+    priority_queue<Callback, std::vector<Callback>, std::greater<Callback>>  m_callbacks;
 };

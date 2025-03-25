@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
-#include <thread>
+//#include <thread>
+#include <pthread.h>
 #include "../ds/DriverStation.h"
 //#include <hal/DriverStation.h>
 //#include <hal/HALBase.h>
@@ -10,19 +11,6 @@
 #include <condition_variable>
 #include <mutex>
 #include <string>
-
-namespace frc::impl {
-    void ResetMotorSafety() {
-//        auto& manager = GetManager();
-//        std::scoped_lock lock(manager.listMutex);
-//        manager.instanceList.clear();
-//        manager.thread.Stop();
-//        manager.thread.Join();
-//        manager.thread = wpi::SafeThreadOwner<Thread>{};
-//        manager.threadStarted = false;
-    }
-}  // namespace frc::impl
-int RunHALInitialization();
 
 template <class Robot>
 void RunRobot(std::mutex& m, Robot** robot) {
@@ -37,21 +25,33 @@ void RunRobot(std::mutex& m, Robot** robot) {
 template <class Robot>
 int StartRobot() {
 
-    RunHALInitialization();
+//    RunHALInitialization();
 
     static std::mutex m;
     static std::condition_variable cv;
     static Robot* robot = nullptr;
     static bool exited = false;
 
-//    impl::RunRobot<Robot>(m, &robot);
+    RunRobot<Robot>(m, &robot);
 
-    frc::impl::ResetMotorSafety();
+//    frc::impl::ResetMotorSafety();
 
 //    HAL_Shutdown();
 
     return 0;
 }
+//namespace frc::impl {
+//    void ResetMotorSafety() {
+////        auto& manager = GetManager();
+////        std::scoped_lock lock(manager.listMutex);
+////        manager.instanceList.clear();
+////        manager.thread.Stop();
+////        manager.thread.Join();
+////        manager.thread = wpi::SafeThreadOwner<Thread>{};
+////        manager.threadStarted = false;
+//    }
+//}  // namespace frc::impl
+//int RunHALInitialization();
 
 /**
  * Implement a Robot Program framework. The RobotBase class is intended to be
@@ -132,7 +132,7 @@ public:
      *
      * @return The main thread ID.
      */
-    static std::thread::id GetThreadId();
+//    static std::thread::id GetThreadId();
 
     /**
      * Start the main robot code. This function will be called once and should not
@@ -195,7 +195,7 @@ protected:
     RobotBase(RobotBase&&) = default;
     RobotBase& operator=(RobotBase&&) = default;
 
-    static std::thread::id m_threadId;
+    pthread_t m_threadId;
 //    NT_Listener connListenerHandle;
     bool m_dashboardDetected = false;
 };

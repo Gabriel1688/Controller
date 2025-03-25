@@ -36,7 +36,11 @@
 //#include <wpi/timestamp.h>
 //#include "frc/Errors.h"
 //#include "frc/Timer.h"
-
+extern "C" {
+namespace hal {
+    extern void InitializeDriverStation();
+}
+}
 struct Instance
 {
      Instance();
@@ -67,8 +71,12 @@ static Instance& GetInstance() {
 
 
 Instance::Instance() {
+    //NOTE:: need to implement following logic in the RasperryPi.
     //HAL_Initialize(500, 0);
-//    InitializeDriverStation();
+    //hal::init::InitializeHAL();
+    //hal::RestartTiming();
+    //hal::InitializeDriverStation();
+    hal::InitializeDriverStation();
 
     // All joysticks should default to having zero axes, povs and buttons, so
     // uninitialized memory doesn't get sent to motor controllers.
@@ -283,7 +291,8 @@ double DriverStation::GetBatteryVoltage() {
  * the data will be copied from the DS polling loop.
  */
 void DriverStation::RefreshData() {
-    //HAL_RefreshDSData();
+    //NOTE:: need to implement
+    // HAL_RefreshDSData();
     auto& inst = ::GetInstance();
     {
         // Compute the pressed and released buttons
@@ -305,7 +314,8 @@ void DriverStation::RefreshData() {
         }
     }
 
-    //inst.refreshEvents.Wakeup();
+    //NOTE:: need to implement
+    // inst.refreshEvents.Wakeup();
 }
 /*
 void DriverStation::ProvideRefreshedDataEventHandle(WPI_EventHandle handle) {
