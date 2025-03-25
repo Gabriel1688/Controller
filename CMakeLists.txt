@@ -36,10 +36,12 @@ add_executable(
         lib/ds/XboxController.cpp
         lib/ds/BooleanEvent.cpp
         lib/ds/EventLoop.cpp
+        lib/ds/DriverStation.cpp
 #        lib/framework/TimedRobot.cpp
         lib/framework/IterativeRobotBase.cpp
         lib/framework/RobotBase.cpp
         lib/ds/DSControlWord.cpp
+        lib/ds/FRCComm.cpp
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 

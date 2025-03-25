@@ -14,14 +14,15 @@ void TimedRobot::StartCompetition() {
         // at the end of the loop.
         auto callback = m_callbacks.pop();
 
-        int32_t status = 0;
-        HAL_UpdateNotifierAlarm(m_notifier, callback.expirationTime.count(), &status);
+//        int32_t status = 0;
+//        HAL_UpdateNotifierAlarm(m_notifier, callback.expirationTime.count(), &status);
 
 
-        std::chrono::microseconds currentTime{ HAL_WaitForNotifierAlarm(m_notifier, &status)};
-        if (currentTime.count() == 0 || status != 0) {
-            break;
-        }
+        std::chrono::microseconds currentTime{2048};
+//        std::chrono::microseconds currentTime{ HAL_WaitForNotifierAlarm(m_notifier, &status)};
+//        if (currentTime.count() == 0 || status != 0) {
+//            break;
+//        }
 
         callback.func();
 
@@ -29,7 +30,7 @@ void TimedRobot::StartCompetition() {
         // plus one to avoid rapid repeat fires from a large loop overrun. We assume
         // currentTime ≥ expirationTime rather than checking for it since the
         // callback wouldn't be running otherwise.
-        callback.expirationTime += callback.period + (currentTime - callback.expirationTime) / callback.period * callback.period;
+//        callback.expirationTime += callback.period + (currentTime - callback.expirationTime) / callback.period * callback.period;
         m_callbacks.push(std::move(callback));
 
         // Process all other callbacks that are ready to run
@@ -59,3 +60,18 @@ void TimedRobot::AddPeriodic(std::function<void()> callback, int period, int off
                           std::chrono::microseconds{static_cast<int64_t>(period * 1e6)},
                           std::chrono::microseconds{static_cast<int64_t>(offset * 1e6)});
 }
+
+/*
+ * uint64_t HAL_WaitForNotifierAlarm(HAL_NotifierHandle notifierHandle,
+                                  int32_t* status) {
+  auto notifier = notifierHandles->Get(notifierHandle);
+  if (!notifier) {
+    return 0;
+  }
+  std::unique_lock lock(notifier->mutex);
+  notifier->cond.wait(lock, [&] {
+    return !notifier->active || notifier->triggeredTime != UINT64_MAX;
+  });
+  return notifier->active ? notifier->triggeredTime : 0;
+}
+ */

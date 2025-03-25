@@ -245,10 +245,9 @@ HAL_Bool HAL_RefreshDSData(void) {
 
 
 //void InitializeDriverStation() {
-//        // Set up the occur function internally with NetComm
-//        // NetCommRPCProxy_SetOccurFuncPointer(newDataOccur);
-//        // Set up our occur reference number
-//        setNewDataOccurRef(refNumber);
+//    // Set up the occur function internally with NetComm
+//    // NetCommRPCProxy_SetOccurFuncPointer(newDataOccur);
+//    // Set up our occur reference number
+////        setNewDataOccurRef(refNumber);
 //}
-
 }

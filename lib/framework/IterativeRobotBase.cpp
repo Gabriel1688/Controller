@@ -1,11 +1,5 @@
 #include "IterativeRobotBase.h"
 #include "../ds/DriverStation.h"
-
-//#include <../ds/DriverStation.h>
-//#include <networktables/NetworkTableInstance.h>
-
-
-#include "../ds/DriverStation.h"
 #include "../ds/FRCComm.h"
 #include "../ds/DSControlWord.h"
 #include <iostream>
@@ -14,6 +8,8 @@ IterativeRobotBase::IterativeRobotBase(int period)
         : m_period(period) {}
 
 void IterativeRobotBase::RobotInit() {}
+
+void IterativeRobotBase::StartCompetition() {}
 
 void IterativeRobotBase::DriverStationConnected() {}
 

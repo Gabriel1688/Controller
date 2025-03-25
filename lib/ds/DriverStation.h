@@ -12,9 +12,7 @@ typedef int32_t HAL_Bool;
  */
 //HAL_Bool HAL_RefreshDSData(void);
 
-namespace hal {
-    void InitializeDriverStation();
-}
+void InitializeDriverStation();
 
 #ifdef __cplusplus
 extern "C" {

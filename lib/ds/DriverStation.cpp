@@ -28,11 +28,6 @@
 #include "DriverStation.h"
 #include "DriverStationTypes.h"
 
-#include <networktables/BooleanTopic.h>
-#include <networktables/IntegerTopic.h>
-#include <networktables/NetworkTable.h>
-#include <networktables/NetworkTableInstance.h>
-#include <networktables/StringTopic.h>
 
 #include "EventVector.h"
 #include <condition_variable>
@@ -60,10 +55,10 @@ struct Instance
      bool userInAutonomous = false;
      bool userInTeleop = false;
      bool userInTest = false;
-     int  nextMessageTime = 0_s;
+     int  nextMessageTime = 0;//0_s;
 };
 
-static constexpr auto kJoystickUnpluggedMessageInterval = 1_s;
+static constexpr auto kJoystickUnpluggedMessageInterval = 1;//1_s;
 
 static Instance& GetInstance() {
     static Instance instance;
@@ -73,7 +68,7 @@ static Instance& GetInstance() {
 
 Instance::Instance() {
     //HAL_Initialize(500, 0);
-    hal::InitializeDriverStation();
+//    InitializeDriverStation();
 
     // All joysticks should default to having zero axes, povs and buttons, so
     // uninitialized memory doesn't get sent to motor controllers.
@@ -251,13 +246,14 @@ bool DriverStation::IsDSAttached() {
     return controlWord.dsAttached;
 }
 
-std::string DriverStation::GetEventName() {
+// std::string DriverStation::GetEventName() {
 //    HAL_MatchInfo info;
 //    HAL_GetMatchInfo(&info);
 //    return info.eventName;
-}
+//}
 
 bool DriverStation::WaitForDsConnection(int timeout) {
+    bool result = false;
 //    wpi::Event event{true, false};
 //    HAL_ProvideNewDataEventHandle(event.GetHandle());
 //    bool result = false;
@@ -287,7 +283,7 @@ double DriverStation::GetBatteryVoltage() {
  * the data will be copied from the DS polling loop.
  */
 void DriverStation::RefreshData() {
-    HAL_RefreshDSData();
+    //HAL_RefreshDSData();
     auto& inst = ::GetInstance();
     {
         // Compute the pressed and released buttons
