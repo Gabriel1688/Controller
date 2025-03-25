@@ -21,10 +21,10 @@
 #include "spdlog/cfg/env.h"  
 #include "spdlog/fmt/ostr.h" 
 #include <memory>
-#include "wrapper.h"
+#include "../lib/mqtt/wrapper.h"
 #include <chrono>
 #include <thread>
-#include <mqttClient.h>
+#include "../lib/mqtt/mqttClient.h"
 #include <controller.h>
 #include "dsService.h"
 #include "agent.h"

@@ -8,14 +8,14 @@
 #pragma once
 
 #include <pthread.h>
-#include "mqttClient.h"
+#include "../lib/mqtt/mqttClient.h"
 #include <deque>
 #include <mutex>
 #include <set>
 #include <map>
 #include <string>
 #include <memory>
-#include "fifo.h"
+#include "../lib/common/fifo.h"
 #include "message.h"
 #include "spdlog/spdlog.h"
 

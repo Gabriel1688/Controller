@@ -1,9 +1,3 @@
-/*
- * The Driver Station Library (LibDS)
- * Copyright (c) Lily Wang and other contributors.
- * Open Source Software; you can modify and/or share it under the terms of
- * the MIT license file in the root directory of this project.
- */
 
 #include <libwebsockets.h>
 #include <string.h>
@@ -17,8 +11,7 @@
 #include <memory>
 #include "agent.h"
 #include <chrono>
-#include "console.h"
-#include "wrapper.h"
+#include "../lib/mqtt/wrapper.h"
 
 using namespace spdlog;
 
@@ -28,30 +21,20 @@ int main(int argc, const char **argv)
     spdlog::warn("Easy padding in numbers like {:08d}", 12);
     spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR,SPDLOG_VER_PATCH);
     std::string mode;
-    std::string configFile = "../../config/config.txt";
+    //std::string configFile = "../../config/config.txt";
+    std::string configFile = "./config.txt";
     loadConfig(configFile,mode);
-    if (mode == "robot") 
-    {
-       spdlog::info("run as robot.");
-       client_create();
-       g_mqttClient_ptr->loadConfig(configFile);
-       g_mqttClient_ptr->Start();
 
-       std::shared_ptr<Console> console = std::make_shared<Console>();
-       console->setClient(g_mqttClient_ptr);
-       console->Start();
-       while(1) {
-           std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-       }
-    }
-    else 
-    {
-       spdlog::info("run as robot agent.");
-       std::shared_ptr<Agent> agent = std::make_shared<Agent>(configFile);
-       agent->Start();
-       while(1) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-       }
+    spdlog::info("run as robot.");
+    client_create();
+    g_mqttClient_ptr->loadConfig(configFile);
+    g_mqttClient_ptr->Start();
+
+//    std::shared_ptr<Console> console = std::make_shared<Console>();
+//    console->setClient(g_mqttClient_ptr);
+//    console->Start();
+    while(1) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 

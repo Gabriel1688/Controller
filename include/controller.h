@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "fifo.h"
+#include "../lib/common/fifo.h"
 #include "message.h"
 #include "spdlog/spdlog.h"
 

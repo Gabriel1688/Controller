@@ -288,8 +288,9 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss* pss)
                     elem = messages.front();
                     messages.erase(messages.begin());
                   }
-
-               pub_param.topic = const_cast<char*>(elem.first.c_str());
+               char* topic="hello_world";
+                  char payload[] ="";
+                  pub_param.topic = const_cast<char*>(elem.first.c_str());
                pub_param.topic_len = elem.first.length();
                pub_param.qos =QOS0;
                pub_param.payload_len = elem.second->length;
