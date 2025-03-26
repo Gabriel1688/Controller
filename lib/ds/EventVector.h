@@ -1,9 +1,9 @@
 #pragma once
 
 //#include "wpi/Synchronization.h"
-typedef unsigned int WPI_Handle;  // NOLINT
+typedef unsigned int WPI_Handle;
 /** An event handle. */
-typedef WPI_Handle WPI_EventHandle;  // NOLINT
+typedef WPI_Handle WPI_EventHandle;
 #include <mutex>
 #include <vector>
 #include <algorithm>
@@ -43,7 +43,7 @@ struct EventVector {
     void Wakeup() {
         std::scoped_lock lock{mutex};
         for (auto&& handle : events) {
-            //wpi::SetEvent(handle);
+            //GW::SetEvent(handle);
         }
     }
 };

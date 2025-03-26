@@ -40,6 +40,7 @@ extern "C" {
 namespace hal {
     extern void InitializeDriverStation();
 }
+HAL_Bool HAL_RefreshDSData(void) ;
 }
 struct Instance
 {
@@ -291,8 +292,7 @@ double DriverStation::GetBatteryVoltage() {
  * the data will be copied from the DS polling loop.
  */
 void DriverStation::RefreshData() {
-    //NOTE:: need to implement
-    // HAL_RefreshDSData();
+    HAL_RefreshDSData();
     auto& inst = ::GetInstance();
     {
         // Compute the pressed and released buttons
@@ -314,8 +314,7 @@ void DriverStation::RefreshData() {
         }
     }
 
-    //NOTE:: need to implement
-    // inst.refreshEvents.Wakeup();
+    inst.refreshEvents.Wakeup();
 }
 /*
 void DriverStation::ProvideRefreshedDataEventHandle(WPI_EventHandle handle) {

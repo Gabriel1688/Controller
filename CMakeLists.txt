@@ -42,7 +42,7 @@ add_executable(
         lib/framework/RobotBase.cpp
         lib/ds/DSControlWord.cpp
         lib/ds/FRCComm.cpp
-        lib/common/priority_queue.h
+        lib/motor/MotorController.cpp
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 

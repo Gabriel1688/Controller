@@ -238,6 +238,21 @@ HAL_Bool HAL_RefreshDSData(void) {
         // and a DS wasn't attached previously, this will still return
         // a zeroed out control word, with is the correct state for
         // no new data.
+
+        if (!controlWord.dsAttached) {
+            // If the DS is not attached, we need to zero out the control word.
+            // This is because HAL_RefreshDSData is called asynchronously from
+            // the DS data. The dsAttached variable comes directly from netcomm
+            // and could be updated before the caches are. If that happens,
+            // we would end up returning the previous cached control word,
+            // which is out of sync with the current control word and could
+            // break invariants such as which alliance station is in used.
+            // Also, when the DS has never been connected the rest of the fields
+            // in control word are garbage, so we also need to zero out in that
+            // case too
+            std::memset(&currentRead->controlWord, 0,
+                        sizeof(currentRead->controlWord));
+        }
         newestControlWord = currentRead->controlWord;
     }
     return prev != nullptr;
