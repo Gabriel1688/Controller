@@ -43,6 +43,8 @@ add_executable(
         lib/ds/DSControlWord.cpp
         lib/ds/FRCComm.cpp
         lib/motor/MotorController.cpp
+        lib/motor/CAN.cpp
+        lib/motor/CANAPI.cpp
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 
