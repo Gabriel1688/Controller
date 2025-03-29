@@ -19,7 +19,7 @@ bool TcpClient::connectTo(const std::string & address, int port) {
         return false;
     }
 
-    const int connectResult = connect(_sockfd.get() , (struct sockaddr *)&_server , sizeof(_server));
+    const int connectResult = connect(_sockfd , (struct sockaddr *)&_server , sizeof(_server));
     const bool connectionFailed = (connectResult == -1);
     if (connectionFailed) {
         std::cout << "client is already closed"<< strerror(errno) << std::endl;
@@ -63,7 +63,7 @@ void TcpClient::setAddress(const std::string& address, int port) {
 
 
 bool TcpClient::sendMsg(const char * msg, size_t size) {
-    const size_t numBytesSent = send(_sockfd.get(), msg, size, 0);
+    const size_t numBytesSent = send(_sockfd, msg, size, 0);
 
     if (numBytesSent < 0 ) { // send failed
 
@@ -106,7 +106,7 @@ void TcpClient::publishServerMsg(const char * msg, size_t msgSize) {
  * with IP address identical to the specific
  * observer requested IP
  */
-void TcpClient::publishServerDisconnected(const pipe_ret_t & ret) {
+void TcpClient::publishServerDisconnected(const std::string & ret) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
     for (const auto &subscriber : _subscibers) {
         if (subscriber.disconnectionHandler) {
@@ -173,7 +173,7 @@ bool TcpClient::close(){
     }
     terminateReceiveThread();
 
-    const bool closeFailed = (::close(_sockfd.get()) == -1);
+    const bool closeFailed = (::close(_sockfd) == -1);
     if (closeFailed) {
 
         std::cout << "client is already closed" << strerror(errno) << std::endl;
