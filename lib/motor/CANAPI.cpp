@@ -4,13 +4,63 @@
 #include <map>
 #include <string.h>
 #include "CAN.h"
+#include "TcpClient.h"
 
 #define HAL_HANDLE_ERROR -1098
 #define HAL_CAN_SEND_PERIOD_STOP_REPEATING -1
 #define HAL_CAN_SEND_PERIOD_NO_REPEAT 0
 #define HAL_CAN_IS_FRAME_REMOTE 0x80000000
 #define HAL_CAN_TIMEOUT -1154
+//https://github.com/wpilibsuite/frc-docs/blob/main/source/docs/software/can-devices/can-addressing.rst
+//https://github.com/wpilibsuite/frc-docs/blob/main/source/docs/software/can-devices/third-party-devices.rst
+//https://github.com/REVrobotics/node-can-bridge/blob/main/src/canWrapper.cc
+//https://github.com/REVrobotics/node-can-bridge/blob/main/test/test_binding.js
+//https://github.com/REVrobotics/MAXSwerve-Cpp-Template/blob/e0ae2fd0c2a55d9719087505cbec8be9fc4293bf/src/main/cpp/subsystems/MAXSwerveModule.cpp#L15
+//https://github.com/REVrobotics/MAXSwerve-Cpp-Template/blob/e0ae2fd0c2a55d9719087505cbec8be9fc4293bf/src/main/include/Configs.h#L10
 
+/*
+     : m_drivingSpark(drivingCANId, SparkMax::MotorType::kBrushless),
+      m_turningSpark(turningCANId, SparkMax::MotorType::kBrushless) {
+  // Apply the respective configurations to the SPARKS. Reset parameters before
+  // applying the configuration to bring the SPARK to a known good state.
+  // Persist the settings to the SPARK to avoid losing them on a power cycle.
+  m_drivingSpark.Configure(Configs::MAXSwerveModule::DrivingConfig(),
+                           SparkBase::ResetMode::kResetSafeParameters,
+                           SparkBase::PersistMode::kPersistParameters);
+  m_turningSpark.Configure(Configs::MAXSwerveModule::TurningConfig(),
+                           SparkBase::ResetMode::kResetSafeParameters,
+                           SparkBase::PersistMode::kPersistParameters);
+
+
+class MAXSwerveModule {
+ public:
+  static SparkMaxConfig& DrivingConfig() {
+    static SparkMaxConfig drivingConfig{};
+
+    // Use module constants to calculate conversion factors and feed forward
+    // gain.
+    double drivingFactor = ModuleConstants::kWheelDiameter.value() *
+                           std::numbers::pi /
+                           ModuleConstants::kDrivingMotorReduction;
+    double drivingVelocityFeedForward =
+        1 / ModuleConstants::kDriveWheelFreeSpeedRps;
+
+    drivingConfig.SetIdleMode(SparkBaseConfig::IdleMode::kBrake)
+        .SmartCurrentLimit(50);
+    drivingConfig.encoder
+        .PositionConversionFactor(drivingFactor)          // meters
+        .VelocityConversionFactor(drivingFactor / 60.0);  // meters per second
+    drivingConfig.closedLoop
+        .SetFeedbackSensor(ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder)
+        // These are example gains you may need to them for your own robot!
+        .Pid(0.04, 0, 0)
+        .VelocityFF(drivingVelocityFeedForward)
+        .OutputRange(-1, 1);
+
+    return drivingConfig;
+  }
+//https://github.com/frc3512/Robot-2022/blob/01407465389466b36ccae6731e987436331c4ef7/src/main/include/HWConfig.hpp#L79
+ * */
 namespace {
     struct Receives {
         uint64_t lastTimeStamp;
@@ -33,6 +83,7 @@ namespace {
 }  // namespace
 
 static std::map<HAL_CANHandle, std::shared_ptr<CANStorage> > *  canHandles;
+static TcpClient *  g_client;
 //static UnlimitedHandleResource<HAL_CANHandle, CANStorage, HAL_HandleEnum::CAN>*  canHandles;
 
 namespace hal {
@@ -40,9 +91,37 @@ namespace hal {
         void InitializeCANAPI() {
             static std::map<HAL_CANHandle , std::shared_ptr<CANStorage>>  cH;
             canHandles = &cH;
+
+
+            static TcpClient client;
+            g_client=&client;
+
+            //Connect to TCP server.
+            // configure and register observer
+            client_observer_t observer;
+            observer.wantedIP = "127.0.0.1";
+            observer.incomingPacketHandler = onIncomingMsg;
+            observer.disconnectionHandler = onDisconnection;
+            client.subscribe(observer);
+
+            // connect client to an open server
+            bool connected = false;
+            while (!connected) {
+                connected = client.connectTo("127.0.0.1", 65123);
+            }
         }
     }  // namespace init
 }  // namespace hal
+
+// observer callback. will be called for every new message received by the server
+static  void onIncomingMsg(const char * msg, size_t size) {
+    std::cout << "Got msg from server: " << msg << "\n";
+}
+
+// observer callback. will be called when server disconnects
+static  void onDisconnection(const std::string& ret) {
+    std::cout << "Server disconnected: " << ret << "\n";
+}
 
 static int32_t CreateCANId(CANStorage* storage, int32_t apiId) {
     int32_t createdId = 0;
@@ -128,6 +207,10 @@ void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t* st
 
     std::scoped_lock lock(can->periodicSendsMutex);
 //    HAL_CAN_SendMessage(id, nullptr, 0, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
+//   TODO::replace as below for send message.
+    std::string message;
+    std::cin >> message;
+    bool sendRet = g_client->sendMsg(message.c_str(), message.size());
     can->periodicSends[apiId] = -1;
 }
 

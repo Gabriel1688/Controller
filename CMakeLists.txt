@@ -45,6 +45,7 @@ add_executable(
         lib/motor/MotorController.cpp
         lib/motor/CAN.cpp
         lib/motor/CANAPI.cpp
+        lib/motor/TcpClient.cpp
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 

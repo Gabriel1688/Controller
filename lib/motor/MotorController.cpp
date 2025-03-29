@@ -1,7 +1,3 @@
-//
-// Created by Gabriel_Wang on 3/25/2025.
-//
-
 #include "MotorController.h"
 
 void MotorController::control(id_t id, float kp, float kd, float q, float dq, float tau)

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
 
 using  HAL_CANHandle = int32_t;
 //#ifdef __cplusplus
@@ -172,6 +173,12 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
                               uint8_t* data, int32_t* length,
                               uint64_t* receivedTimestamp, int32_t timeoutMs,
                               int32_t* status);
+
+// observer callback. will be called for every new message received by the server
+static  void onIncomingMsg(const char * msg, size_t size) ;
+
+// observer callback. will be called when server disconnects
+static  void onDisconnection(const std::string& ret) ;
 
 #ifdef __cplusplus
 }  // extern "C"
