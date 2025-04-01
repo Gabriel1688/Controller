@@ -46,6 +46,7 @@ add_executable(
         lib/motor/CAN.cpp
         lib/motor/CANAPI.cpp
         lib/motor/TcpClient.cpp
+        lib/common/TimerManager.cpp
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 
