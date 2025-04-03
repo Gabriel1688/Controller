@@ -23,7 +23,11 @@ HAL_CAN_Man_kBroadcast = 0,
 /// National Instruments.
 HAL_CAN_Man_kNI = 1,
 /// Luminary Micro.
-HAL_CAN_Man_kLM = 2
+HAL_CAN_Man_kLM = 2,
+/// Luminary Micro.
+HAL_CAN_Man_Dummy=3,
+/// Luminary Micro.
+HAL_CAN_Man_Dm=4
 };
 /**
  * @defgroup hal_canapi CAN API Functions

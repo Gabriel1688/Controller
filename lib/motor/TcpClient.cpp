@@ -47,22 +47,21 @@ bool TcpClient::connectTo(const std::string & address, int port) {
     return true;
 }
 
-bool TcpClient::sendMsg(const char * msg, size_t size) {
-    const size_t numBytesSent = send(_sockfd, msg, size, 0);
+void TcpClient::sendMsg(uint32_t messageID, const uint8_t* data, uint8_t dataSize, int32_t* status) {
+
+    //const char * msg, size_t size
+    //Need to build message based on the messageId/data.
+    const char * msg= nullptr;
+    const size_t numBytesSent = send(_sockfd, msg, dataSize, 0);
 
     if (numBytesSent < 0 ) { // send failed
-
         std::cout << "client is already closed"<<strerror(errno) << std::endl;
-        return false;
     }
-    if (numBytesSent < size) { // not all bytes were sent
+    if (numBytesSent < dataSize) { // not all bytes were sent
         char errorMsg[100];
-        sprintf(errorMsg, "Only %lu bytes out of %lu was sent to client", numBytesSent, size);
+        sprintf(errorMsg, "Only %lu bytes out of %lu was sent to client", numBytesSent, dataSize);
         std::cout << "client is already closed"<< errorMsg << std::endl;
-        return false;
-
     }
-    return true;
 }
 
 void TcpClient::subscribe(const int32_t deviceId, const client_observer_t & observer) {

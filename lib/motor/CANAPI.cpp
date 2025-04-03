@@ -97,14 +97,6 @@ namespace hal {
             g_client=&client;
 
             //Connect to TCP server.
-            // configure and register observer
-            client_observer_t observer;
-            observer.wantedIP = "127.0.0.1";
-            observer.incomingPacketHandler = onIncomingMsg;
-            observer.disconnectionHandler = onDisconnection;
-            client.subscribe(observer);
-
-            // connect client to an open server
             bool connected = false;
             while (!connected) {
                 connected = client.connectTo("127.0.0.1", 65123);
@@ -125,10 +117,22 @@ static  void onDisconnection(const std::string& ret) {
 
 static int32_t CreateCANId(CANStorage* storage, int32_t apiId) {
     int32_t createdId = 0;
-    createdId |= (static_cast<int32_t>(storage->deviceType) & 0x1F) << 24;
-    createdId |= (static_cast<int32_t>(storage->manufacturer) & 0xFF) << 16;
-    createdId |= (apiId & 0x3FF) << 6;
-    createdId |= (storage->deviceId & 0x3F);
+    //Note:: Need to create Dummy / Dm CAN ID.
+    switch (storage->manufacturer) {
+
+        case HAL_CAN_Man_Dummy: //Dummy can FrameID
+            createdId |= (static_cast<int32_t>(storage->deviceType) & 0x1F) << 24;
+            createdId |= (static_cast<int32_t>(storage->manufacturer) & 0xFF) << 16;
+            createdId |= (apiId & 0x3FF) << 6;
+            createdId |= (storage->deviceId & 0x3F);
+            break;
+        case HAL_CAN_Man_Dm:   //DmBot can FrameID
+            createdId |= (static_cast<int32_t>(storage->deviceType) & 0x1F) << 24;
+            createdId |= (static_cast<int32_t>(storage->manufacturer) & 0xFF) << 16;
+            createdId |= (apiId & 0x3FF) << 6;
+            createdId |= (storage->deviceId & 0x3F);
+            break;
+    }
     return createdId;
 }
 
@@ -145,6 +149,13 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
     can->deviceId = deviceId;
     can->deviceType = deviceType;
     can->manufacturer = manufacturer;
+
+    // configure and register observer
+    client_observer_t observer;
+    observer.wantedIP = "127.0.0.1";
+    observer.incomingPacketHandler = onIncomingMsg;
+    observer.disconnectionHandler = onDisconnection;
+    g_client->subscribe(deviceId, observer);
 
     return handle;
 }
@@ -173,18 +184,19 @@ void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t* data, int32_t lengt
     auto id = CreateCANId(can.get(), apiId);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-//    HAL_CAN_SendMessage(id, data, length, HAL_CAN_SEND_PERIOD_NO_REPEAT, status);
+    g_client->sendMsg(id, data, length, status);
     can->periodicSends[apiId] = -1;
 }
 
 void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
                                  int32_t length, int32_t apiId,
                                  int32_t repeatMs, int32_t* status) {
+    //How to send the heartbeat message, get the current/velocity/position/offset.
     auto can = canHandles->find(handle)->second;
     auto id = CreateCANId(can.get(), apiId);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-//    HAL_CAN_SendMessage(id, data, length, repeatMs, status);
+    g_client->sendMsg(id, data, length, status);
     can->periodicSends[apiId] = repeatMs;
 }
 
@@ -194,11 +206,31 @@ void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t* st
     auto id = CreateCANId(can.get(), apiId);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-//    HAL_CAN_SendMessage(id, nullptr, 0, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
-//   TODO::replace as below for send message.
-    std::string message;
-    std::cin >> message;
-    bool sendRet = g_client->sendMsg(message.c_str(), message.size());
+    g_client->sendMsg(id, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING,status);
     can->periodicSends[apiId] = -1;
+}
+
+void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
+                          int32_t* length, uint64_t* receivedTimestamp,
+                          int32_t* status) {
+    auto can = canHandles->find(handle)->second;
+
+    uint32_t messageId = CreateCANId(can.get(), apiId);
+    uint8_t dataSize = 0;
+    uint32_t ts = 0;
+    //Note:: need to work in the async mode rather than sync mode.
+    //How to store the incoming data to receives?
+    g_client->sendMsg(messageId, 0x1FFFFFFF, HAL_CAN_SEND_PERIOD_STOP_REPEATING,status);
+
+    if (*status == 0) {
+        std::scoped_lock lock(can->receivesMutex);
+        auto& msg = can->receives[messageId];
+        msg.length = dataSize;
+        msg.lastTimeStamp = ts;
+        // The NetComm call placed in data, copy into the msg
+        memcpy(msg.data, data, dataSize);
+    }
+    *length = dataSize;
+    *receivedTimestamp = ts;
 }
 }  // extern "C"

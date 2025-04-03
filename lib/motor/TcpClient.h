@@ -45,7 +45,18 @@ public:
     TcpClient();
     ~TcpClient();
     bool connectTo(const std::string & address, int port);
-    bool sendMsg(const char * msg, size_t size);
+
+    /**
+ * Sends a CAN message.
+ *
+ * @param[in] messageID the CAN ID to send
+ * @param[in] data      the data to send (0-8 bytes)
+ * @param[in] dataSize  the size of the data to send (0-8 bytes)
+ * @param[out] status    Error status variable. 0 on success.
+ */
+    void sendMsg(uint32_t messageID, const uint8_t* data,
+                 uint8_t dataSize, int32_t* status);
+
 
     void subscribe(const int32_t deviceId, const client_observer_t & observer);
     bool isConnected() const { return _isConnected; }
