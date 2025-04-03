@@ -18,6 +18,7 @@
 #include <atomic>
 #include <string>
 #include <functional>
+#include <map>
 
 struct client_observer_t {
     std::string wantedIP = "";
@@ -32,17 +33,13 @@ private:
     std::atomic<bool> _isConnected;
     std::atomic<bool> _isClosed;
     struct sockaddr_in _server;
-    std::vector<client_observer_t> _subscibers;
+    std::map<int32_t, client_observer_t> _subscribers;
     std::thread * _receiveTask = nullptr;
     std::mutex _subscribersMtx;
 
-    void initializeSocket();
-    void startReceivingMessages();
-    void setAddress(const std::string& address, int port);
     void publishServerMsg(const char * msg, size_t msgSize);
     void publishServerDisconnected(const std::string& ret);
     void receiveTask();
-    void terminateReceiveThread();
 
 public:
     TcpClient();
@@ -50,7 +47,7 @@ public:
     bool connectTo(const std::string & address, int port);
     bool sendMsg(const char * msg, size_t size);
 
-    void subscribe(const client_observer_t & observer);
+    void subscribe(const int32_t deviceId, const client_observer_t & observer);
     bool isConnected() const { return _isConnected; }
     bool close();
 };

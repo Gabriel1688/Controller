@@ -188,18 +188,6 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
     can->periodicSends[apiId] = repeatMs;
 }
 
-void HAL_WriteCANRTRFrame(HAL_CANHandle handle, int32_t length, int32_t apiId, int32_t* status) {
-    auto can = canHandles->find(handle)->second;
-    auto id = CreateCANId(can.get(), apiId);
-    id |= HAL_CAN_IS_FRAME_REMOTE;
-    uint8_t data[8];
-    memset(data, 0, sizeof(data));
-
-    std::scoped_lock lock(can->periodicSendsMutex);
-//    HAL_CAN_SendMessage(id, data, length, HAL_CAN_SEND_PERIOD_NO_REPEAT, status);
-    can->periodicSends[apiId] = -1;
-}
-
 void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t* status) {
     auto can = canHandles->find(handle)->second;
 
@@ -213,97 +201,4 @@ void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t* st
     bool sendRet = g_client->sendMsg(message.c_str(), message.size());
     can->periodicSends[apiId] = -1;
 }
-
-void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
-                          int32_t* length, uint64_t* receivedTimestamp,
-                          int32_t* status) {
-    auto can = canHandles->find(handle)->second;
-
-    uint32_t messageId = CreateCANId(can.get(), apiId);
-    uint8_t dataSize = 0;
-    uint32_t ts = 0;
-    //HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
-
-    if (*status == 0) {
-        std::scoped_lock lock(can->receivesMutex);
-        auto& msg = can->receives[messageId];
-        msg.length = dataSize;
-        msg.lastTimeStamp = ts;
-        // The NetComm call placed in data, copy into the msg
-        memcpy(msg.data, data, dataSize);
-    }
-    *length = dataSize;
-    *receivedTimestamp = ts;
-}
-
-void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
-                             int32_t* length, uint64_t* receivedTimestamp,
-                             int32_t* status) {
-    auto can = canHandles->find(handle)->second;
-
-    uint32_t messageId = CreateCANId(can.get(), apiId);
-    uint8_t dataSize = 0;
-    uint32_t ts = 0;
-    //HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
-
-    std::scoped_lock lock(can->receivesMutex);
-    if (*status == 0) {
-        // fresh update
-        auto& msg = can->receives[messageId];
-        msg.length = dataSize;
-        *length = dataSize;
-        msg.lastTimeStamp = ts;
-        *receivedTimestamp = ts;
-        // The NetComm call placed in data, copy into the msg
-        memcpy(msg.data, data, dataSize);
-    } else {
-        auto i = can->receives.find(messageId);
-        if (i != can->receives.end()) {
-            // Read the data from the stored message into the output
-            memcpy(data, i->second.data, i->second.length);
-            *length = i->second.length;
-            *receivedTimestamp = i->second.lastTimeStamp;
-            *status = 0;
-        }
-    }
-}
-
-void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
-                              uint8_t* data, int32_t* length,
-                              uint64_t* receivedTimestamp, int32_t timeoutMs,
-                              int32_t* status) {
-    auto can = canHandles->find(handle)->second;
-
-    uint32_t messageId = CreateCANId(can.get(), apiId);
-    uint8_t dataSize = 0;
-    uint32_t ts = 0;
-    //HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
-
-    std::scoped_lock lock(can->receivesMutex);
-    if (*status == 0) {
-        // fresh update
-        auto& msg = can->receives[messageId];
-        msg.length = dataSize;
-        *length = dataSize;
-        msg.lastTimeStamp = ts;
-        *receivedTimestamp = ts;
-        // The NetComm call placed in data, copy into the msg
-        memcpy(msg.data, data, dataSize);
-    } else {
-        auto i = can->receives.find(messageId);
-        if (i != can->receives.end()) {
-            // Found, check if new enough
-//            uint32_t now = HAL_GetCANPacketBaseTime();
-//            if (now - i->second.lastTimeStamp > static_cast<uint32_t>(timeoutMs)) {
-                // Timeout, return bad status
-//                *status = HAL_CAN_TIMEOUT;
-//                return;
-            }
-            // Read the data from the stored message into the output
-            memcpy(data, i->second.data, i->second.length);
-            *length = i->second.length;
-            *receivedTimestamp = i->second.lastTimeStamp;
-            *status = 0;
-        }
-    }
 }  // extern "C"

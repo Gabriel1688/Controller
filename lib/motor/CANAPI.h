@@ -6,11 +6,7 @@
 
 #include <stdint.h>
 #include <string>
-
 using  HAL_CANHandle = int32_t;
-//#ifdef __cplusplus
-#define HAL_ENUM(name) enum name : int32_t;
-//#endif
 
 enum HAL_CANDeviceType:  int32_t {
         /// Broadcast.
@@ -95,21 +91,6 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
                                  int32_t repeatMs, int32_t* status);
 
 /**
- * Writes an RTR frame of the specified length to the CAN device with the
- * specific ID.
- *
- * By spec, the length must be equal to the length sent by the other device,
- * otherwise behavior is unspecified.
- *
- * @param[in] handle   the CAN handle
- * @param[in] length   the length of data to request (0-8)
- * @param[in] apiId    the ID to write (0-1023)
- * @param[out] status  Error status variable. 0 on success.
- */
-void HAL_WriteCANRTRFrame(HAL_CANHandle handle, int32_t length, int32_t apiId,
-                          int32_t* status);
-
-/**
  * Stops a repeating packet with a specific ID.
  *
  * This ID is 10 bits.
@@ -139,40 +120,6 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
                           int32_t* length, uint64_t* receivedTimestamp,
                           int32_t* status);
 
-/**
- * Reads a CAN packet. The will continuously return the last packet received,
- * without accounting for packet age.
- *
- * @param[in] handle             the CAN handle
- * @param[in] apiId              the ID to read (0-1023)
- * @param[out] data              the packet data (8 bytes)
- * @param[out] length            the received length (0-8 bytes)
- * @param[out] receivedTimestamp the packet received timestamp in ms (based off
- *                               of CLOCK_MONOTONIC)
- * @param[out] status            Error status variable. 0 on success.
- */
-void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
-                             int32_t* length, uint64_t* receivedTimestamp,
-                             int32_t* status);
-
-/**
- * Reads a CAN packet. The will return the last packet received until the
- * packet is older then the requested timeout. Then it will return an error
- * code.
- *
- * @param[in] handle             the CAN handle
- * @param[in] apiId              the ID to read (0-1023)
- * @param[out] data              the packet data (8 bytes)
- * @param[out] length            the received length (0-8 bytes)
- * @param[out] receivedTimestamp the packet received timestamp in ms (based off
- *                               of CLOCK_MONOTONIC)
- * @param[out] timeoutMs         the timeout time for the packet
- * @param[out] status            Error status variable. 0 on success.
- */
-void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
-                              uint8_t* data, int32_t* length,
-                              uint64_t* receivedTimestamp, int32_t timeoutMs,
-                              int32_t* status);
 
 // observer callback. will be called for every new message received by the server
 static  void onIncomingMsg(const char * msg, size_t size) ;
