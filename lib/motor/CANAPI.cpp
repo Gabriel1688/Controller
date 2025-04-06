@@ -220,7 +220,7 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
     uint32_t ts = 0;
     //Note:: need to work in the async mode rather than sync mode.
     //How to store the incoming data to receives?
-    g_client->sendMsg(messageId, 0x1FFFFFFF, HAL_CAN_SEND_PERIOD_STOP_REPEATING,status);
+    g_client->sendMsg(messageId, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING,status);
 
     if (*status == 0) {
         std::scoped_lock lock(can->receivesMutex);
