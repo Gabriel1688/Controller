@@ -263,16 +263,15 @@ bool DriverStation::IsDSAttached() {
 
 bool DriverStation::WaitForDsConnection(int timeout) {
     bool result = false;
-//    wpi::Event event{true, false};
-//    HAL_ProvideNewDataEventHandle(event.GetHandle());
-//    bool result = false;
-//    if (timeout == 0_s) {
-//        result = wpi::WaitForObject(event.GetHandle());
-//    } else {
-//        result = wpi::WaitForObject(event.GetHandle(), timeout.value(), nullptr);
-//    }
-//
-//    HAL_RemoveNewDataEventHandle(event.GetHandle());
+    wpi::Event event{true, false};
+    HAL_ProvideNewDataEventHandle(event.GetHandle());
+    if (timeout == 0) {
+        result = wpi::WaitForObject(event.GetHandle());
+    } else {
+        result = wpi::WaitForObject(event.GetHandle(), timeout, nullptr);
+    }
+
+    HAL_RemoveNewDataEventHandle(event.GetHandle());
     return result;
 }
 
@@ -316,7 +315,7 @@ void DriverStation::RefreshData() {
 
     inst.refreshEvents.Wakeup();
 }
-/*
+
 void DriverStation::ProvideRefreshedDataEventHandle(WPI_EventHandle handle) {
     auto& inst = ::GetInstance();
     inst.refreshEvents.Add(handle);
@@ -326,4 +325,3 @@ void DriverStation::RemoveRefreshedDataEventHandle(WPI_EventHandle handle) {
     auto& inst = ::GetInstance();
     inst.refreshEvents.Remove(handle);
 }
-*/

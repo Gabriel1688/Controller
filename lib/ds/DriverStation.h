@@ -3,14 +3,13 @@
 #include <string>
 #include "DriverStationTypes.h"
 typedef int32_t HAL_Bool;
-//#include <wpi/Synchronization.h>
+#include "../common/Synchronization.h"
 
 /**
  * Refresh the DS control word.
  *
  * @return true if updated
  */
-//HAL_Bool HAL_RefreshDSData(void);
 
 void InitializeDriverStation();
 
@@ -106,6 +105,28 @@ void HAL_GetJoystickName(struct WPI_String* name, int32_t joystickNum);
  * @return the enumerated axis type
  */
 int32_t HAL_GetJoystickAxisType(int32_t joystickNum, int32_t axis);
+
+/**
+ * Refresh the DS control word.
+ *
+ * @return true if updated
+ */
+HAL_Bool HAL_RefreshDSData(void);
+
+/**
+ * Adds an event handle to be signalled when new data arrives.
+ *
+ * @param handle the event handle to be signalled
+ */
+void HAL_ProvideNewDataEventHandle(WPI_EventHandle handle);
+
+/**
+ * Removes the event handle from being signalled when new data arrives.
+ *
+ * @param handle the event handle to remove
+ */
+void HAL_RemoveNewDataEventHandle(WPI_EventHandle handle);
+
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -360,14 +381,14 @@ class DriverStation final {
       *
       * @param handle The event handle.
       */
-//    static void ProvideRefreshedDataEventHandle(WPI_EventHandle handle);
+    static void ProvideRefreshedDataEventHandle(WPI_EventHandle handle);
 
     /**
       * Unregisters the given handle from DS data refresh notifications.
       *
       * @param handle The event handle.
       */
-//    static void RemoveRefreshedDataEventHandle(WPI_EventHandle handle);
+    static void RemoveRefreshedDataEventHandle(WPI_EventHandle handle);
 
     /**
       * Starts logging DriverStation data to data log. Repeated calls are ignored.

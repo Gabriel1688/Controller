@@ -47,8 +47,8 @@ add_executable(
         lib/motor/CANAPI.cpp
         lib/motor/TcpClient.cpp
         lib/common/TimerManager.cpp
-        lib/motor/CtrlStepMotor.cpp
-        lib/motor/CtrlStepMotor.h
+        lib/common/Synchronization.cpp
+        #        lib/motor/CtrlStepMotor.cpp
 )
 #cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 

@@ -21,8 +21,8 @@ void client_create()
 {
 	wrapper  = (struct wrapper *)malloc(sizeof(*wrapper));
 	mqttClient* instance = new mqttClient();
-        g_mqttClient_ptr = instance;
-        wrapper->client = instance;
+    g_mqttClient_ptr = instance;
+    wrapper->client = instance;
 }
 
 void client_destroy()
@@ -31,7 +31,7 @@ void client_destroy()
 		return;
 	mqttClient* instance = static_cast< mqttClient *>(wrapper->client);
 	delete instance;
-        g_mqttClient_ptr = NULL;
+    g_mqttClient_ptr = NULL;
 	free(wrapper);
 }
 

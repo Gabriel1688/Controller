@@ -1,6 +1,5 @@
 #include "GenericHID.h"
 #include <string>
-//#include <hal/DriverStation.h>
 #include "DriverStation.h"
 #include "BooleanEvent.h"
 
@@ -119,30 +118,3 @@ int GenericHID::GetAxisType(int axis) const {
 int GenericHID::GetPort() const {
     return m_port;
 }
-/*
-void GenericHID::SetOutput(int outputNumber, bool value) {
-    m_outputs =  (m_outputs & ~(1 << (outputNumber - 1))) | (value << (outputNumber - 1));
-    HAL_SetJoystickOutputs(m_port, m_outputs, m_leftRumble, m_rightRumble);
-}
-
-void GenericHID::SetOutputs(int value) {
-    m_outputs = value;
-    HAL_SetJoystickOutputs(m_port, m_outputs, m_leftRumble, m_rightRumble);
-}
-
-void GenericHID::SetRumble(RumbleType type, double value) {
-    value = std::clamp(value, 0.0, 1.0);  //Clamps a variable to a given range[high – low]
-    double rumbleValue = value * 65535;
-
-    if (type == kLeftRumble) {
-        m_leftRumble = rumbleValue;
-    } else if (type == kRightRumble) {
-        m_rightRumble = rumbleValue;
-    } else {
-        m_leftRumble = rumbleValue;
-        m_rightRumble = rumbleValue;
-    }
-
-    HAL_SetJoystickOutputs(m_port, m_outputs, m_leftRumble, m_rightRumble);
-}
-*/

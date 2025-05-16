@@ -13,8 +13,8 @@
 #include <chrono>
 #include "../lib/mqtt/wrapper.h"
 
-#include "../lib/ds/XboxController.h"
 #include "../lib/ds/GenericHID.h"
+#include "../lib/ds/XboxController.h"
 #include "../lib/framework/TimedRobot.h"
 #include "../lib/ds/EventLoop.h"
 #include "../lib/ds/BooleanEvent.h"
@@ -23,13 +23,12 @@
 
 using namespace spdlog;
 
-static const auto SHOT_VELOCITY = 200;//200_rpm;
-static const auto TOLERANCE = 8; // 8_rpm;
-static const auto KICKER_THRESHOLD = 15; // 15_mm;
+static const auto SHOT_VELOCITY = 200;    //200_rpm;
+static const auto TOLERANCE = 8;          // 8_rpm;
+static const auto KICKER_THRESHOLD = 15;  // 15_mm;
 
 class Robot : public TimedRobot {
 public:
-    //Robot() {};
     void AutonomousPeriodic() override {
         DriveWithJoystick(false);
     }
@@ -75,7 +74,6 @@ public:
 
 private:
     EventLoop m_loop{};
-    MotorController m_motorController;
     XboxController m_controller{0};
     GenericHID m_joystick{0};
 };

@@ -1,6 +1,3 @@
-//
-// Created by Gabriel_Wang on 3/24/2025.
-//
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -87,15 +84,6 @@
          * @return True if the DS is connected to the robot
          */
         bool IsDSAttached() const;
-
-        /**
-         * Is the driver station attached to a Field Management System?
-         *
-         * @return True if the robot is competing on a field being controlled by a
-         *         Field Management System
-         */
-        bool IsFMSAttached() const;
-
     private:
         HAL_ControlWord m_controlWord;
     };

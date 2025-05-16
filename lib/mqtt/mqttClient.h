@@ -188,7 +188,9 @@ public:
         {
             agent = p_agent;
         }
-
+        void SetOccurFuncPointer( void (*dataOccurHandler)(const void* payload, uint32_t payload_len)){
+            newDataOccurHandler=dataOccurHandler;
+        }
         struct lws* getWsiInstance( std::string& componentName);
 
         void AsyncResult( std::string& result);
@@ -207,8 +209,9 @@ public:
         std::string address;
         std::string port;
         std::string host;
-   
-	struct lws_context *context;
+        int32_t refNumber;
+
+    struct lws_context *context;
       
         lws_mqtt_subscribe_param_t sub_param;
         lws_mqtt_publish_param_t   pub_param;
@@ -226,5 +229,5 @@ public:
         std::mutex  wsiMapMutex;
         Agent* agent;
         std::mutex mqttMutex;
-
+        void (*newDataOccurHandler)(const void* payload, uint32_t payload_len);
 };

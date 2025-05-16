@@ -471,5 +471,4 @@ public:
         /// Right trigger.
         static constexpr int kRightTrigger = 3;
     };
-//    void InitSendable(wpi::SendableBuilder& builder) override;
 };

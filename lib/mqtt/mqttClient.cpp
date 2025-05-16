@@ -391,7 +391,7 @@ int mqttClient::callback( struct lws *wsi,  enum lws_callback_reasons reason,  v
 
 	return 0;
 }
-        
+
 void mqttClient::processMessage(void* in, size_t len, struct lws* wsi)
 {
       lws_mqtt_publish_param_t* pub_param = (lws_mqtt_publish_param_t *)in;
@@ -399,20 +399,20 @@ void mqttClient::processMessage(void* in, size_t len, struct lws* wsi)
 
       lwsl_hexdump_notice(pub_param->topic, pub_param->topic_len);
       lwsl_hexdump_notice(pub_param->payload, pub_param->payload_len);
-      
-      unsigned char phoneNumber[]={1,3,9,1,1,2,9,5,4,6,7};
-      MESSAGE msg = {0};
-      msg.sid=0x1;
-      msg.did=0x2;
-      msg.length = sizeof(phoneNumber)/sizeof(phoneNumber[0]);
-      msg.type = SMM_OutGoingRequest;
-      memcpy(msg.Union.smm_OutGoingRequest.PhoneNumber,phoneNumber,sizeof(phoneNumber)/sizeof(phoneNumber[0]));
-      std::shared_ptr<MESSAGE> message = std::make_shared<MESSAGE>(msg);
-
-      TCallback callback = std::bind<>(&mqttClient::AsyncResult, this, std::placeholders::_1);
-      agent->Message(message,callback);
+      if("FRC_ROBOT" == pub_param->topic) {
+          newDataOccurHandler(pub_param->payload, pub_param->payload_len);
+      }
 }
-
+/*
+ * Generates a packet that the DS will send to the robot, it contains the
+ * following information:
+ *    - Packet index / ID
+ *    - Control code (control modes, e-stop state, etc)
+ *    - Request code (robot reboot, restart code, normal operation, etc)
+ *    - Team station (alliance & position)
+ *    - Date and time data (if robot requests it)
+ *    - Joystick information (if the robot does not want date/time)
+ */
 void mqttClient::AsyncResult( std::string& result) 
 {
       spdlog::info("AsyncResult is [{}]",result);

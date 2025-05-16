@@ -1,16 +1,17 @@
 #pragma once
 #include <chrono>
-//#include <thread>
 #include <pthread.h>
 #include "../ds/DriverStation.h"
-//#include <hal/DriverStation.h>
-//#include <hal/HALBase.h>
-//#include <hal/Main.h>
-//#include <networktables/NetworkTable.h>
-//#include <wpi/RuntimeCheck.h>
 #include <condition_variable>
 #include <mutex>
 #include <string>
+
+void InitializeHAL();
+extern "C" {
+namespace hal {
+    void InitializeDriverStation();
+}
+}
 
 template <class Robot>
 void RunRobot(std::mutex& m, Robot** robot) {
@@ -24,34 +25,13 @@ void RunRobot(std::mutex& m, Robot** robot) {
 
 template <class Robot>
 int StartRobot() {
-
-//    RunHALInitialization();
-
     static std::mutex m;
-    static std::condition_variable cv;
     static Robot* robot = nullptr;
-    static bool exited = false;
-
+    InitializeHAL();
+    hal::InitializeDriverStation();
     RunRobot<Robot>(m, &robot);
-
-//    frc::impl::ResetMotorSafety();
-
-//    HAL_Shutdown();
-
     return 0;
 }
-//namespace frc::impl {
-//    void ResetMotorSafety() {
-////        auto& manager = GetManager();
-////        std::scoped_lock lock(manager.listMutex);
-////        manager.instanceList.clear();
-////        manager.thread.Stop();
-////        manager.thread.Join();
-////        manager.thread = wpi::SafeThreadOwner<Thread>{};
-////        manager.threadStarted = false;
-//    }
-//}  // namespace frc::impl
-//int RunHALInitialization();
 
 /**
  * Implement a Robot Program framework. The RobotBase class is intended to be

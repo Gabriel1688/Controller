@@ -1,7 +1,6 @@
 #include "DSControlWord.h"
 #include "DriverStation.h"
 
-
 DSControlWord::DSControlWord() {
     HAL_GetControlWord(&m_controlWord);
 }
@@ -42,8 +41,4 @@ bool DSControlWord::IsTest() const {
 
 bool DSControlWord::IsDSAttached() const {
     return m_controlWord.dsAttached;
-}
-
-bool DSControlWord::IsFMSAttached() const {
-    return m_controlWord.fmsAttached;
 }

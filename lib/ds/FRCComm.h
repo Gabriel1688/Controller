@@ -1,15 +1,3 @@
-/*************************************************************
- * 					NOTICE
- *
- * 	These are the only externally exposed functions to the
- *   NetworkCommunication library
- *
- * This is an implementation of FRC Spec for Comm Protocol
- * Revision 4.5, June 30, 2008
- *
- * Copyright (c) National Instruments 2008.  All Rights Reserved.
- *
- *************************************************************/
 #pragma  once
 
 #include <stdint.h>
@@ -73,9 +61,6 @@ struct JoystickPOV_t
 extern "C"
 {
 #endif
-int  FRC_NetworkCommunication_Reserve(void* instance);
-void  getFPGAHardwareVersion(uint16_t* fpgaVersion, uint32_t* fpgaRevision);
-void  FRC_NetworkCommunication_getFPGAFileName(char* fileName);
 
 /**
  * Send a console output line to the Driver Station
@@ -110,19 +95,6 @@ int  FRC_NetworkCommunication_getJoystickButtons(uint8_t joystickNum, uint32_t* 
 int  FRC_NetworkCommunication_getJoystickPOVs(uint8_t joystickNum, struct JoystickPOV_t* povs, uint8_t maxPOVs); // Low-latency
 int  FRC_NetworkCommunication_setJoystickOutputs(uint8_t joystickNum, uint32_t hidOutputs, uint16_t leftRumble, uint16_t rightRumble);
 int  FRC_NetworkCommunication_getJoystickDesc(uint8_t joystickNum, uint8_t* isXBox, uint8_t* type, char* name, uint8_t* axisCount, uint8_t* axisTypes, uint8_t* buttonCount, uint8_t* povCount);
-int  FRC_NetworkCommunication_getPDPType(uint8_t* pdpType);
-int  FRC_NetworkCommunication_getTimeWasSet(uint8_t* timeWasSet);
-
-int  FRC_NetworkCommunication_getWatchdogActive(void); // Low-latency
-int  FRC_NetworkCommunication_getAllianceStation(enum AllianceStationID_t* allianceStation); // Low-latency
-int  FRC_NetworkCommunication_getMatchInfo(char* eventName, enum MatchType_t* matchType, uint16_t* matchNumber, uint8_t* replayNumber, uint8_t* gameSpecificMessage, uint16_t* gameSpecificMessageSize);
-int  FRC_NetworkCommunication_getMatchTime(float* matchTime); // Low-latency
-int  FRC_NetworkCommunication_observeUserProgramStarting(void);
-void  FRC_NetworkCommunication_getVersionString(char* version);
-void  FRC_NetworkCommunication_observeUserProgramDisabled(void);
-void  FRC_NetworkCommunication_observeUserProgramAutonomous(void);
-void  FRC_NetworkCommunication_observeUserProgramTeleop(void);
-void  FRC_NetworkCommunication_observeUserProgramTest(void);
 #ifdef __cplusplus
 }
 #endif
