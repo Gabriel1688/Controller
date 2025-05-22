@@ -48,7 +48,6 @@ add_executable(
         lib/framework/IterativeRobotBase.cpp
         lib/framework/RobotBase.cpp
 
-        lib/motor/MotorController.cpp
         lib/motor/CAN.cpp
         lib/motor/CANAPI.cpp
         lib/motor/TcpClient.cpp
