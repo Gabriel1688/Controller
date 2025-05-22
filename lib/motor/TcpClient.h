@@ -18,9 +18,11 @@
 #include <atomic>
 #include <string>
 #include <functional>
+#include <pthread.h>
 #include <map>
 #include "CANAPI.h"
 
+#pragma pack(1)
 struct CANFrame
 {
     uint8_t FrameHeader = 0x08;                // 0：标准帧 0： 数据帧, DLC = xx;
@@ -32,10 +34,11 @@ struct CANFrame
         std::copy(send_data, send_data+dataSize, data);
     }
 };
+#pragma pack()
 
 struct client_observer_t {
     std::string wantedIP = "";
-    std::function<void(const char * msg, size_t size)> incomingPacketHandler = nullptr;
+    std::function<void(const uint8_t * msg, size_t size)> incomingPacketHandler = nullptr;
     std::function<void(const std::string & ret)> disconnectionHandler = nullptr;
 };
 
@@ -49,18 +52,21 @@ private:
     std::map<int32_t, client_observer_t> _subscribers;
     std::thread * _receiveTask = nullptr;
     std::mutex _subscribersMtx;
+    pthread_t thread_id;
 
     std::mutex frameIdsMutex;
     std::map<int32_t, HAL_CANHandle> _frameIds;  // keep the reply frameId and handle of device.
     std::map<HAL_CANHandle, std::shared_ptr<CANStorage> > *  canHandles;
 
-    void publishServerMsg(const char * msg, size_t msgSize);
+    void publishServerMsg(const uint8_t * msg, size_t msgSize);
     void publishServerDisconnected(const std::string& ret);
-    void receiveTask();
+    void run();
+    static void* EntryOfThread(void* argv);
 
 public:
     TcpClient();
     ~TcpClient();
+    void Start();
     bool connectTo(const std::string & address, int port);
 
     /**

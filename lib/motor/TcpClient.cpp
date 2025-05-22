@@ -1,3 +1,5 @@
+#include <fcntl.h>
+#include <sys/epoll.h>
 #include "TcpClient.h"
 #define MAX_PACKET_SIZE 4096
 
@@ -8,6 +10,19 @@ TcpClient::TcpClient() {
 
 TcpClient::~TcpClient() {
     close();
+}
+
+void TcpClient::Start() {
+    if(pthread_create(&thread_id, nullptr, EntryOfThread,this) != 0) {
+    }
+}
+
+/*static*/
+void* TcpClient::EntryOfThread(void* argv)
+{
+    TcpClient* client = static_cast<TcpClient*>(argv);
+    client->run();
+    return (void*) client;
 }
 
 bool TcpClient::connectTo(const std::string & address, int port) {
@@ -39,8 +54,6 @@ bool TcpClient::connectTo(const std::string & address, int port) {
         std::cout << "client is already closed"<< strerror(errno) << std::endl;
         return false;
     }
-
-    _receiveTask = new std::thread(&TcpClient::receiveTask, this);
     _isConnected = true;
     _isClosed = false;
 
@@ -68,7 +81,7 @@ void TcpClient::sendMsg(CANFrameId frameId, const uint8_t* data, uint8_t dataSiz
 
     CANFrame frame;
     frame.modify(frameId.forwardCANId, data, dataSize);
-    const size_t numBytesSent = send(_sockfd, (uint8_t*)&frame, dataSize, 0);
+    const size_t numBytesSent = send(_sockfd, (uint8_t*)&frame, 5 + dataSize , 0);
 
     //Add reply frameId/handle to map for receiving reply.
     {
@@ -100,21 +113,21 @@ void TcpClient::subscribe(const int32_t deviceId, const client_observer_t & obse
  * from clients with IP address identical to
  * the specific observer requested IP
  */
-void TcpClient::publishServerMsg(const char * msg, size_t msgSize) {
-    std::lock_guard<std::mutex> lock(_subscribersMtx);
-    const int32_t deviceId = msg[0];
-    std::map<int32_t, client_observer_t>::iterator itmap = _subscribers.find(deviceId);
-    if(itmap != _subscribers.end()) {
-        itmap->second.incomingPacketHandler(msg,msgSize);
-    }
+void TcpClient::publishServerMsg(const uint8_t * msg, size_t msgSize) {
+    //std::lock_guard<std::mutex> lock(_subscribersMtx);
     CANFrame* frame = (CANFrame*)msg;
     //Get handle of message and wake up it.
     {
+        auto FrameId = __builtin_bswap32(frame->FrameId);
         std::scoped_lock lock(frameIdsMutex);
-        auto itmap = _frameIds.find(frame->FrameId);
+        auto itmap = _frameIds.find(FrameId);
         if ( itmap != _frameIds.end())
         {
             auto can = canHandles->find(itmap->second)->second;
+            auto subscriber = _subscribers.find(can->deviceId);
+            if(subscriber != _subscribers.end()) {
+                subscriber->second.incomingPacketHandler(msg,msgSize);
+            }
             can->replyEvent.Set();
         }
     }
@@ -138,41 +151,58 @@ void TcpClient::publishServerDisconnected(const std::string & ret) {
 /*
  * Receive server packets, and notify user
  */
-void TcpClient::receiveTask() {
-    while(_isConnected) {
+void TcpClient::run() {
+    /* Disable socket blocking */
+    fcntl(_sockfd, F_SETFL, O_NONBLOCK);
 
-        struct timeval tv;
-        tv.tv_sec = 1;
-        tv.tv_usec = 0;
-        fd_set fds;
+    /* Initialize variables for epoll */
+    struct epoll_event ev;
 
-        FD_ZERO(&fds);
-        FD_SET(_sockfd,&fds);
+    int epfd = epoll_create(255);
+    ev.data.fd = _sockfd;
+    ev.events = EPOLLIN;
+    epoll_ctl(epfd, EPOLL_CTL_ADD, _sockfd , &ev);
 
-        const int selectRet = select(_sockfd + 1, &fds, nullptr, nullptr, &tv);
-
-        if (selectRet == 0 ) {
-            throw std::runtime_error(strerror(errno));
-        } else if (selectRet == 1) {
+    struct epoll_event events[256];
+    std::cout << "TcpClient::receiveTask is running. " << std::endl;
+    while (_isConnected )
+    {
+        int ready = epoll_wait(epfd, events, 256, 20);  //20 milliseconds
+        if (ready < 0)
+        {
+            perror("epoll_wait error.");
+            return ;
+        }
+        else if (ready == 0) {
+            /* timeout, no data coming */
             continue;
         }
+        else {
 
-        char msg[MAX_PACKET_SIZE];
-        const size_t numOfBytesReceived = recv(_sockfd, msg, MAX_PACKET_SIZE, 0);
-
-        if(numOfBytesReceived < 1) {
-            std::string errorMsg;
-            if (numOfBytesReceived == 0) { //server closed connection
-                errorMsg = "Server closed connection";
-            } else {
-                errorMsg = strerror(errno);
+            for (int i = 0; i < ready; i++)
+            {
+                if (events[i].data.fd == _sockfd)
+                {
+                    uint8_t  msg[MAX_PACKET_SIZE];
+                    memset(msg,0,MAX_PACKET_SIZE);
+                    const size_t numOfBytesReceived = recv(_sockfd, msg, MAX_PACKET_SIZE, 0);
+                    if (numOfBytesReceived < 1) {
+                        std::string errorMsg;
+                        if (numOfBytesReceived == 0) {
+                            errorMsg = "Server closed connection";
+                        } else {
+                            errorMsg = strerror(errno);
+                        }
+                        _isConnected = false;
+                        publishServerDisconnected(errorMsg);
+                        return;
+                    } else {
+                        publishServerMsg(msg, numOfBytesReceived);
+                    }
+                }
             }
-            _isConnected = false;
-            publishServerDisconnected(errorMsg);
-            return;
-        } else {
-            publishServerMsg(msg, numOfBytesReceived);
         }
+
     }
 }
 
@@ -182,17 +212,16 @@ bool TcpClient::close(){
         return false;
     }
     _isConnected = false;
-
-    if (_receiveTask) {
-        _receiveTask->join();
-        delete _receiveTask;
-        _receiveTask = nullptr;
+    void *result;
+    if (pthread_join(thread_id, &result) != 0) {
+        perror("Failed to join thread 1");
+        return false;
     }
 
     const bool closeFailed = (::close(_sockfd) == -1);
     if (closeFailed) {
 
-        std::cout << "client is already closed" << strerror(errno) << std::endl;
+        std::cout << "failed to close socket, error " << strerror(errno) << std::endl;
         return false;
     }
     _isClosed = true;

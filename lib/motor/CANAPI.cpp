@@ -80,19 +80,24 @@ namespace hal {
             //Connect to TCP server.
             bool connected = false;
             while (!connected) {
-                connected = client.connectTo("192.168.4.101", 8886);
+                connected = client.connectTo("127.0.0.1", 1180);
             }
+            client.Start();
         }
     }  // namespace init
 }  // namespace hal
 
 // observer callback. will be called for every new message received by the server
-static  void onIncomingMsg(const char * msg, __attribute__((unused)) size_t size) {
+void onIncomingMsg(const uint8_t * msg, size_t size) {
     std::cout << "Got msg from server: " << msg << "\n";
+    for(int i = 0 ; i< size; i ++ )
+    {
+        std::cout << "data [" << i <<"] = " << std::showbase << std::hex  << (unsigned int) msg[i] << std::endl;
+    }
 }
 
 // observer callback. will be called when server disconnects
-static  void onDisconnection(const std::string& ret) {
+void onDisconnection(const std::string& ret) {
     std::cout << "Server disconnected: " << ret << "\n";
 }
 
@@ -116,7 +121,7 @@ static CANFrameId CreateCANId(CANStorage* storage, int32_t apiId, HAL_CANHandle 
     CANFrameId createdId ;
     switch (storage->manufacturer) {
         case HAL_CAN_Man_Dummy: //Dummy can FrameID
-            createdId.forwardCANId = (storage->deviceId & 0xF) << 7;
+            // createdId.forwardCANId = (storage->deviceId & 0xF) << 7;
             createdId.forwardCANId |= apiId & 0x7F;
             createdId.replyCANId = createdId.forwardCANId;
             createdId.hanlde = handle;

@@ -9,7 +9,6 @@
 #include "spdlog/cfg/env.h"  
 #include "spdlog/fmt/ostr.h" 
 #include <memory>
-#include "agent.h"
 #include <chrono>
 #include "ds/GenericHID.h"
 #include "ds/XboxController.h"
@@ -17,6 +16,8 @@
 #include "ds/BooleanEvent.h"
 #include "mqtt/wrapper.h"
 #include "framework/TimedRobot.h"
+#include "Constants.h"
+#include "motor/CAN.h"
 
 using namespace spdlog;
 
@@ -30,14 +31,24 @@ public:
         DriveWithJoystick(false);
     }
 
+    void RobotInit() {
+        std::shared_ptr<CAN> can = std::make_shared<CAN>(DriveConstants::kFrontLeftDrivingCanId, HAL_CAN_Man_Dummy, HAL_CAN_Dev_karmController);
+        uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+        uint8_t apiId = 0x11;
+        can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    }
+
     void TeleopPeriodic() override { DriveWithJoystick(true); }
 
 
     void DriveWithJoystick(__attribute__((unused)) bool fieldRelative) {
-        std::cout <<"Robot DriveWithJoystick" << std::endl;
+        //std::cout <<"Robot DriveWithJoystick" << std::endl;
         const auto xSpeed = m_controller.GetLeftY();
         const auto ySpeed = m_controller.GetLeftX();
         const auto rot = m_controller.GetRightX();
+
+
+
 /*
     https://github.com/wpilibsuite/allwpilib/blob/d32e60233fe516e8f67e0e94d3de87615e09f00f/wpilibcExamples/src/main/cpp/examples/EventLoop/cpp/Robot.cpp#L12
         // Get the x speed. We are inverting this because Xbox controllers return

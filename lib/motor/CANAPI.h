@@ -38,12 +38,15 @@ enum HAL_CANManufacturer:  int32_t{
  * Holds all the 'public' variables of a socket, these variables can be used
  * both the the networking module and the rest of the application.
  */
+#pragma pack(1)
 struct CANFrameId
 {
-    int32_t forwardCANId;   /* Input CAN frame Id */
-    int32_t replyCANId;     /* Response CAN frame Id */
+    uint32_t  forwardCANId;   /* Input CAN frame Id */
+    uint32_t  replyCANId;     /* Response CAN frame Id */
     HAL_CANHandle hanlde;   /* CANStorage handle of this message */
+    CANFrameId() :forwardCANId(0),replyCANId(0),hanlde(0){};
 };
+#pragma pack()
 
 namespace {
     struct Receives {
@@ -162,7 +165,7 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
 
 
 // observer callback. will be called for every new message received by the server
-static  void onIncomingMsg(const char * msg, size_t size) ;
+static  void onIncomingMsg(const uint8_t * msg, size_t size) ;
 
 // observer callback. will be called when server disconnects
 static  void onDisconnection(const std::string& ret) ;
