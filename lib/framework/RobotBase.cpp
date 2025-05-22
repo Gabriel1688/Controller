@@ -2,6 +2,11 @@
 #include "RobotBase.h"
 #include "mqtt/wrapper.h"
 #include "mqtt/mqttClient.h"
+#include "motor/CANAPI.h"
+
+namespace hal::init {
+    extern void InitializeCANAPI();
+}
 
 std::shared_ptr<mqttClient> mqClient;
 RobotBase::RobotBase() {
@@ -28,7 +33,7 @@ void InitializeHAL() {
     mqClient = std::shared_ptr<mqttClient>(g_mqttClient_ptr);
     mqClient->loadConfig("../config/config.txt");
 //    InitializeCAN();
-//    InitializeCANAPI();
+    hal::init::InitializeCANAPI();
 //    InitializeConstants();
 //    InitializeCounter();
 //    InitializeFRCDriverStation();

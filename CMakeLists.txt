@@ -69,4 +69,5 @@ target_link_libraries(
        websockets
        spdlog
 )
+add_executable(tcpserver src/tcpserver.cpp)
 target_compile_options(Controller PRIVATE -Wall -Wextra -Wno-unused-function)
