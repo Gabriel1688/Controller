@@ -2,9 +2,9 @@
 #include <optional>
 #include <string>
 #include "DriverStationTypes.h"
-typedef int32_t HAL_Bool;
-#include "../common/Synchronization.h"
+#include "common/Synchronization.h"
 
+typedef int32_t HAL_Bool;
 /**
  * Refresh the DS control word.
  *

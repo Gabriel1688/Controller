@@ -1,10 +1,10 @@
 #pragma once
 #include <chrono>
 #include <pthread.h>
-#include "../ds/DriverStation.h"
-#include <condition_variable>
 #include <mutex>
 #include <string>
+#include <condition_variable>
+#include "ds/DriverStation.h"
 
 void InitializeHAL();
 extern "C" {

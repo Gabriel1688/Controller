@@ -1,11 +1,9 @@
 #pragma  once
 
-#ifdef __cplusplus
 #include <climits>  // NOLINT
-
 #include <initializer_list>
 #include <span>
-#endif
+
 
 /**
  * Generic handle for all WPI handle-based interfaces.

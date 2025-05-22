@@ -5,16 +5,16 @@
  * the MIT license file in the root directory of this project.
  */
 
+#include <fstream>
+#include <algorithm>
 #include "dsService.h"
 #include "spdlog/spdlog.h"
 #include "message.h"
-#include "agent.h"
-#include <fstream>
-#include <algorithm>
+#include <unistd.h>
 
 using namespace std::placeholders;
 static const int BUFSIZE=1024;
-
+using TCallback= std::function<void (std::string& result)>;
 DSService::DSService()
 {
    /* Fill basic data */
@@ -160,7 +160,7 @@ void DSService::parse(const char* data, unsigned int len)
       
         std::shared_ptr<MESSAGE> message = std::make_shared<MESSAGE>(msg);
         TCallback callback = std::bind<>(&DSService::AsyncResult, this, std::placeholders::_1);
-        agent->Message( message,callback);
+//        agent->Message( message,callback);
         spdlog::info("recv data [{:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} {:d} ].", 
                       buffer[0],buffer[1],buffer[2],
                       buffer[3],buffer[4],buffer[5],

@@ -1,9 +1,9 @@
-#include "CANAPI.h"
 #include <memory>
 #include <mutex>
 #include <map>
-#include <string.h>
-#include "CAN.h"
+#include <cstring>
+#include <chrono>
+#include "CANAPI.h"
 #include "TcpClient.h"
 
 #define HAL_HANDLE_ERROR -1098
@@ -61,28 +61,9 @@ class MAXSwerveModule {
   }
 //https://github.com/frc3512/Robot-2022/blob/01407465389466b36ccae6731e987436331c4ef7/src/main/include/HWConfig.hpp#L79
  * */
-namespace {
-    struct Receives {
-        uint64_t lastTimeStamp;
-        uint8_t data[8];
-        uint8_t length;
-    };
-
-    struct CANStorage {
-        HAL_CANManufacturer manufacturer;
-        HAL_CANDeviceType deviceType;
-        uint8_t deviceId;
-        std::mutex periodicSendsMutex;
-        std::mutex receivesMutex;
-        std::map<int32_t, Receives> receives;
-        std::map<int32_t, int32_t> periodicSends;
-
-        //wpi::SmallDenseMap<int32_t, Receives> receives;
-        //wpi::SmallDenseMap<int32_t, int32_t> periodicSends;
-    };
-}  // namespace
 
 static std::map<HAL_CANHandle, std::shared_ptr<CANStorage> > *  canHandles;
+
 static TcpClient *  g_client;
 //static UnlimitedHandleResource<HAL_CANHandle, CANStorage, HAL_HandleEnum::CAN>*  canHandles;
 
@@ -92,21 +73,21 @@ namespace hal {
             static std::map<HAL_CANHandle , std::shared_ptr<CANStorage>>  cH;
             canHandles = &cH;
 
-
             static TcpClient client;
+            client.setCanHandles(canHandles);
             g_client=&client;
 
             //Connect to TCP server.
             bool connected = false;
             while (!connected) {
-                connected = client.connectTo("127.0.0.1", 65123);
+                connected = client.connectTo("192.168.4.101", 8886);
             }
         }
     }  // namespace init
 }  // namespace hal
 
 // observer callback. will be called for every new message received by the server
-static  void onIncomingMsg(const char * msg, size_t size) {
+static  void onIncomingMsg(const char * msg, __attribute__((unused)) size_t size) {
     std::cout << "Got msg from server: " << msg << "\n";
 }
 
@@ -115,32 +96,48 @@ static  void onDisconnection(const std::string& ret) {
     std::cout << "Server disconnected: " << ret << "\n";
 }
 
+#if 0
 static int32_t CreateCANId(CANStorage* storage, int32_t apiId) {
     int32_t createdId = 0;
-    //Note:: Need to create Dummy / Dm CAN ID.
     switch (storage->manufacturer) {
-
         case HAL_CAN_Man_Dummy: //Dummy can FrameID
-            createdId |= (static_cast<int32_t>(storage->deviceType) & 0x1F) << 24;
-            createdId |= (static_cast<int32_t>(storage->manufacturer) & 0xFF) << 16;
-            createdId |= (apiId & 0x3FF) << 6;
-            createdId |= (storage->deviceId & 0x3F);
+            createdId |= (storage->deviceId & 0xF) << 7;
+            createdId |= apiId & 0x7F;
             break;
         case HAL_CAN_Man_Dm:   //DmBot can FrameID
-            createdId |= (static_cast<int32_t>(storage->deviceType) & 0x1F) << 24;
-            createdId |= (static_cast<int32_t>(storage->manufacturer) & 0xFF) << 16;
-            createdId |= (apiId & 0x3FF) << 6;
-            createdId |= (storage->deviceId & 0x3F);
+            createdId = apiId | (storage->deviceId & 0x3F);
+            break;
+    }
+    return createdId;
+}
+#endif
+
+static CANFrameId CreateCANId(CANStorage* storage, int32_t apiId, HAL_CANHandle handle) {
+    CANFrameId createdId ;
+    switch (storage->manufacturer) {
+        case HAL_CAN_Man_Dummy: //Dummy can FrameID
+            createdId.forwardCANId = (storage->deviceId & 0xF) << 7;
+            createdId.forwardCANId |= apiId & 0x7F;
+            createdId.replyCANId = createdId.forwardCANId;
+            createdId.hanlde = handle;
+            break;
+        case HAL_CAN_Man_Dm:   //DmBot can FrameID
+            createdId.forwardCANId = apiId | (storage->deviceId & 0x3F);
+            createdId.replyCANId = storage->masterId;
+            createdId.hanlde = handle;
+            break;
+        default:
             break;
     }
     return createdId;
 }
 
+
 extern "C" {
 
 HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
                                 int32_t deviceId, HAL_CANDeviceType deviceType,
-                                int32_t* status) {
+                                __attribute__((unused)) int32_t* status) {
     //hal::init::CheckInit();
     auto can = std::make_shared<CANStorage>();
     int handle = canHandles->size()+1;
@@ -149,6 +146,7 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
     can->deviceId = deviceId;
     can->deviceType = deviceType;
     can->manufacturer = manufacturer;
+
 
     // configure and register observer
     client_observer_t observer;
@@ -160,7 +158,7 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
     return handle;
 }
 
-void HAL_CleanCAN(HAL_CANHandle handle) {
+void HAL_CleanCAN(HAL_CANHandle __attribute__((unused)) handle) {
 #if 0
     auto data = canHandles->Free(handle);
     if (data == nullptr) {
@@ -181,11 +179,14 @@ void HAL_CleanCAN(HAL_CANHandle handle) {
 void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t* data, int32_t length, int32_t apiId, int32_t* status) {
     auto can = canHandles->find(handle)->second;
 
-    auto id = CreateCANId(can.get(), apiId);
+    auto id = CreateCANId(can.get(), apiId, handle);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-    g_client->sendMsg(id, data, length, status);
     can->periodicSends[apiId] = -1;
+
+    g_client->sendMsg(id, data, length, status);
+
+    wpi::WaitForObject(can->replyEvent.GetHandle());
 }
 
 void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
@@ -193,7 +194,7 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
                                  int32_t repeatMs, int32_t* status) {
     //How to send the heartbeat message, get the current/velocity/position/offset.
     auto can = canHandles->find(handle)->second;
-    auto id = CreateCANId(can.get(), apiId);
+    auto id = CreateCANId(can.get(), apiId, handle);
 
     std::scoped_lock lock(can->periodicSendsMutex);
     g_client->sendMsg(id, data, length, status);
@@ -203,7 +204,7 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
 void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t* status) {
     auto can = canHandles->find(handle)->second;
 
-    auto id = CreateCANId(can.get(), apiId);
+    auto id = CreateCANId(can.get(), apiId, handle);
 
     std::scoped_lock lock(can->periodicSendsMutex);
     g_client->sendMsg(id, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING,status);
@@ -215,16 +216,17 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
                           int32_t* status) {
     auto can = canHandles->find(handle)->second;
 
-    uint32_t messageId = CreateCANId(can.get(), apiId);
+    auto messageId = CreateCANId(can.get(), apiId, handle);
     uint8_t dataSize = 0;
     uint32_t ts = 0;
     //Note:: need to work in the async mode rather than sync mode.
     //How to store the incoming data to receives?
     g_client->sendMsg(messageId, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING,status);
+    wpi::WaitForObject(can->replyEvent.GetHandle());
 
     if (*status == 0) {
         std::scoped_lock lock(can->receivesMutex);
-        auto& msg = can->receives[messageId];
+        auto& msg = can->receives[messageId.replyCANId];
         msg.length = dataSize;
         msg.lastTimeStamp = ts;
         // The NetComm call placed in data, copy into the msg
@@ -233,4 +235,89 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
     *length = dataSize;
     *receivedTimestamp = ts;
 }
+void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
+                             int32_t* length, uint64_t* receivedTimestamp,
+                             int32_t* status) {
+    auto can = canHandles->find(handle)->second;
+    if (!can) {
+        *status = HAL_HANDLE_ERROR;
+        return;
+    }
+
+    auto messageId = CreateCANId(can.get(), apiId, handle);
+    uint8_t dataSize = 0;
+    uint32_t ts = 0;
+    //HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
+
+    wpi::WaitForObject(can->replyEvent.GetHandle());
+
+    std::scoped_lock lock(can->receivesMutex);
+    if (*status == 0) {
+        // fresh update
+        auto& msg = can->receives[messageId.replyCANId];
+        msg.length = dataSize;
+        *length = dataSize;
+        msg.lastTimeStamp = ts;
+        *receivedTimestamp = ts;
+        // The NetComm call placed in data, copy into the msg
+        std::memcpy(msg.data, data, dataSize);
+    } else {
+        auto i = can->receives.find(messageId.replyCANId);
+        if (i != can->receives.end()) {
+            // Read the data from the stored message into the output
+            std::memcpy(data, i->second.data, i->second.length);
+            *length = i->second.length;
+            *receivedTimestamp = i->second.lastTimeStamp;
+            *status = 0;
+        }
+    }
+}
+void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
+                              uint8_t* data, int32_t* length,
+                              uint64_t* receivedTimestamp, int32_t timeoutMs,
+                              int32_t* status) {
+    auto can = canHandles->find(handle)->second;
+    if (!can) {
+        *status = HAL_HANDLE_ERROR;
+        return;
+    }
+
+    auto messageId = CreateCANId(can.get(), apiId, handle);
+    uint8_t dataSize = 0;
+    uint32_t ts = 0;
+    // HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
+    wpi::WaitForObject(can->replyEvent.GetHandle());
+    std::scoped_lock lock(can->receivesMutex);
+    if (*status == 0) {
+        // fresh update
+        auto& msg = can->receives[messageId.replyCANId];
+        msg.length = dataSize;
+        *length = dataSize;
+        msg.lastTimeStamp = ts;
+        *receivedTimestamp = ts;
+        // The NetComm call placed in data, copy into the msg
+        std::memcpy(msg.data, data, dataSize);
+    } else {
+        auto i = can->receives.find(messageId.replyCANId);
+        if (i != can->receives.end()) {
+            // Found, check if new enough
+
+            // Get the current time point and Convert to milliseconds since epoch
+            auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+            // Get the millisecond count
+            uint32_t now = now_ms.time_since_epoch().count();
+
+            if (now - i->second.lastTimeStamp > static_cast<uint32_t>(timeoutMs)) {
+                // Timeout, return bad status
+                *status = HAL_CAN_TIMEOUT;
+                return;
+            }
+            // Read the data from the stored message into the output
+            std::memcpy(data, i->second.data, i->second.length);
+            *length = i->second.length;
+            *receivedTimestamp = i->second.lastTimeStamp;
+            *status = 0;
+        }
+    }
+ }
 }  // extern "C"

@@ -46,7 +46,7 @@ bool TcpClient::connectTo(const std::string & address, int port) {
 
     return true;
 }
-
+#if 0
 void TcpClient::sendMsg(uint32_t messageID, const uint8_t* data, uint8_t dataSize, int32_t* status) {
 
     //const char * msg, size_t size
@@ -63,6 +63,31 @@ void TcpClient::sendMsg(uint32_t messageID, const uint8_t* data, uint8_t dataSiz
         std::cout << "client is already closed"<< errorMsg << std::endl;
     }
 }
+#endif
+void TcpClient::sendMsg(CANFrameId frameId, const uint8_t* data, uint8_t dataSize, __attribute__((unused)) int32_t* status) {
+
+    CANFrame frame;
+    frame.modify(frameId.forwardCANId, data, dataSize);
+    const size_t numBytesSent = send(_sockfd, (uint8_t*)&frame, dataSize, 0);
+
+    //Add reply frameId/handle to map for receiving reply.
+    {
+        std::scoped_lock lock(frameIdsMutex);
+        if (_frameIds.find(frameId.replyCANId) == _frameIds.end())
+        {
+            _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
+        }
+    }
+    if (numBytesSent <= 0 ) { // send failed
+        std::cout << "client is already closed"<<strerror(errno) << std::endl;
+    }
+    if (numBytesSent < dataSize) { // not all bytes were sent
+        char errorMsg[100];
+        sprintf(errorMsg, "Only %lu bytes out of %d was sent to client", numBytesSent, dataSize);
+        std::cout << "client is already closed"<< errorMsg << std::endl;
+    }
+}
+
 
 void TcpClient::subscribe(const int32_t deviceId, const client_observer_t & observer) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
@@ -77,12 +102,21 @@ void TcpClient::subscribe(const int32_t deviceId, const client_observer_t & obse
  */
 void TcpClient::publishServerMsg(const char * msg, size_t msgSize) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
-    //parse the device Id before sending to subscriber.
-    //TODO:: need to define the frame structure.
     const int32_t deviceId = msg[0];
     std::map<int32_t, client_observer_t>::iterator itmap = _subscribers.find(deviceId);
     if(itmap != _subscribers.end()) {
         itmap->second.incomingPacketHandler(msg,msgSize);
+    }
+    CANFrame* frame = (CANFrame*)msg;
+    //Get handle of message and wake up it.
+    {
+        std::scoped_lock lock(frameIdsMutex);
+        auto itmap = _frameIds.find(frame->FrameId);
+        if ( itmap != _frameIds.end())
+        {
+            auto can = canHandles->find(itmap->second)->second;
+            can->replyEvent.Set();
+        }
     }
 }
 

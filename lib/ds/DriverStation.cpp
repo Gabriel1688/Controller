@@ -1,41 +1,11 @@
 #include "DriverStation.h"
 #include "DriverStationTypes.h"
-#include <stdint.h>
 #include <array>
-#include <atomic>
-#include <memory>
-#include <span>
 #include <string>
-#include <string_view>
-#include <iostream>
-
-//#include <fmt/format.h>
-//#include <hal/DriverStation.h>
-//#include <hal/DriverStationTypes.h>
-//#include <hal/HALBase.h>
-//#include <hal/Power.h>
-
-//#include <wpi/DataLog.h>
-//#include <EventVector.h>
-//#include <wpi/condition_variable.h>
-//#include <wpi/json.h>
-//#include <wpi/mutex.h>
-//#include <wpi/timestamp.h>
-//#include "frc/Errors.h"
-//#include "frc/Timer.h"
-//#include <fmt/format.h>
-
-#include "DriverStation.h"
-#include "DriverStationTypes.h"
-
-
 #include "EventVector.h"
-#include <condition_variable>
-//#include <wpi/json.h>
+
 #include <mutex>
-//#include <wpi/timestamp.h>
-//#include "frc/Errors.h"
-//#include "frc/Timer.h"
+
 extern "C" {
 namespace hal {
     extern void InitializeDriverStation();

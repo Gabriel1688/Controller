@@ -81,34 +81,17 @@ typedef union {
 
 typedef enum {
     deviceBroadcast=0,
-    robotController,
-    motorController,
-    relayController,
+    armController,
+    gripperController,
+    motionController,
     gyroSensor,
-    accelerometerSensor,
-    ultrasonicSensor,
-    gearToothSensor,
-    powerDistribution,
-    pneumaticsController,
-    miscCANDevice,
-    IOBreakout,
-    dev_rsvd12,dev_rsvd13,dev_rsvd14,dev_rsvd15,
-    dev_rsvd16,dev_rsvd17,dev_rsvd18,dev_rsvd19,
-    dev_rsvd20,dev_rsvd21,dev_rsvd22,dev_rsvd23,
-    dev_rsvd24,dev_rsvd25,dev_rsvd26,dev_rsvd27,
-    dev_rsvd28,dev_rsvd29,dev_rsvd30,
     firmwareUpdate=31
 } deviceType_t;
 
 typedef enum {
     manufacturerBroadcast=0,
-    NI=1,
-    LM=2, //(TI)
-    DEKA=3,
-    CTRE=4,
-    REV=5,
-    Grapple=6,
-    MindSensors=7,
+    DAMIAO=1,
+    DUMMY=2,
     TeamUse=8
 } manufacturer_t;
 //NOTE:: frameIDFields need to update according to

@@ -4,11 +4,7 @@
 #include <functional>
 #include <utility>
 #include <vector>
-#include "../common/priority_queue.h"
-
-//#include <hal/Notifier.h>
-//#include <hal/Types.h>
-//#include <units/math.h>
+#include "common/priority_queue.h"
 #include "IterativeRobotBase.h"
 
 /**

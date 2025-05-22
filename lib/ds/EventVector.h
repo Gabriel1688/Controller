@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common/Synchronization.h"
+#include "common/Synchronization.h"
 typedef unsigned int WPI_Handle;
 /** An event handle. */
 typedef WPI_Handle WPI_EventHandle;

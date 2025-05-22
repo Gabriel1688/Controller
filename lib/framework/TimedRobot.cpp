@@ -1,8 +1,5 @@
 #include "TimedRobot.h"
-#include <stdint.h>
-#include <cstdio>
 #include <utility>
-#include "../ds/DriverStation.h"
 
 void TimedRobot::StartCompetition() {
     RobotInit();

@@ -16,7 +16,7 @@ set (LWS_ROLE_MQTT 1)
 set (LWS_WITH_NETWORK 1)
 
 include(FetchContent)
-FetchContent_Declare(libwebsockets URL https://github.com/warmcat/libwebsockets/archive/refs/tags/v4.3.3.tar.gz)
+FetchContent_Declare(libwebsockets URL https://github.com/warmcat/libwebsockets/archive/refs/tags/v4.3.5.tar.gz)
 FetchContent_MakeAvailable(libwebsockets)
 
 FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.0.tar.gz)
@@ -24,44 +24,42 @@ FetchContent_MakeAvailable(spdlog)
 
 add_executable(
         Controller
+        src/main.cpp
+
         lib/mqtt/wrapper.cpp
         lib/mqtt/mqttClient.cpp
+
         lib/common/fdevent.cpp
-        src/main.cpp
-        src/controller.cpp
-        lib/framework/dsService.cpp
-        src/agent.cpp
+        lib/common/TimerManager.cpp
+        lib/common/Synchronization.cpp
+
+        lib/ds/DSControlWord.cpp
+        lib/ds/FRCComm.cpp
         lib/ds/FRCDriverStation.cpp
+
+        lib/ds/BooleanEvent.cpp
+        lib/ds/DriverStation.cpp
         lib/ds/GenericHID.cpp
         lib/ds/XboxController.cpp
-        lib/ds/BooleanEvent.cpp
         lib/ds/EventLoop.cpp
-        lib/ds/DriverStation.cpp
+
+        lib/framework/dsService.cpp
         lib/framework/TimedRobot.cpp
         lib/framework/IterativeRobotBase.cpp
         lib/framework/RobotBase.cpp
-        lib/ds/DSControlWord.cpp
-        lib/ds/FRCComm.cpp
+
         lib/motor/MotorController.cpp
         lib/motor/CAN.cpp
         lib/motor/CANAPI.cpp
         lib/motor/TcpClient.cpp
-        lib/common/TimerManager.cpp
-        lib/common/Synchronization.cpp
         #        lib/motor/CtrlStepMotor.cpp
 )
-#cmake_print_variables(${LIBWEBSOCKETS_INCLUDE_DIRS})
 
 target_include_directories(
         Controller
         PRIVATE
         include
-        mqtt
-        framework
-        ds
-        PUBLIC
-        /usr/local/include/ntcore
-        ${LIBWEBSOCKETS_INCLUDE_DIRS}
+        lib
 )
 
 target_link_libraries(

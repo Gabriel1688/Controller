@@ -2,7 +2,6 @@
 #pragma once
 
 #include <stdint.h>
-
 #include "CANAPI.h"
 
 struct CANData {
@@ -68,8 +67,7 @@ public:
      * @param apiId The API ID to write.
      * @param repeatMs The period to repeat the packet at.
      */
-    void WritePacketRepeating(const uint8_t* data, int length, int apiId,
-                              int repeatMs);
+    void WritePacketRepeating(const uint8_t* data, int length, int apiId, int repeatMs);
 
     /**
      * Write an RTR frame to the CAN device with a specific ID. This ID is 10
@@ -121,10 +119,10 @@ public:
     bool ReadPacketTimeout(int apiId, int timeoutMs, CANData* data);
 
     /// Team manufacturer.
-    static constexpr HAL_CANManufacturer kTeamManufacturer = static_cast<HAL_CANManufacturer>(8); //HAL_CAN_Man_kTeamUse;
+    static constexpr HAL_CANManufacturer kTeamManufacturer = static_cast<HAL_CANManufacturer>(1); //HAL_CAN_Man_Dummy;
 
     /// Team device type.
-    static constexpr HAL_CANDeviceType kTeamDeviceType = static_cast<HAL_CANDeviceType>(10); // HAL_CAN_Dev_kMiscellaneous;
+    static constexpr HAL_CANDeviceType kTeamDeviceType = static_cast<HAL_CANDeviceType>(4); // HAL_CAN_Dev_kMotionController;
 
 private:
     HAL_CANHandle m_handle;

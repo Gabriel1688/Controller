@@ -19,6 +19,19 @@
 #include <string>
 #include <functional>
 #include <map>
+#include "CANAPI.h"
+
+struct CANFrame
+{
+    uint8_t FrameHeader = 0x08;                // 0：标准帧 0： 数据帧, DLC = xx;
+    uint32_t FrameId =0x01;                    // CAN ID 使用电机ID作为CAN ID
+    uint8_t data[8]={0};
+    void modify(const uint32_t id, const uint8_t* send_data, uint8_t dataSize)
+    {
+        FrameId = __builtin_bswap32(id);     //change to big endian format.
+        std::copy(send_data, send_data+dataSize, data);
+    }
+};
 
 struct client_observer_t {
     std::string wantedIP = "";
@@ -37,6 +50,10 @@ private:
     std::thread * _receiveTask = nullptr;
     std::mutex _subscribersMtx;
 
+    std::mutex frameIdsMutex;
+    std::map<int32_t, HAL_CANHandle> _frameIds;  // keep the reply frameId and handle of device.
+    std::map<HAL_CANHandle, std::shared_ptr<CANStorage> > *  canHandles;
+
     void publishServerMsg(const char * msg, size_t msgSize);
     void publishServerDisconnected(const std::string& ret);
     void receiveTask();
@@ -47,18 +64,19 @@ public:
     bool connectTo(const std::string & address, int port);
 
     /**
- * Sends a CAN message.
- *
- * @param[in] messageID the CAN ID to send
- * @param[in] data      the data to send (0-8 bytes)
- * @param[in] dataSize  the size of the data to send (0-8 bytes)
- * @param[out] status    Error status variable. 0 on success.
- */
-    void sendMsg(uint32_t messageID, const uint8_t* data,
-                 uint8_t dataSize, int32_t* status);
-
+     * Sends a CAN message.
+    *
+    * @param[in] messageID the CAN ID to send
+    * @param[in] data      the data to send (0-8 bytes)
+    * @param[in] dataSize  the size of the data to send (0-8 bytes)
+    * @param[out] status    Error status variable. 0 on success.
+    */
+    void sendMsg(CANFrameId frameId, const uint8_t* data, uint8_t dataSize, int32_t* status);
 
     void subscribe(const int32_t deviceId, const client_observer_t & observer);
     bool isConnected() const { return _isConnected; }
+    void setCanHandles(std::map<HAL_CANHandle, std::shared_ptr<CANStorage> > *p_canHandles){
+        canHandles = p_canHandles;
+    }
     bool close();
 };

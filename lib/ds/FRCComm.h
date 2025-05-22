@@ -5,34 +5,6 @@
 
 //https://github.com/wpilibsuite/ni-libraries/blob/5ef44a3de346da689ade4e7f0c5263e238f8a81a/src/include/FRC_NetworkCommunication/FRCComm.h
 
-#define ERR_FRCSystem_NetCommNotResponding -44049
-#define ERR_FRCSystem_NoDSConnection -44018
-
-
-// clang-format off
-#define kTcpRecvMask_Joysticks      0x000000FF
-#define kTcpRecvMask_MatchInfoOld   0x00000100
-#define kTcpRecvMask_MatchInfo      0x00000200
-#define kTcpRecvMask_GameSpecific   0x00000400
-// clang-format on
-
-enum AllianceStationID_t
-{
-    kAllianceStationID_red1,
-    kAllianceStationID_red2,
-    kAllianceStationID_red3,
-    kAllianceStationID_blue1,
-    kAllianceStationID_blue2,
-    kAllianceStationID_blue3,
-};
-
-enum MatchType_t
-{
-    kMatchType_none,
-    kMatchType_practice,
-    kMatchType_qualification,
-    kMatchType_elimination,
-};
 
 //struct ControlWord_t
 //{

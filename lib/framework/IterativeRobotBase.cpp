@@ -1,7 +1,6 @@
 #include "IterativeRobotBase.h"
-#include "../ds/DriverStation.h"
-#include "../ds/FRCComm.h"
-#include "../ds/DSControlWord.h"
+#include "ds/DriverStation.h"
+#include "ds/DSControlWord.h"
 #include <iostream>
 
 IterativeRobotBase::IterativeRobotBase(int period)

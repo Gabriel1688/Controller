@@ -1,7 +1,8 @@
 
 #include "RobotBase.h"
-#include "../lib/mqtt/wrapper.h"
-#include "../lib/mqtt/mqttClient.h"
+#include "mqtt/wrapper.h"
+#include "mqtt/mqttClient.h"
+
 std::shared_ptr<mqttClient> mqClient;
 RobotBase::RobotBase() {
     m_threadId = (unsigned long) pthread_self();
@@ -31,11 +32,6 @@ void InitializeHAL() {
 //    InitializeConstants();
 //    InitializeCounter();
 //    InitializeFRCDriverStation();
-//    InitializeI2C();
-//    InitializeInterrupts();
-//    InitializeLEDs();
 //    InitializeMain();
 //    InitializeNotifier();
-//    InitializeSPI();
-//    InitializeThreads();
 }

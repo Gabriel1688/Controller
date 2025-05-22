@@ -6,7 +6,7 @@
 #include "DriverStation.h"
 #include "DriverStationTypes.h"
 #include "FRCComm.h"
-#include "../lib/mqtt/mqttClient.h"
+#include "mqtt/mqttClient.h"
 
 static_assert(sizeof(int32_t) >= sizeof(int),  "FRC_NetworkComm status variable is larger than 32 bits");
 
@@ -39,7 +39,7 @@ static ::FRCDriverStation* driverStation;
 // Message and Data variables
 static std::mutex msgMutex;
 
-static int32_t HAL_GetJoystickAxesInternal(const char* payload, int32_t joystickNum, HAL_JoystickAxes* axes) {
+static int32_t HAL_GetJoystickAxesInternal(__attribute__((unused)) const char* payload, int32_t joystickNum, HAL_JoystickAxes* axes) {
     HAL_JoystickAxesInt netcommAxes;
 
     int retVal = FRC_NetworkCommunication_getJoystickAxes( joystickNum, reinterpret_cast<JoystickAxes_t*>(&netcommAxes), HAL_kMaxJoystickAxes);
@@ -59,11 +59,11 @@ static int32_t HAL_GetJoystickAxesInternal(const char* payload, int32_t joystick
     return retVal;
 }
 
-static int32_t HAL_GetJoystickPOVsInternal(const char* payload, int32_t joystickNum, HAL_JoystickPOVs* povs) {
+static int32_t HAL_GetJoystickPOVsInternal(__attribute__((unused)) const char* payload, int32_t joystickNum, HAL_JoystickPOVs* povs) {
     return FRC_NetworkCommunication_getJoystickPOVs( joystickNum, reinterpret_cast<JoystickPOV_t*>(povs), HAL_kMaxJoystickPOVs);
 }
 
-static int32_t HAL_GetJoystickButtonsInternal(const char* payload, int32_t joystickNum, HAL_JoystickButtons* buttons) {
+static int32_t HAL_GetJoystickButtonsInternal(__attribute__((unused)) const char* payload, int32_t joystickNum, HAL_JoystickButtons* buttons) {
     return FRC_NetworkCommunication_getJoystickButtons(joystickNum, &buttons->buttons, &buttons->count);
 }
 
@@ -229,7 +229,7 @@ void HAL_GetAllJoystickData(HAL_JoystickAxes *axes, HAL_JoystickPOVs *povs, HAL_
     std::memcpy(buttons, currentRead->buttons, sizeof(currentRead->buttons));
 }
 
-int32_t HAL_GetJoystickDescriptor(int32_t joystickNum, HAL_JoystickDescriptor *desc) {
+int32_t HAL_GetJoystickDescriptor(__attribute__((unused)) int32_t joystickNum, __attribute__((unused)) HAL_JoystickDescriptor *desc) {
     //std::scoped_lock lock{tcpCacheMutex};
     // *desc = tcpCurrent.descriptors[joystickNum];
     return 0;
@@ -249,7 +249,7 @@ int32_t HAL_SetJoystickOutputs(int32_t joystickNum, int64_t outputs, int32_t lef
                                                        leftRumble, rightRumble);
 }
 
-static void newDataOccur(const void* payload, uint32_t payload_len) {
+static void newDataOccur(const void* payload, __attribute__((unused)) uint32_t payload_len) {
     cacheToUpdate->Update(static_cast<const char*>(payload));
 
     JoystickDataCache *given = cacheToUpdate;

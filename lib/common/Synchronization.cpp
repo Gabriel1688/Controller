@@ -5,8 +5,6 @@
 #include <vector>
 #include <condition_variable>
 
-
-
 static std::atomic_bool gShutdown{false};
 
 namespace {

@@ -6,29 +6,65 @@
 
 #include <stdint.h>
 #include <string>
+#include <mutex>
+#include <map>
+#include "common/Synchronization.h"
+
 using  HAL_CANHandle = int32_t;
 
 enum HAL_CANDeviceType:  int32_t {
-        /// Broadcast.
-        HAL_CAN_Dev_kBroadcast = 0,
-        /// Robot controller.
-        HAL_CAN_Dev_kRobotController = 1,
-        /// Motor controller.
-        HAL_CAN_Dev_kMotorController = 2
+    /// Broadcast.
+    HAL_CAN_Dev_kBroadcast = 0,
+    /// Robot arm controller.
+    HAL_CAN_Dev_karmController = 1,
+    /// Robot gripper controller.
+    HAL_CAN_Dev_kgripperController = 2,
+    /// Robot gyros Motor controller.
+    HAL_CAN_Dev_kgyroSensor= 3,
+    /// Motion controller.
+    HAL_CAN_Dev_kMotionController = 4
 };
 
 enum HAL_CANManufacturer:  int32_t{
 /// Broadcast.
-HAL_CAN_Man_kBroadcast = 0,
-/// National Instruments.
-HAL_CAN_Man_kNI = 1,
-/// Luminary Micro.
-HAL_CAN_Man_kLM = 2,
-/// Luminary Micro.
-HAL_CAN_Man_Dummy=3,
-/// Luminary Micro.
-HAL_CAN_Man_Dm=4
+    HAL_CAN_Man_kBroadcast = 0,
+/// Dummy Robot.
+    HAL_CAN_Man_Dummy=1,
+/// DAMIAO.
+    HAL_CAN_Man_Dm=2
 };
+
+/*
+ * Holds all the 'public' variables of a socket, these variables can be used
+ * both the the networking module and the rest of the application.
+ */
+struct CANFrameId
+{
+    int32_t forwardCANId;   /* Input CAN frame Id */
+    int32_t replyCANId;     /* Response CAN frame Id */
+    HAL_CANHandle hanlde;   /* CANStorage handle of this message */
+};
+
+namespace {
+    struct Receives {
+        uint64_t lastTimeStamp;
+        uint8_t data[8];
+        uint8_t length;
+    };
+
+    struct CANStorage {
+        HAL_CANManufacturer manufacturer;
+        HAL_CANDeviceType deviceType;
+        uint8_t deviceId;
+        uint8_t masterId;  // reply frame id for Damiao protocol
+        std::mutex periodicSendsMutex;
+        std::mutex receivesMutex;
+        std::map<int32_t, Receives> receives;
+        std::map<int32_t, int32_t> periodicSends;
+        wpi::Event replyEvent{false, false};
+    };
+}  // namespace
+
 /**
  * @defgroup hal_canapi CAN API Functions
  * @ingroup hal_capi
@@ -130,6 +166,14 @@ static  void onIncomingMsg(const char * msg, size_t size) ;
 
 // observer callback. will be called when server disconnects
 static  void onDisconnection(const std::string& ret) ;
+
+void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
+                             int32_t* length, uint64_t* receivedTimestamp,
+                             int32_t* status);
+void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
+                              uint8_t* data, int32_t* length,
+                              uint64_t* receivedTimestamp, int32_t timeoutMs,
+                              int32_t* status);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -4,18 +4,17 @@
  * Open Source Software; you can modify and/or share it under the terms of
  * the MIT license file in the root directory of this project.
  */
-
+#include <chrono>
+#include <thread>
+#include <fstream>
+#include <functional>
 #include "wrapper.h"
 #include "mqttClient.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"  
 #include "spdlog/fmt/ostr.h" 
-#include <functional>
-#include <chrono>
-#include <thread>
 #include "spdlog/spdlog.h"
 #include "controller.h"
-#include <fstream>
 #include "agent.h"
 
 using namespace std::placeholders;
@@ -100,6 +99,7 @@ void* mqttClient::EntryOfThread(void* arg)
 {
     mqttClient* pClient = static_cast<mqttClient*>(arg);
     pClient->run();
+    return (void*)(pClient);
 }
 
 
@@ -188,7 +188,7 @@ int mqttClient::connect(struct lws_context *pcontext ){
 }
 
 int mqttClient::reconnect(){
-
+return 0;
 }
 
 void mqttClient::disconnect(){
@@ -208,7 +208,7 @@ void mqttClient::publish( std::string& p_topic, const std::shared_ptr<MESSAGE>& 
     lws_callback_on_writable(wsi);
 }
 
-void mqttClient::publish( std::string& topic, const std::string& payload) {
+void mqttClient::publish( __attribute__((unused))  std::string& topic, __attribute__((unused)) const std::string& payload) {
     spdlog::warn("payload only support MESSAGE.");
 #if 0    
     pub_param.topic	= const_cast<char*>(topic.c_str());
@@ -224,12 +224,12 @@ void mqttClient::publish( std::string& topic, const std::string& payload) {
 #endif 
 }
 
-int mqttClient::unsubscribe(const std::string& topicFilter){ 
-
+int mqttClient::unsubscribe(__attribute__((unused)) const std::string& topicFilter){
+return 0;
 }
 
 int mqttClient::notify_callback(lws_state_manager_t *mgr,
-                                lws_state_notify_link_t *link,
+                                __attribute__((unused)) lws_state_notify_link_t *link,
                                 int current,
                                 int target) 
 {
@@ -392,7 +392,7 @@ int mqttClient::callback( struct lws *wsi,  enum lws_callback_reasons reason,  v
 	return 0;
 }
 
-void mqttClient::processMessage(void* in, size_t len, struct lws* wsi)
+void mqttClient::processMessage(void* in, __attribute__((unused)) size_t len, __attribute__((unused)) struct lws* wsi)
 {
       lws_mqtt_publish_param_t* pub_param = (lws_mqtt_publish_param_t *)in;
       assert(pub_param);

@@ -4,22 +4,19 @@
 #include <signal.h>
 #include <pthread.h>
 #include <assert.h>
-
+#include <iostream>
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"  
 #include "spdlog/fmt/ostr.h" 
 #include <memory>
 #include "agent.h"
 #include <chrono>
-#include "../lib/mqtt/wrapper.h"
-
-#include "../lib/ds/GenericHID.h"
-#include "../lib/ds/XboxController.h"
-#include "../lib/framework/TimedRobot.h"
-#include "../lib/ds/EventLoop.h"
-#include "../lib/ds/BooleanEvent.h"
-#include "../lib/motor/MotorController.h"
-#include <iostream>
+#include "ds/GenericHID.h"
+#include "ds/XboxController.h"
+#include "ds/EventLoop.h"
+#include "ds/BooleanEvent.h"
+#include "mqtt/wrapper.h"
+#include "framework/TimedRobot.h"
 
 using namespace spdlog;
 
@@ -36,12 +33,13 @@ public:
     void TeleopPeriodic() override { DriveWithJoystick(true); }
 
 
-    void DriveWithJoystick(bool fieldRelative) {
+    void DriveWithJoystick(__attribute__((unused)) bool fieldRelative) {
         std::cout <<"Robot DriveWithJoystick" << std::endl;
         const auto xSpeed = m_controller.GetLeftY();
         const auto ySpeed = m_controller.GetLeftX();
         const auto rot = m_controller.GetRightX();
 /*
+    https://github.com/wpilibsuite/allwpilib/blob/d32e60233fe516e8f67e0e94d3de87615e09f00f/wpilibcExamples/src/main/cpp/examples/EventLoop/cpp/Robot.cpp#L12
         // Get the x speed. We are inverting this because Xbox controllers return
         // negative values when we push forward.
         const auto xSpeed = -m_xspeedLimiter.Calculate(
