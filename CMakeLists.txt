@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12.0)
 find_program(CMAKE_C_COMPILER NAMES $ENV{CC} gcc PATHS ENV PATH NO_DEFAULT_PATH)
 find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
 
-project(Controller)
+project(Robot)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,7 +24,7 @@ FetchContent_MakeAvailable(spdlog)
 
 add_executable(
         Controller
-        src/main.cpp
+        src/Robot.cpp
 
         lib/mqtt/wrapper.cpp
         lib/mqtt/mqttClient.cpp
@@ -43,7 +43,6 @@ add_executable(
         lib/ds/XboxController.cpp
         lib/ds/EventLoop.cpp
 
-        lib/framework/dsService.cpp
         lib/framework/TimedRobot.cpp
         lib/framework/IterativeRobotBase.cpp
         lib/framework/RobotBase.cpp
@@ -52,6 +51,11 @@ add_executable(
         lib/motor/CANAPI.cpp
         lib/motor/TcpClient.cpp
         #        lib/motor/CtrlStepMotor.cpp
+
+        subsystems/Drivetrain.cpp
+        subsystems/SubsystemBase.cpp
+
+        controllers/DrivetrainController.cpp
 )
 
 target_include_directories(
