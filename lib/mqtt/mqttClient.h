@@ -13,11 +13,11 @@
 #include <map>
 #include <memory>
 #include <functional>
-#include "message.h"
 #include <utility>
 #include <mutex>
 #include "libwebsockets.h"
 #include "libwebsockets/lws-mqtt.h"
+#include "message.h"
 
 
 class Agent;

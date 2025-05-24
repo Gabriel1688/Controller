@@ -2,8 +2,8 @@
 #include <string_view>
 #include <vector>
 
-#include "framework/TimedRobot.h"
-#include "../subsystems/Drivetrain.h"
+#include "robot/TimedRobot.h"
+#include "../../subsystems/Drivetrain.h"
 
 /**
  * The main robot class.

@@ -6,7 +6,7 @@
 #include <string_view>
 #include <thread>
 #include "Constants.h"
-#include "../subsystems/SubsystemBase.h"
+#include "SubsystemBase.h"
 
 /**
  * A base class for subsystems with controllers.

@@ -14,7 +14,6 @@
 #include "spdlog/cfg/env.h"  
 #include "spdlog/fmt/ostr.h" 
 #include "spdlog/spdlog.h"
-#include "controller.h"
 
 using namespace std::placeholders;
 
@@ -192,19 +191,6 @@ return 0;
 
 void mqttClient::disconnect(){
 
-}
-
-void mqttClient::publish( std::string& p_topic, const std::shared_ptr<MESSAGE>& p_message) {
-        
-    MqttMessage_ msg = std::make_pair(p_topic,p_message);
-    {
-      std::lock_guard<std::mutex> lock(mqttMutex);
-      messages.emplace_back(msg);
-    }
-
-    std::string componentName = "app"; 
-    struct lws* wsi = getWsiInstance(componentName);
-    lws_callback_on_writable(wsi);
 }
 
 void mqttClient::publish( __attribute__((unused))  std::string& topic, __attribute__((unused)) const std::string& payload) {

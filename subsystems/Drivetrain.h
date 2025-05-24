@@ -1,9 +1,9 @@
 #pragma once
 #include <limits>
 #include <vector>
-#include "Constants.h"
+#include "../app/include/Constants.h"
 #include "../controllers/DrivetrainController.h"
-#include "ControlledSubsystemBase.h"
+#include "robot/ControlledSubsystemBase.h"
 
 /**
  * The drivetrain subsystem.
