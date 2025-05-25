@@ -34,8 +34,6 @@ target_include_directories(
 
 target_link_libraries(
        Controller
-       ssl
-       crypto
        spdlog
        framework
 )

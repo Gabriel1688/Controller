@@ -47,8 +47,7 @@ target_include_directories(framework
 
 target_link_libraries(
         framework
-        ssl
-        crypto
+
         websockets
         spdlog
 )
