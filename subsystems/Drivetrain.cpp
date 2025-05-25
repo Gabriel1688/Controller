@@ -1,20 +1,6 @@
 #include "Drivetrain.h"
-// Copyright (c) FRC Team 3512. All Rights Reserved.
 
 #include <algorithm>
-
-//#include <frc/DriverStation.h>
-//#include <frc/Joystick.h>
-//#include <frc/MathUtil.h>
-//#include <frc/RobotBase.h>
-//#include <frc/RobotController.h>
-//#include <frc/StateSpaceUtil.h>
-//#include <frc/drive/DifferentialDrive.h>
-//#include <frc/fmt/Eigen.h>
-//#include <frc/smartdashboard/SmartDashboard.h>
-//
-//#include "CANSparkMaxUtil.hpp"
-
 
 //
 //const Eigen::Matrix<double, 2, 2> Drivetrain::kGlobalR =
@@ -385,28 +371,6 @@ const Eigen::Vector<double, 2>& Drivetrain::GetInputs() const {
 units::ampere_t Drivetrain::GetCurrentDraw() const {
     return m_drivetrainSim.GetCurrentDraw();
 }
-
-frc::Pose2d Drivetrain::GetSimPose() const { return m_drivetrainSim.GetPose(); }
-
-units::radian_t Drivetrain::GetVisionYaw() {
-    return m_controller.GetVisionYaw();
-}
-
-void Drivetrain::AimWithVision() {
-    m_visionTimer.Start();
-    m_aimWithVision = true;
-}
-
-void Drivetrain::DisengageVisionAim() {
-    m_aimWithVision = false;
-    m_visionTimer.Reset();
-    m_visionTimer.Stop();
-}
-
-bool Drivetrain::IsVisionAiming() const { return m_aimWithVision; }
-
-bool Drivetrain::AtVisionTarget() const { return m_atVisionTarget; }
-
 bool Drivetrain::IsStationary() {
     using State = DrivetrainController::State;
     return GetStates()(State::kLeftVelocity) < 0.1 &&
@@ -437,21 +401,6 @@ void Drivetrain::TeleopInit() {
     // turning action so teleop driving can occur.
     AbortTurnInPlace();
 
-    Enable();
-}
-
-void Drivetrain::TestInit() {
-    SetBrakeMode();
-
-    // If the robot was disabled while still following a trajectory in
-    // autonomous, it will continue to do so in teleop. This aborts any
-    // trajectories so teleop driving can occur.
-    m_controller.AbortTrajectories();
-
-    // If the robot was disabled while still turning in place in
-    // autonomous, it will continue to do so in teleop. This aborts any
-    // turning action so teleop driving can occur.
-    AbortTurnInPlace();
     Enable();
 }
 
@@ -492,48 +441,10 @@ void Drivetrain::TeleopPeriodic() {
     m_rangeControllerEntry.SetDouble(m_controller.GetVisionRange().value());
 }
 
-void Drivetrain::TestPeriodic() {
-    using Input = DrivetrainController::Input;
-
-    static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
-    static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
-
-    double y =
-            frc::ApplyDeadband(-driveStick1.GetY(), Constants::kJoystickDeadband);
-    double x =
-            frc::ApplyDeadband(driveStick2.GetX(), Constants::kJoystickDeadband) *
-            0.4;
-
-    auto [left, right] = frc::DifferentialDrive::CurvatureDriveIK(
-            y, x, driveStick2.GetRawButton(2));
-
-    // Implicit model following
-    // TODO: Velocities need filtering
-    Eigen::Vector<double, 2> u =
-            m_imf.Calculate(Eigen::Vector<double, 2>{GetLeftVelocity().value(),
-                                                     GetRightVelocity().value()},
-                            Eigen::Vector<double, 2>{left * 12.0, right * 12.0});
-
-    if (!HasHeadingGoal()) {
-        m_leftGrbx.SetVoltage(units::volt_t{u(Input::kLeftVoltage)});
-        m_rightGrbx.SetVoltage(units::volt_t{u(Input::kRightVoltage)});
-    }
-
-    m_headingGoalEntry.SetBoolean(AtHeading());
-    m_hasHeadingGoalEntry.SetBoolean(HasHeadingGoal());
-}
-
 void Drivetrain::SetBrakeMode() {
     m_leftLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     m_leftFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     m_rightLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     m_rightFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-}
-
-void Drivetrain::SetCoastMode() {
-    m_leftLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
-    m_leftFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
-    m_rightLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
-    m_rightFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
 }
 #endif

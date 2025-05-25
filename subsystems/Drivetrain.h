@@ -1,8 +1,8 @@
 #pragma once
 #include <limits>
 #include <vector>
-#include "../app/include/Constants.h"
-#include "../controllers/DrivetrainController.h"
+#include "Constants.h"
+#include "DrivetrainController.h"
 #include "robot/ControlledSubsystemBase.h"
 
 /**
@@ -13,20 +13,6 @@
  */
     class Drivetrain : public ControlledSubsystemBase<7, 2, 5> {
     public:
-//        /// The drivetrain length.
-//        static constexpr units::meter_t kLength = 0.5851068_m;
-//
-//        /**
-//         * Distance from middle of robot to intake.
-//         */
-//        static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
-//
-//        /**
-//         * Producer-consumer queue for global pose measurements from Vision
-//         * subsystem.
-//         */
-//        wpi::static_circular_buffer<Vision::GlobalMeasurements, 8> visionQueue;
-
         Drivetrain();
 
         Drivetrain(const Drivetrain&) = delete;
@@ -49,16 +35,6 @@
         units::radian_t GetAngle() const;
 
         /**
-         * Returns left encoder displacement.
-         */
-        units::meter_t GetLeftPosition() const;
-
-        /**
-         * Returns right encoder displacement.
-         */
-        units::meter_t GetRightPosition() const;
-
-        /**
          * Returns left encoder velocity.
          */
         units::meters_per_second_t GetLeftVelocity() const;
@@ -67,16 +43,6 @@
          * Returns right encoder velocity.
          */
         units::meters_per_second_t GetRightVelocity() const;
-
-        /**
-         * Returns longitudinal acceleration from IMU.
-         */
-        units::meters_per_second_squared_t GetAccelerationX() const;
-
-        /**
-         * Returns lateral acceleration from IMU.
-         */
-        units::meters_per_second_squared_t GetAccelerationY() const;
 
         /**
          * Resets all sensors and controller.
@@ -241,42 +207,6 @@
         const Eigen::Vector<double, 2>& GetInputs() const;
 
         /**
-         * Returns current drawn in simulation.
-         */
-        units::ampere_t GetCurrentDraw() const;
-
-        /**
-         * Returns sim pose.
-         */
-        frc::Pose2d GetSimPose() const;
-
-        /**
-         * Returns the yaw from vision
-         */
-        units::radian_t GetVisionYaw();
-
-        /**
-         * Aims the drivetrain using vision.
-         */
-        void AimWithVision();
-
-        /**
-         * Disengage aiming with vision.
-         */
-        void DisengageVisionAim();
-
-        /**
-         * Returns whether or not the robot is aiming with vision.
-         */
-        bool IsVisionAiming() const;
-
-        /**
-         * Returns whether or not the robot is looking at the center of the vision
-         * target.
-         */
-        bool AtVisionTarget() const;
-
-        /**
          * Returns whether or not the robot is moving.
          */
         bool IsStationary();
@@ -424,11 +354,5 @@
          * expect.
          */
         void SetBrakeMode();
-
-        /**
-         * Set drivetrain motors to coast mode so the robot is easier to push when
-         * it's disabled.
-         */
-        void SetCoastMode();
 #endif
 };

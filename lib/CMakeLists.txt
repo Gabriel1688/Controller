@@ -16,6 +16,7 @@ add_library(framework
         common/fdevent.cpp
         common/TimerManager.cpp
         common/Synchronization.cpp
+        common/Notifier.cpp
 
         ds/DSControlWord.cpp
         ds/FRCComm.cpp
@@ -35,7 +36,6 @@ add_library(framework
         motor/CAN.cpp
         motor/CANAPI.cpp
         motor/TcpClient.cpp
-
 )
 set_target_properties(framework PROPERTIES DEBUG_POSTFIX "d")
 

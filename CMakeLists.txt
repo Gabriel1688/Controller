@@ -26,8 +26,10 @@ add_executable(
 target_include_directories(
         Controller
         PRIVATE
-        app/include
         lib
+        app/include
+        controllers
+        subsystems
 )
 
 target_link_libraries(
