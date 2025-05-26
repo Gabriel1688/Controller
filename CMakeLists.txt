@@ -111,20 +111,4 @@ target_link_libraries(
 )
 
 add_executable(tcpserver src/tcpserver.cpp)
-add_executable(mockdata tools/mockdata.cpp)
-
-add_executable(DriverStation
-        tools/DriverStationModeThread.cpp
-        tools/main.cpp
-)
-target_include_directories(
-        DriverStation
-        PRIVATE
-        include
-        lib
-)
-target_link_libraries(
-        DriverStation
-        framework
-)
 target_compile_options(Controller PRIVATE -Wall -Wextra -Wno-unused-function)
