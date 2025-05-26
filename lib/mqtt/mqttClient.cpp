@@ -398,7 +398,8 @@ void mqttClient::processMessage(void* in, __attribute__((unused)) size_t len, __
 
       lwsl_hexdump_notice(pub_param->topic, pub_param->topic_len);
       lwsl_hexdump_notice(pub_param->payload, pub_param->payload_len);
-      if("FRC_ROBOT" == pub_param->topic) {
+      //if("FRC_ROBOT" == pub_param->topic)
+      {
           newDataOccurHandler(pub_param->payload, pub_param->payload_len);
       }
 }
