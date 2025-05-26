@@ -306,27 +306,6 @@ public:
     bool IsConnected() const;
 
     /**
-     * Get the type of the HID.
-     *
-     * @return the type of the HID.
-     */
-    GenericHID::HIDType GetType() const;
-
-    /**
-     * Get the name of the HID.
-     *
-     * @return the name of the HID.
-     */
-    std::string GetName() const;
-
-    /**
-     * Get the axis type of a joystick axis.
-     *
-     * @return the axis type of a joystick axis.
-     */
-    int GetAxisType(int axis) const;
-
-    /**
      * Get the port number of the HID.
      *
      * @return The port number of the HID.

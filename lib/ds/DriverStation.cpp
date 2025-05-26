@@ -136,30 +136,6 @@ int DriverStation::GetStickButtonCount(int stick) {
     return buttons.count;
 }
 
-bool DriverStation::GetJoystickIsXbox(int stick) {
-    HAL_JoystickDescriptor descriptor;
-    HAL_GetJoystickDescriptor(stick, &descriptor);
-    return static_cast<bool>(descriptor.isXbox);
-}
-
-int DriverStation::GetJoystickType(int stick) {
-    HAL_JoystickDescriptor descriptor;
-    HAL_GetJoystickDescriptor(stick, &descriptor);
-    return static_cast<int>(descriptor.type);
-}
-
-std::string DriverStation::GetJoystickName(int stick) {
-    HAL_JoystickDescriptor descriptor;
-    HAL_GetJoystickDescriptor(stick, &descriptor);
-    return descriptor.name;
-}
-
-int DriverStation::GetJoystickAxisType(int stick, int axis) {
-    HAL_JoystickDescriptor descriptor;
-    HAL_GetJoystickDescriptor(stick, &descriptor);
-    return descriptor.axisTypes[axis];
-}
-
 bool DriverStation::IsJoystickConnected(int stick) {
     return GetStickAxisCount(stick) > 0 || GetStickButtonCount(stick) > 0 ||
            GetStickPOVCount(stick) > 0;

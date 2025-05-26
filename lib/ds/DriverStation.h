@@ -59,54 +59,6 @@ void HAL_GetAllJoystickData(HAL_JoystickAxes* axes, HAL_JoystickPOVs* povs,
                             HAL_JoystickButtons* buttons);
 
 /**
- * Retrieves the Joystick Descriptor for particular slot.
- *
- * @param joystickNum the joystick number
- * @param[out] desc   descriptor (data transfer object) to fill in. desc is
- *                    filled in regardless of success. In other words, if
- *                    descriptor is not available, desc is filled in with
- *                    default values matching the init-values in Java and C++
- *                    Driver Station for when caller requests a too-large
- *                    joystick index.
- * @return error code reported from Network Comm back-end.  Zero is good,
- *         nonzero is bad.
- */
-int32_t HAL_GetJoystickDescriptor(int32_t joystickNum,
-                                  HAL_JoystickDescriptor* desc);
-/**
- * Gets the type of joystick connected.
- *
- * This is device specific, and different depending on what system input type
- * the joystick uses.
- *
- * @param joystickNum the joystick number
- * @return the enumerated joystick type
- */
-int32_t HAL_GetJoystickType(int32_t joystickNum);
-
-/**
- * Gets the name of a joystick.
- *
- * The returned string must be freed with WPI_FreeString
- *
- * @param name the joystick name string
- * @param joystickNum the joystick number
- */
-void HAL_GetJoystickName(struct WPI_String* name, int32_t joystickNum);
-
-/**
- * Gets the type of a specific joystick axis.
- *
- * This is device specific, and different depending on what system input type
- * the joystick uses.
- *
- * @param joystickNum the joystick number
- * @param axis        the axis number
- * @return the enumerated axis type
- */
-int32_t HAL_GetJoystickAxisType(int32_t joystickNum, int32_t axis);
-
-/**
  * Refresh the DS control word.
  *
  * @return true if updated
@@ -237,30 +189,6 @@ class DriverStation final {
     static int GetStickButtonCount(int stick);
 
     /**
-      * Returns a boolean indicating if the controller is an xbox controller.
-      *
-      * @param stick The joystick port number
-      * @return A boolean that is true if the controller is an xbox controller.
-      */
-    static bool GetJoystickIsXbox(int stick);
-
-    /**
-      * Returns the type of joystick at a given port.
-      *
-      * @param stick The joystick port number
-      * @return The HID type of joystick at the given port
-      */
-    static int GetJoystickType(int stick);
-
-    /**
-      * Returns the name of the joystick at the given port.
-      *
-      * @param stick The joystick port number
-      * @return The name of the joystick at the given port
-      */
-    static std::string GetJoystickName(int stick);
-
-    /**
       * Returns the types of Axes on a given joystick port.
       *
       * @param stick The joystick port number and the target axis
@@ -389,14 +317,6 @@ class DriverStation final {
       * @param handle The event handle.
       */
     static void RemoveRefreshedDataEventHandle(WPI_EventHandle handle);
-
-    /**
-      * Starts logging DriverStation data to data log. Repeated calls are ignored.
-      *
-      * @param log data log
-      * @param logJoysticks if true, log joystick data
-      */
-//    static void StartDataLog(wpi::log::DataLog& log, bool logJoysticks = true);
 
     private:
         DriverStation() = default;

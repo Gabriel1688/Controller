@@ -34,7 +34,6 @@ add_executable(
         lib/common/Synchronization.cpp
 
         lib/ds/DSControlWord.cpp
-        lib/ds/FRCComm.cpp
         lib/ds/FRCDriverStation.cpp
 
         lib/ds/BooleanEvent.cpp
@@ -68,5 +67,64 @@ target_link_libraries(
        websockets
        spdlog
 )
+
+add_library(framework
+
+        lib/mqtt/wrapper.cpp
+        lib/mqtt/mqttClient.cpp
+
+        lib/common/fdevent.cpp
+        lib/common/TimerManager.cpp
+        lib/common/Synchronization.cpp
+
+        lib/ds/DSControlWord.cpp
+        lib/ds/FRCDriverStation.cpp
+
+        lib/ds/BooleanEvent.cpp
+        lib/ds/DriverStation.cpp
+        lib/ds/GenericHID.cpp
+        lib/ds/XboxController.cpp
+        lib/ds/EventLoop.cpp
+
+        lib/framework/dsService.cpp
+        lib/framework/TimedRobot.cpp
+        lib/framework/IterativeRobotBase.cpp
+        lib/framework/RobotBase.cpp
+
+        lib/motor/CAN.cpp
+        lib/motor/CANAPI.cpp
+        lib/motor/TcpClient.cpp
+)
+target_include_directories(
+        framework
+        PRIVATE
+        include
+        lib
+)
+
+target_link_libraries(
+        framework
+        ssl
+        crypto
+        websockets
+        spdlog
+)
+
 add_executable(tcpserver src/tcpserver.cpp)
+add_executable(mockdata tools/mockdata.cpp)
+
+add_executable(DriverStation
+        tools/DriverStationModeThread.cpp
+        tools/main.cpp
+)
+target_include_directories(
+        DriverStation
+        PRIVATE
+        include
+        lib
+)
+target_link_libraries(
+        DriverStation
+        framework
+)
 target_compile_options(Controller PRIVATE -Wall -Wextra -Wno-unused-function)

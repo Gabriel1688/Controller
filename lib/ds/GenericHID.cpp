@@ -103,18 +103,6 @@ bool GenericHID::IsConnected() const {
     return DriverStation::IsJoystickConnected(m_port);
 }
 
-GenericHID::HIDType GenericHID::GetType() const {
-    return static_cast<HIDType>(DriverStation::GetJoystickType(m_port));
-}
-
-std::string GenericHID::GetName() const {
-    return DriverStation::GetJoystickName(m_port);
-}
-
-int GenericHID::GetAxisType(int axis) const {
-    return DriverStation::GetJoystickAxisType(m_port, axis);
-}
-
 int GenericHID::GetPort() const {
     return m_port;
 }
