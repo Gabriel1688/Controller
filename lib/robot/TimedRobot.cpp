@@ -60,18 +60,3 @@ void TimedRobot::AddPeriodic(std::function<void()> callback, int period, int off
                           std::chrono::microseconds{static_cast<int64_t>(period * 1e6)},
                           std::chrono::microseconds{static_cast<int64_t>(offset * 1e6)});
 }
-
-/*
- * uint64_t HAL_WaitForNotifierAlarm(HAL_NotifierHandle notifierHandle,
-                                  int32_t* status) {
-  auto notifier = notifierHandles->Get(notifierHandle);
-  if (!notifier) {
-    return 0;
-  }
-  std::unique_lock lock(notifier->mutex);
-  notifier->cond.wait(lock, [&] {
-    return !notifier->active || notifier->triggeredTime != UINT64_MAX;
-  });
-  return notifier->active ? notifier->triggeredTime : 0;
-}
- */

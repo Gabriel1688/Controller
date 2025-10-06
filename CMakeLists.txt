@@ -22,6 +22,23 @@ FetchContent_MakeAvailable(libwebsockets)
 FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.0.tar.gz)
 FetchContent_MakeAvailable(spdlog)
 
+message(CHECK_START "Fetching Eigen3")
+FetchContent_Declare(
+        Eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG master
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE)
+set(BUILD_TESTING OFF)
+set(EIGEN_BUILD_TESTING OFF)
+set(EIGEN_MPL2_ONLY ON)
+set(EIGEN_BUILD_PKGCONFIG OFF)
+set(EIGEN_BUILD_DOC OFF)
+FetchContent_MakeAvailable(Eigen)
+message(CHECK_PASS "fetched")
+
+#target_link_libraries(YourTarget PRIVATE Eigen3::Eigen)
+
 add_executable(
         Controller
         src/main.cpp
@@ -35,21 +52,24 @@ add_executable(
 
         lib/ds/DSControlWord.cpp
         lib/ds/FRCDriverStation.cpp
-
         lib/ds/BooleanEvent.cpp
         lib/ds/DriverStation.cpp
         lib/ds/GenericHID.cpp
         lib/ds/XboxController.cpp
         lib/ds/EventLoop.cpp
+        lib/ds/dsService.cpp
 
-        lib/framework/dsService.cpp
-        lib/framework/TimedRobot.cpp
-        lib/framework/IterativeRobotBase.cpp
-        lib/framework/RobotBase.cpp
+        lib/robot/TimedRobot.cpp
+        lib/robot/IterativeRobotBase.cpp
+        lib/robot/RobotBase.cpp
 
         lib/motor/CAN.cpp
         lib/motor/CANAPI.cpp
         lib/motor/TcpClient.cpp
+        lib/subsystem/ControlledSubsystemBase.cpp
+        lib/subsystem/SubsystemBase.cpp
+        lib/subsystem/Drivetrain.cpp
+        lib/controllers/DrivetrainController.cpp
         #        lib/motor/CtrlStepMotor.cpp
 )
 
@@ -58,6 +78,8 @@ target_include_directories(
         PRIVATE
         include
         lib
+        ${EIGEN3_INCLUDE_DIR}
+
 )
 
 target_link_libraries(
@@ -66,6 +88,7 @@ target_link_libraries(
        crypto
        websockets
        spdlog
+       Eigen3::Eigen
 )
 
 add_library(framework
@@ -86,20 +109,23 @@ add_library(framework
         lib/ds/XboxController.cpp
         lib/ds/EventLoop.cpp
 
-        lib/framework/dsService.cpp
-        lib/framework/TimedRobot.cpp
-        lib/framework/IterativeRobotBase.cpp
-        lib/framework/RobotBase.cpp
+        lib/ds/dsService.cpp
+        lib/robot/TimedRobot.cpp
+        lib/robot/IterativeRobotBase.cpp
+        lib/robot/RobotBase.cpp
 
         lib/motor/CAN.cpp
         lib/motor/CANAPI.cpp
         lib/motor/TcpClient.cpp
+        lib/subsystem/Pose2d.h
+        lib/controllers/ControllerBase.h
 )
 target_include_directories(
         framework
         PRIVATE
         include
         lib
+        ${EIGEN3_INCLUDE_DIR}
 )
 
 target_link_libraries(
@@ -108,6 +134,7 @@ target_link_libraries(
         crypto
         websockets
         spdlog
+        Eigen3::Eigen
 )
 
 add_executable(tcpserver src/tcpserver.cpp)
