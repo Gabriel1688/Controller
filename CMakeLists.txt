@@ -23,12 +23,16 @@ FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/ta
 FetchContent_MakeAvailable(spdlog)
 
 message(CHECK_START "Fetching Eigen3")
-FetchContent_Declare(
-        Eigen
-        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-        GIT_TAG master
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE)
+
+FetchContent_Declare(Eigen URL https://gitlab.com/libeigen/eigen/-/archive/3.4.1/eigen-3.4.1.tar.gz)
+
+#FetchContent_Declare(
+#        Eigen
+#        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+#        GIT_TAG master
+#        GIT_SHALLOW TRUE
+#        GIT_PROGRESS TRUE)
+
 set(BUILD_TESTING OFF)
 set(EIGEN_BUILD_TESTING OFF)
 set(EIGEN_MPL2_ONLY ON)
