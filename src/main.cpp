@@ -27,15 +27,15 @@ static const auto KICKER_THRESHOLD = 15;  // 15_mm;
 
 class Robot : public TimedRobot {
 public:
-    void AutonomousPeriodic() override {
-        DriveWithJoystick(false);
+    void RobotInit() {
+//        std::shared_ptr<CAN> can = std::make_shared<CAN>(DriveConstants::kFrontLeftDrivingCanId, HAL_CAN_Man_Dummy, HAL_CAN_Dev_karmController);
+//        uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+//        uint8_t apiId = 0x11;
+//        can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
     }
 
-    void RobotInit() {
-        std::shared_ptr<CAN> can = std::make_shared<CAN>(DriveConstants::kFrontLeftDrivingCanId, HAL_CAN_Man_Dummy, HAL_CAN_Dev_karmController);
-        uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
-        uint8_t apiId = 0x11;
-        can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    void AutonomousPeriodic() override {
+        DriveWithJoystick(false);
     }
 
     void TeleopPeriodic() override { DriveWithJoystick(true); }
@@ -79,6 +79,9 @@ public:
         BooleanEvent shootTrigger{ &m_loop, [&joystick = m_joystick] { return joystick.GetRawButtonPressed(2);}};
     }
 
+    /**
+     * Periodic code for all modes should go here.
+     */
     void RobotPeriodic() override { m_loop.Poll(); }
 
 private:

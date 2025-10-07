@@ -44,14 +44,14 @@ bool TcpClient::connectTo(const std::string & address, int port) {
         _server.sin_family = AF_INET;
         _server.sin_port = htons(port);
     } catch (const std::runtime_error& error) {
-        std::cout << "client is already closed"<< error.what() << std::endl;
+        std::cout << "client is already closed, "<< error.what() << std::endl;
         return false;
     }
 
     const int connectResult = connect(_sockfd , (struct sockaddr *)&_server , sizeof(_server));
     const bool connectionFailed = (connectResult == -1);
     if (connectionFailed) {
-        std::cout << "client is already closed"<< strerror(errno) << std::endl;
+        std::cout << "Failed to connect [" << address <<"][" << port <<"] , "<< strerror(errno) << std::endl;
         return false;
     }
     _isConnected = true;
