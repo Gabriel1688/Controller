@@ -1,13 +1,13 @@
 #include <Eigen/Core>
 #include <algorithm>
 
-#include "Drivetrain.h"
+#include "Arm.h"
 #include "ds/DriverStation.h"
 #include "robot/RobotBase.h"
 #include "motor/CtrlStepMotor.h"
 #include "ControlledSubsystemBase.h"
 
-Drivetrain::Drivetrain()
+Arm::Arm()
 {
     // Reset the pose estimate to the field's bottom-left corner with the turret
     // facing in the target's general direction. This is relatively close to the
@@ -15,43 +15,43 @@ Drivetrain::Drivetrain()
     Reset(Pose2d{0.0, 0.0, 0.0});
 }
 //
-//Pose2d Drivetrain::GetReferencePose() const {
+//Pose2d Arm::GetReferencePose() const {
 //    const auto& x = m_controller.GetReferences();
 //    return Pose2d{
-//            float {x(DrivetrainController::State::kX)},
-//            float {x(DrivetrainController::State::kY)},
-//            float {x(DrivetrainController::State::kHeading)}};
+//            float {x(ArmController::State::kX)},
+//            float {x(ArmController::State::kY)},
+//            float {x(ArmController::State::kHeading)}};
 //}
 
-//Pose2d Drivetrain::GetPose() const { return m_observer.GetPose(); }
+//Pose2d Arm::GetPose() const { return m_observer.GetPose(); }
 
-void Drivetrain::Reset(const Pose2d& initialPose) {
+void Arm::Reset(const Pose2d& initialPose) {
 }
 
-void Drivetrain::ControllerPeriodic() {
-
-}
-
-void Drivetrain::RobotPeriodic() {
+void Arm::ControllerPeriodic() {
 
 }
 
-const Eigen::Vector<double, 2>& Drivetrain::GetInputs() const {
+void Arm::RobotPeriodic() {
+
+}
+
+const Eigen::Vector<double, 2>& Arm::GetInputs() const {
     return m_controller.GetInputs();
 }
 
-void Drivetrain::DisabledInit() {
+void Arm::DisabledInit() {
     SetBrakeMode();
     Disable();
 }
 
-void Drivetrain::AutonomousInit() {
+void Arm::AutonomousInit() {
     SetBrakeMode();
     //SetTurningTolerance(0.25);
     Enable();
 }
 
-void Drivetrain::TeleopInit() {
+void Arm::TeleopInit() {
     SetBrakeMode();
 
     // If the robot was disabled while still following a trajectory in
@@ -67,24 +67,9 @@ void Drivetrain::TeleopInit() {
     Enable();
 }
 
-void Drivetrain::TestInit() {
-    SetBrakeMode();
-
-    // If the robot was disabled while still following a trajectory in
-    // autonomous, it will continue to do so in teleop. This aborts any
-    // trajectories so teleop driving can occur.
-    // m_controller.AbortTrajectories();
-
-    // If the robot was disabled while still turning in place in
-    // autonomous, it will continue to do so in teleop. This aborts any
-    // turning action so teleop driving can occur.
-    // AbortTurnInPlace();
-    Enable();
-}
-
-void Drivetrain::TeleopPeriodic() {
+void Arm::TeleopPeriodic() {
 /*
-    using Input = DrivetrainController::Input;
+    using Input = ArmController::Input;
 
     static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
     static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
@@ -119,12 +104,8 @@ void Drivetrain::TeleopPeriodic() {
 */
 }
 
-void Drivetrain::TestPeriodic() {
-
+void Arm::SetBrakeMode() {
 }
 
-void Drivetrain::SetBrakeMode() {
-}
-
-void Drivetrain::SetCoastMode() {
+void Arm::SetCoastMode() {
 }

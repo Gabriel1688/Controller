@@ -43,9 +43,9 @@ class  TrajectoryConstraint {
              *
              * @return The absolute maximum velocity.
              */
-    float MaxVelocity(
-            const Pose2d& pose, //units::curvature_t curvature,
-            float velocity);
+            float MaxVelocity(
+                                const Pose2d& pose, //units::curvature_t curvature,
+                                float velocity);
 
             /**
              * Returns the minimum and maximum allowable acceleration for the trajectory
@@ -57,11 +57,11 @@ class  TrajectoryConstraint {
              *
              * @return The min and max acceleration bounds.
              */
-   MinMax MinMaxAcceleration(const Pose2d& pose,
-           // units::curvature_t curvature,
-           float speed);
-private:
-    //DifferentialDriveKinematics m_kinematics;
-    float m_maxSpeed;
+            MinMax MinMaxAcceleration(const Pose2d& pose,
+                                      // units::curvature_t curvature,
+                                      float speed);
+    private:
+           //DifferentialDriveKinematics m_kinematics;
+           float m_maxSpeed;
 };
 

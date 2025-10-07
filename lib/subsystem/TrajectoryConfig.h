@@ -107,6 +107,6 @@ class  TrajectoryConfig {
             float m_endVelocity = 0.0;
             float m_maxVelocity;
             float m_maxAcceleration;
-            std::vector<std::unique_ptr<TrajectoryConstraint>> m_constraints;
             bool m_reversed = false;
+            std::vector<std::unique_ptr<TrajectoryConstraint>> m_constraints;
 };

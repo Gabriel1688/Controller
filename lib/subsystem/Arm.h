@@ -3,27 +3,18 @@
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
-//#include <frc/controller/ImplicitModelFollower.h>
-//#include <frc/estimator/AngleStatistics.h>
-//#include <frc/estimator/KalmanFilterLatencyCompensator.h>
-//#include <frc/estimator/UnscentedKalmanFilter.h>
-//#include <frc/filter/LinearFilter.h>
-//#include <frc/motorcontrol/MotorControllerGroup.h>
-//#include <frc/system/plant/LinearSystemId.h>
-
-//#include <rev/CANSparkMax.h>
 #include "TrajectoryConfig.h"
-#include "../controllers/DrivetrainController.h"
+#include "controllers/ArmController.h"
 #include "ControlledSubsystemBase.h"
 
 /**
- * The drivetrain subsystem.
+ * The Arm subsystem.
  *
- * The drivetrain uses an unscented Kalman filter for state estimation.
+ * The Arm uses an unscented Kalman filter for state estimation.
  */
-class Drivetrain : public ControlledSubsystemBase<7, 2, 5> {
+class Arm : public ControlledSubsystemBase<7, 2, 5> {
 public:
-    /// The drivetrain length.  unit <meter>
+    /// The Arm length.  unit <meter>
     static constexpr float kLength = 0.9398;
 
     /**
@@ -37,10 +28,10 @@ public:
      */
     //wpi::static_circular_buffer<Vision::GlobalMeasurement, 8> visionQueue;
 
-    Drivetrain();
+    Arm();
 
-    Drivetrain(const Drivetrain&) = delete;
-    Drivetrain& operator=(const Drivetrain&) = delete;
+    Arm(const Arm&) = delete;
+    Arm& operator=(const Arm&) = delete;
 
 
     /**
@@ -151,27 +142,27 @@ public:
      * @param endVelocity   The end velocity of the trajectory.
      */
     static TrajectoryConfig MakeTrajectoryConfig(
-            float startVelocity,
-            float endVelocity);
+                                                  float startVelocity,
+                                                  float endVelocity);
 
     /**
-     * Returns whether the drivetrain controller is at the goal waypoint.
+     * Returns whether the Arm controller is at the goal waypoint.
      */
     bool AtGoal() const;
 
     /**
-     * Returns the drivetrain state estimate.
+     * Returns the Arm state estimate.
      */
     const Eigen::Vector<double, 7>& GetStates() const;
 
     /**
-     * Returns the drivetrain inputs.
+     * Returns the Arm inputs.
      */
     const Eigen::Vector<double, 2>& GetInputs() const;
 
     /**
      * Returns how many times the vision measurement was too far from the
-     * drivetrain pose estimate.
+     * Arm pose estimate.
      */
     int GetPoseMeasurementFaultCounter();
 
@@ -181,13 +172,9 @@ public:
 
     void TeleopInit() override;
 
-    void TestInit() override;
-
     void RobotPeriodic() override;
 
     void TeleopPeriodic() override;
-
-    void TestPeriodic() override;
 
     void ControllerPeriodic() override;
 
@@ -196,19 +183,19 @@ private:
 
     float m_headingOffset = 0.0;
 
-    DrivetrainController m_controller;
+    ArmController m_controller;
     Eigen::Vector<double, 2> m_u = Eigen::Vector<double, 2>::Zero();
 
     int m_poseMeasurementFaultCounter = 0;
 
     /**
-     * Set drivetrain motors to brake mode, which the feedback controllers
+     * Set Arm motors to brake mode, which the feedback controllers
      * expect.
      */
     void SetBrakeMode();
 
     /**
-     * Set drivetrain motors to coast mode so the robot is easier to push when
+     * Set Arm motors to coast mode so the robot is easier to push when
      * it's disabled.
      */
     void SetCoastMode();

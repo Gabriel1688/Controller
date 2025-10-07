@@ -1,7 +1,7 @@
 #include <iostream>
-#include "DriverStationModeThread.h"
 #include <ds/DriverStation.h>
 #include <common/Synchronization.h>
+#include "DriverStationModeThread.h"
 
 DriverStationModeThread::DriverStationModeThread() {
     m_keepAlive = true;

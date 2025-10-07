@@ -57,9 +57,10 @@ add_library(framework
 
         subsystem/ControlledSubsystemBase.cpp
         subsystem/SubsystemBase.cpp
-        subsystem/Drivetrain.cpp
+        subsystem/Arm.cpp
+        subsystem/Gripper.cpp
 
-        controllers/DrivetrainController.cpp
+        controllers/ArmController.cpp
 )
 set_target_properties(framework PROPERTIES DEBUG_POSTFIX "d")
 

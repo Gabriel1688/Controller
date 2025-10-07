@@ -92,16 +92,6 @@ class SubsystemBase {
         virtual void TeleopPeriodic() {}
 
         /**
-         * Periodic code for test mode should go here.
-         */
-        virtual void TestPeriodic() {}
-
-        /**
-         * Call all subsystems's SimulationInit().
-         */
-        static void RunAllSimulationInit();
-
-        /**
          * Call all subsystems's DisabledInit().
          */
         static void RunAllDisabledInit();
@@ -117,19 +107,9 @@ class SubsystemBase {
         static void RunAllTeleopInit();
 
         /**
-         * Call all subsystems's TestInit().
-         */
-        static void RunAllTestInit();
-
-        /**
          * Call all subsystems's RobotPeriodic().
          */
         static void RunAllRobotPeriodic();
-
-        /**
-         * Call all subsystems's SimulationPeriodic().
-         */
-        static void RunAllSimulationPeriodic();
 
         /**
          * Call all subsystems's DisabledPeriodic().
@@ -145,11 +125,6 @@ class SubsystemBase {
          * Call all subsystems's TeleopPeriodic().
          */
         static void RunAllTeleopPeriodic();
-
-        /**
-         * Call all subsystems's TestPeriodic().
-         */
-        static void RunAllTestPeriodic();
 
     private:
         static std::vector<SubsystemBase*> m_subsystems;

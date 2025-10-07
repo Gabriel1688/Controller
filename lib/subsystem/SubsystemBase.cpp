@@ -1,7 +1,4 @@
-// Copyright (c) FRC Team 3512. All Rights Reserved.
-
 #include "SubsystemBase.h"
-//#include "DriverStation.h"
 
 std::vector<SubsystemBase*> SubsystemBase::m_subsystems;
 

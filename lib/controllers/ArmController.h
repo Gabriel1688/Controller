@@ -8,9 +8,9 @@
 #include "ControllerBase.h"
 
 /**
- * The drivetrain controller.
+ * The Arm controller.
  *
- * The drivetrain uses a linear time-varying LQR for feedback control. Since the
+ * The Arm uses a linear time-varying LQR for feedback control. Since the
  * model is control-affine (the dynamics are nonlinear, but the control inputs
  * provide a linear contribution), a plant inversion feedforward was used.
  * Trajectories generated from splines provide the motion profile to follow.
@@ -29,22 +29,22 @@
  * See section 9.6 in Controls Engineering in FRC for a derivation of the
  * control law we used shown in theorem 9.6.3.
  */
-class DrivetrainController : public ControllerBase<7, 2, 4> {
+class ArmController : public ControllerBase<7, 2, 4> {
 public:
     /**
-     * Constructs a drivetrain controller.
+     * Constructs a Arm controller.
      */
-    DrivetrainController();
+    ArmController();
 
     /**
      * Move constructor.
      */
-    DrivetrainController(DrivetrainController&&) = default;
+    ArmController(ArmController&&) = default;
 
     /**
      * Move assignment operator.
      */
-    DrivetrainController& operator=(DrivetrainController&&) = default;
+    ArmController& operator=(ArmController&&) = default;
 
     /**
      * Sets the current estimated global pose of the drivetrain.
@@ -52,7 +52,7 @@ public:
     void SetDrivetrainStates(const Eigen::Vector<double, 7>& x);
 
     /**
-     * Returns whether the drivetrain controller is at the goal waypoint.
+     * Returns whether the Arm controller is at the goal waypoint.
      */
     bool AtGoal() const;
 
@@ -71,7 +71,7 @@ public:
     Eigen::Vector<double, 2> Calculate( const Eigen::Vector<double, 7>& x) override;
 
     /**
-     * The drivetrain system dynamics.
+     * The Arm system dynamics.
      *
      * @param x The state vector.
      * @param u The input vector.
@@ -101,7 +101,7 @@ private:
     float  m_visionRange = 0;  //meter
     long  m_timestamp = 0;     //sec
 
-    Pose2d m_drivetrainNextPoseInGlobal;
-    float m_drivetrainLeftVelocity = 0.0;
-    float m_drivetrainRightVelocity = 0.0;
+    Pose2d m_armNextPoseInGlobal;
+    float m_armLeftVelocity = 0.0;
+    float m_armRightVelocity = 0.0;
 };

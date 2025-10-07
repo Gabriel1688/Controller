@@ -10,7 +10,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(
         Controller
-        src/main.cpp
+        src/Robot.cpp
+        src/Robot.h
 )
 
 target_include_directories(
@@ -22,7 +23,7 @@ target_include_directories(
 
 target_link_libraries(
        Controller
-       PRIVATE
+       PUBLIC
         framework
 )
 

@@ -75,8 +75,7 @@ protected:
     /**
      * Controller reference for next timestep.
      */
-    Eigen::Vector<double, States> m_nextR =
-            Eigen::Vector<double, States>::Zero();
+    Eigen::Vector<double, States> m_nextR = Eigen::Vector<double, States>::Zero();
 
     /**
      * Controller output.

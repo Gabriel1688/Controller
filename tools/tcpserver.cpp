@@ -1,21 +1,12 @@
 #include <iostream>
-#include <string>
-#include <stdio.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <netdb.h>
-#include <sys/uio.h>
 #include <sys/time.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <fstream>
 using namespace std;
-//Server side
+
 int main(int argc, char *argv[])
 {
     //grab the port number
@@ -92,7 +83,7 @@ int main(int argc, char *argv[])
         usleep(10000);
     }
 
-    //we need to close the socket descriptors after we're all done
+    //we need to close the socket descriptors after all is done
     gettimeofday(&end1, NULL);
     close(newSd);
     close(serverSd);
