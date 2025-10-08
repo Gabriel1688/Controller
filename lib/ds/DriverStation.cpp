@@ -7,11 +7,12 @@
 #include <mutex>
 
 extern "C" {
-namespace hal {
-    extern void InitializeDriverStation();
+    namespace hal {
+        extern void InitializeDriverStation();
+    }
+    HAL_Bool HAL_RefreshDSData(void) ;
 }
-HAL_Bool HAL_RefreshDSData(void) ;
-}
+
 struct Instance
 {
      Instance();
@@ -39,7 +40,6 @@ static Instance& GetInstance() {
     static Instance instance;
     return instance;
 }
-
 
 Instance::Instance() {
     //NOTE:: need to implement following logic in the RasperryPi.
@@ -181,18 +181,6 @@ bool DriverStation::IsTeleopEnabled() {
     HAL_ControlWord controlWord;
     HAL_GetControlWord(&controlWord);
     return !controlWord.autonomous && !controlWord.test && controlWord.enabled;
-}
-
-bool DriverStation::IsTest() {
-    HAL_ControlWord controlWord;
-    HAL_GetControlWord(&controlWord);
-    return controlWord.test;
-}
-
-bool DriverStation::IsTestEnabled() {
-    HAL_ControlWord controlWord;
-    HAL_GetControlWord(&controlWord);
-    return controlWord.test && controlWord.enabled;
 }
 
 bool DriverStation::IsDSAttached() {

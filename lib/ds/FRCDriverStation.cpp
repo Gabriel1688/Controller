@@ -34,7 +34,6 @@ struct FRCDriverStation {
         EventVector newDataEvents;
 };
 
-
 static ::FRCDriverStation* driverStation;
 
 // Message and Data variables
@@ -43,11 +42,13 @@ static std::mutex msgMutex;
 static int32_t HAL_GetJoystickAxesInternal(__attribute__((unused)) const char* payload, int32_t joystickNum, HAL_JoystickAxes* axes) {
     HAL_JoystickAxesInt netcommAxes;
     int32_t  joystick_size=payload[JOYSTICK_POS];
+
     if( joystick_size <= joystickNum)  //Invalid joystickNum  --how to know joystick is plugout?
     {
         std::cout <<"HAL_GetJoystickAxesInternal PARAMETER_OUT_OF_RANGE joystickNum : " << joystickNum << std::endl;
         return 0;
     }
+
     int offset = JOYSTICK_POS+2;
     netcommAxes.count = payload[offset];  // NumAxes
     offset ++;
@@ -129,9 +130,9 @@ static std::mutex cacheMutex;
 extern "C" {
 
 void InitializeFRCDriverStation() {
-        std::memset(&newestControlWord, 0, sizeof(newestControlWord));
-        static FRCDriverStation ds;
-        driverStation = &ds;
+    std::memset(&newestControlWord, 0, sizeof(newestControlWord));
+    static FRCDriverStation ds;
+    driverStation = &ds;
 }
 
 int32_t HAL_GetControlWord(HAL_ControlWord *controlWord) {
@@ -220,6 +221,7 @@ HAL_Bool HAL_RefreshDSData(void) {
     }
     return prev != nullptr;
 }
+
 void HAL_ProvideNewDataEventHandle(WPI_EventHandle handle) {
     driverStation->newDataEvents.Add(handle);
 }

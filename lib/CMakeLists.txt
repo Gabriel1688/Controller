@@ -44,7 +44,6 @@ add_library(framework
         ds/GenericHID.cpp
         ds/XboxController.cpp
         ds/EventLoop.cpp
-        ds/dsService.cpp
 
         robot/TimedRobot.cpp
         robot/IterativeRobotBase.cpp
