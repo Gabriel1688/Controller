@@ -16,8 +16,8 @@
 #include "ds/EventLoop.h"
 #include "ds/BooleanEvent.h"
 #include "robot/TimedRobot.h"
-#include "subsystem/Arm.h"
-#include "subsystem/Gripper.h"
+#include "Arm.h"
+#include "Gripper.h"
 
 using namespace spdlog;
 

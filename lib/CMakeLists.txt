@@ -46,18 +46,12 @@ add_library(framework
         robot/TimedRobot.cpp
         robot/IterativeRobotBase.cpp
         robot/RobotBase.cpp
+        robot/ControlledSubsystemBase.cpp
+        robot/SubsystemBase.cpp
 
         motor/CAN.cpp
         motor/CANAPI.cpp
         motor/TcpClient.cpp
-        motor/CtrlStepMotor.cpp
-
-        subsystem/ControlledSubsystemBase.cpp
-        subsystem/SubsystemBase.cpp
-        subsystem/Arm.cpp
-        subsystem/Gripper.cpp
-
-        controllers/ArmController.cpp
         motor/CtrlStepMotor.cpp
 )
 set_target_properties(framework PROPERTIES DEBUG_POSTFIX "d")

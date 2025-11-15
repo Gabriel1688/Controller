@@ -1,11 +1,11 @@
 #pragma once
 
 #include <vector>
-#include <Eigen/Core>
-#include <Eigen/SparseCore>
-#include "TrajectoryConfig.h"
+#include "Eigen/Core"
+#include "Eigen/SparseCore"
+#include "common/TrajectoryConfig.h"
 #include "controllers/ArmController.h"
-#include "ControlledSubsystemBase.h"
+#include "robot/ControlledSubsystemBase.h"
 #include "motor/CtrlStepMotor.h"
 #include "string"
 #define ALL 0

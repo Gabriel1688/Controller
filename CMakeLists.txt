@@ -10,8 +10,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(
         Controller
+
         src/Robot.cpp
-        src/Robot.h
+        src/Arm.cpp
+        src/Gripper.cpp
+        src/ArmController.cpp
 )
 
 target_include_directories(

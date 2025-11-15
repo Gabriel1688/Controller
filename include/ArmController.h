@@ -3,9 +3,9 @@
 #include <functional>
 #include <tuple>
 #include <vector>
-#include "subsystem/Pose2d.h"
-#include "subsystem/TrajectoryConfig.h"
-#include "ControllerBase.h"
+#include "common/Pose2d.h"
+#include "common/TrajectoryConfig.h"
+#include "robot/ControllerBase.h"
 #include <math.h>
 #include "memory.h"
 

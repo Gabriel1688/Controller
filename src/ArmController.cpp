@@ -1,7 +1,7 @@
 #include <cmath>
 #include <algorithm>
 #include "ArmController.h"
-#include "subsystem/Pose2d.h"
+#include "common/Pose2d.h"
 
 ArmController::ArmController() {
 

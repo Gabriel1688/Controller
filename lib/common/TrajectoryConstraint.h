@@ -1,7 +1,7 @@
 #pragma once
 
 #include <limits>
-#include "Pose2d.h"
+#include "common/Pose2d.h"
 
 /**
  * An interface for defining user-defined velocity and acceleration constraints
