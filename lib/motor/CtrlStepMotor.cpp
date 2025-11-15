@@ -1,20 +1,21 @@
 #include "CtrlStepMotor.h"
 #include "CtrlStepFrames.h"
+#define CAN_ID_STD                  (0x00000000U)  /*!< Standard Id */
+#define CAN_RTR_DATA                (0x00000000U)  /*!< Data frame   */
 
 CtrlStepMotor::CtrlStepMotor(HAL_CANHandle _hcan, uint8_t _id, bool _inverse,
                              uint8_t _reduction, float _angleLimitMin, float _angleLimitMax) :
-        nodeID(_id), hcan(_hcan), inverseDirection(_inverse), reduction(_reduction),
+        nodeID(_id), m_canHandle(_hcan), inverseDirection(_inverse), reduction(_reduction),
         angleLimitMin(_angleLimitMin), angleLimitMax(_angleLimitMax)
 {
-//    txHeader =
-//            {
-//                    .StdId = 0,
-//                    .ExtId = 0,
-//                    .IDE = CAN_ID_STD,
-//                    .RTR = CAN_RTR_DATA,
-//                    .DLC = 8,
-//                    .TransmitGlobalTime = DISABLE
-//            };
+    txHeader =
+            {
+                    .StdId = 0,
+                    .ExtId = 0,
+                    .IDE = CAN_ID_STD,
+                    .RTR = CAN_RTR_DATA,
+                    .DLC = 8
+            };
 }
 
 void CtrlStepMotor::SetEnable(bool _enable)
@@ -61,7 +62,6 @@ void CtrlStepMotor::SetCurrentSetPoint(float _val)
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_CURRENT_SET_POINT, &status);
 }
 
-
 void CtrlStepMotor::SetVelocitySetPoint(float _val)
 {
     state = RUNNING;
@@ -74,7 +74,6 @@ void CtrlStepMotor::SetVelocitySetPoint(float _val)
     int32_t  status;
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_VELOCITY_SET_POINT, &status);
 }
-
 
 void CtrlStepMotor::SetPositionSetPoint(float _val)
 {
@@ -99,7 +98,6 @@ void CtrlStepMotor::SetPositionWithVelocityLimit(float _pos, float _vel)
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_POSITION_WITH_VELOCITY_LIMIT, &status);
 }
 
-
 void CtrlStepMotor::SetNodeID(uint32_t _id)
 {
     // Int to Bytes
@@ -112,7 +110,6 @@ void CtrlStepMotor::SetNodeID(uint32_t _id)
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_NODE_ID, &status);
 }
 
-
 void CtrlStepMotor::SetCurrentLimit(float _val)
 {
     // Float to Bytes
@@ -123,7 +120,6 @@ void CtrlStepMotor::SetCurrentLimit(float _val)
     int32_t  status;
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_CURRENT_LIMIT, &status);
 }
-
 
 void CtrlStepMotor::SetVelocityLimit(float _val)
 {
@@ -165,7 +161,6 @@ void CtrlStepMotor::SetEnableOnBoot(bool _enable)
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_AUTO_ENABLE, &status);
 }
 
-
 void CtrlStepMotor::SetEnableStallProtect(bool _enable)
 {
     uint32_t val = _enable ? 1 : 0;
@@ -196,17 +191,12 @@ void CtrlStepMotor::EraseConfigs()
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_ERASE_CONFIGS, &status);
 }
 
-
 void CtrlStepMotor::SetAngle(float _angle)
 {
     _angle = inverseDirection ? -_angle : _angle;
     float stepMotorCnt = _angle / 360.0f * (float) reduction;
     SetPositionSetPoint(stepMotorCnt);
 }
-
-//0x7d~0xFF MISC CMDs
-const int CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH= 0x7d;  // enable motor temperature watch
-
 
 void CtrlStepMotor::SetAngleWithVelocityLimit(float _angle, float _vel)
 {
@@ -215,13 +205,11 @@ void CtrlStepMotor::SetAngleWithVelocityLimit(float _angle, float _vel)
     SetPositionWithVelocityLimit(stepMotorCnt, _vel);
 }
 
-
 void CtrlStepMotor::UpdateAngle()
 {
     int32_t  status;
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH, &status);
 }
-
 
 void CtrlStepMotor::UpdateAngleCallback(float _pos, bool _isFinished)
 {
@@ -230,7 +218,6 @@ void CtrlStepMotor::UpdateAngleCallback(float _pos, bool _isFinished)
     float tmp = _pos / (float) reduction * 360;
     angle = inverseDirection ? -tmp : tmp;
 }
-
 
 void CtrlStepMotor::SetDceKp(int32_t _val)
 {
@@ -242,7 +229,6 @@ void CtrlStepMotor::SetDceKp(int32_t _val)
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_DEC_KP, &status);
 }
 
-
 void CtrlStepMotor::SetDceKv(int32_t _val)
 {
     auto* b = (unsigned char*) &_val;
@@ -253,7 +239,6 @@ void CtrlStepMotor::SetDceKv(int32_t _val)
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_DEC_KV, &status);
 }
 
-
 void CtrlStepMotor::SetDceKi(int32_t _val)
 {
     auto* b = (unsigned char*) &_val;
@@ -263,7 +248,6 @@ void CtrlStepMotor::SetDceKi(int32_t _val)
     int32_t  status;
     HAL_WriteCANPacket(m_canHandle, canBuf, 4, CMD_API_SET_DEC_KI, &status);
 }
-
 
 void CtrlStepMotor::SetDceKd(int32_t _val)
 {

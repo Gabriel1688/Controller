@@ -207,8 +207,7 @@ namespace wpi {
  * @param manualReset true for manual reset, false for automatic reset
  * @param initialState true to make the handle initially in signaled state
  */
-    void CreateSignalObject(WPI_Handle handle, bool manualReset = false,
-                            bool initialState = false);
+    void CreateSignalObject(WPI_Handle handle, bool manualReset = false, bool initialState = false);
 
 /**
  * Sets a handle to signaled state.

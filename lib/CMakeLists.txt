@@ -31,14 +31,12 @@ add_library(framework
         mqtt/wrapper.cpp
         mqtt/mqttClient.cpp
 
-        common/fdevent.cpp
         common/TimerManager.cpp
         common/Synchronization.cpp
         common/Notifier.cpp
 
         ds/DSControlWord.cpp
         ds/FRCDriverStation.cpp
-
         ds/BooleanEvent.cpp
         ds/DriverStation.cpp
         ds/GenericHID.cpp
@@ -52,7 +50,7 @@ add_library(framework
         motor/CAN.cpp
         motor/CANAPI.cpp
         motor/TcpClient.cpp
-#        motor/CtrlStepMotor.cpp
+        motor/CtrlStepMotor.cpp
 
         subsystem/ControlledSubsystemBase.cpp
         subsystem/SubsystemBase.cpp
@@ -60,6 +58,7 @@ add_library(framework
         subsystem/Gripper.cpp
 
         controllers/ArmController.cpp
+        motor/CtrlStepMotor.cpp
 )
 set_target_properties(framework PROPERTIES DEBUG_POSTFIX "d")
 

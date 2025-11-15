@@ -15,6 +15,7 @@ public:
     CtrlStepMotor(HAL_CANHandle _hcan, uint8_t _id, bool _inverse = false, uint8_t _reduction = 1,
                   float _angleLimitMin = -180, float _angleLimitMax = 180);
 
+    uint8_t nodeID;
     uint8_t deviceId;
     float angle = 0;
     float angleLimitMax;
@@ -53,6 +54,25 @@ public:
     void UpdateAngle();
     void UpdateAngleCallback(float _pos, bool _isFinished);
 private:
+    typedef struct
+    {
+        uint32_t StdId;    /*!< Specifies the standard identifier.
+                          This parameter must be a number between Min_Data = 0 and Max_Data = 0x7FF. */
+
+        uint32_t ExtId;    /*!< Specifies the extended identifier.
+                          This parameter must be a number between Min_Data = 0 and Max_Data = 0x1FFFFFFF. */
+
+        uint32_t IDE;      /*!< Specifies the type of identifier for the message that will be transmitted.
+                          This parameter can be a value of @ref CAN_identifier_type */
+
+        uint32_t RTR;      /*!< Specifies the type of frame for the message that will be transmitted.
+                          This parameter can be a value of @ref CAN_remote_transmission_request */
+
+        uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
+                          This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
+
+    } CAN_TxHeaderTypeDef;
     HAL_CANHandle    m_canHandle;
     uint8_t canBuf[8] = {};
+    CAN_TxHeaderTypeDef txHeader = {};
 };

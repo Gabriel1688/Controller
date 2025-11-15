@@ -57,7 +57,7 @@ std::shared_ptr<mqttClient> mqClient;
 int main() {
     client_create();
     mqClient = std::shared_ptr<mqttClient>(g_mqttClient_ptr);
-    mqClient->loadConfig("../config/config.txt");
+    mqClient->loadConfig("../../config/config.txt");
     mqClient->Start();
 
     InitializeFRCDriverStation();
