@@ -6,6 +6,9 @@
 #include "TrajectoryConfig.h"
 #include "controllers/ArmController.h"
 #include "ControlledSubsystemBase.h"
+#include "motor/CtrlStepMotor.h"
+#include "string"
+#define ALL 0
 
 /**
  * The Arm subsystem.
@@ -29,6 +32,7 @@ public:
     //wpi::static_circular_buffer<Vision::GlobalMeasurement, 8> visionQueue;
 
     Arm();
+    ~Arm();
 
     Arm(const Arm&) = delete;
     Arm& operator=(const Arm&) = delete;
@@ -199,4 +203,107 @@ private:
      * it's disabled.
      */
     void SetCoastMode();
+
+
+
+////Following part copied from the dummy robot //////
+/*
+  |   PARAMS   | `current_limit` | `acceleration` | `dce_kp` | `dce_kv` | `dce_ki` | `dce_kd` |
+  | ---------- | --------------- | -------------- | -------- | -------- | -------- | -------- |
+  | **Joint1** | 2               | 30             | 1000     | 80       | 200      | 250      |
+  | **Joint2** | 2               | 30             | 1000     | 80       | 200      | 200      |
+  | **Joint3** | 2               | 30             | 1500     | 80       | 200      | 250      |
+  | **Joint4** | 2               | 30             | 1000     | 80       | 200      | 250      |
+  | **Joint5** | 2               | 30             | 1000     | 80       | 200      | 250      |
+  | **Joint6** | 2               | 30             | 1000     | 80       | 200      | 250      |
+ */
+//
+//
+//    class DummyRobot
+//    {
+//    public:
+//        explicit DummyRobot(CAN_HandleTypeDef* _hcan);
+//
+//        ~DummyRobot();
+
+        enum CommandMode
+        {
+            COMMAND_TARGET_POINT_SEQUENTIAL = 1,
+            COMMAND_TARGET_POINT_INTERRUPTABLE,
+            COMMAND_CONTINUES_TRAJECTORY,
+            COMMAND_MOTOR_TUNING
+        };
+
+        // This is the pose when power on.
+        const DOF6Kinematic::Joint6D_t REST_POSE = {0, -73, 180, 0, 0, 0};
+        const float DEFAULT_JOINT_SPEED = 30;  // degree/s
+        const DOF6Kinematic::Joint6D_t DEFAULT_JOINT_ACCELERATION_BASES = {150, 100, 200, 200, 200, 200};
+        const float DEFAULT_JOINT_ACCELERATION_LOW = 30;    // 0~100
+        const float DEFAULT_JOINT_ACCELERATION_HIGH = 100;  // 0~100
+        const CommandMode DEFAULT_COMMAND_MODE = COMMAND_TARGET_POINT_INTERRUPTABLE;
+
+
+        DOF6Kinematic::Joint6D_t currentJoints = REST_POSE;
+        DOF6Kinematic::Joint6D_t targetJoints = REST_POSE;
+        DOF6Kinematic::Joint6D_t initPose = REST_POSE;
+        DOF6Kinematic::Pose6D_t currentPose6D = {};
+        volatile uint8_t jointsStateFlag = 0b00000000;
+        CommandMode commandMode = DEFAULT_COMMAND_MODE;
+        CtrlStepMotor* motorJ[7] = {nullptr};
+
+        void Init();
+        bool MoveJ(float _j1, float _j2, float _j3, float _j4, float _j5, float _j6);
+        bool MoveL(float _x, float _y, float _z, float _a, float _b, float _c);
+        void MoveJoints(DOF6Kinematic::Joint6D_t _joints);
+        void SetJointSpeed(float _speed);
+        void SetJointAcceleration(float _acc);
+        void UpdateJointAngles();
+        void UpdateJointAnglesCallback();
+        void UpdateJointPose6D();
+        void Reboot();
+        void SetEnable(bool _enable);
+        void SetRGBEnable(bool _enable);
+        bool GetRGBEnabled();
+        void SetRGBMode(uint32_t mode);
+        uint32_t GetRGBMode();
+        void CalibrateHomeOffset();
+        void Homing();
+        void Resting();
+        bool IsMoving();
+        bool IsEnabled();
+        void SetCommandMode(uint32_t _mode);
+
+        class CommandHandler
+        {
+        public:
+            explicit CommandHandler(Arm* _context) : context(_context)
+            {
+//TODO            commandFifo = osMessageQueueNew(16, 64, nullptr);
+            }
+
+            uint32_t Push(const std::string &_cmd);
+            std::string Pop(uint32_t timeout);
+            uint32_t ParseCommand(const std::string &_cmd);
+            uint32_t GetSpace();
+            void ClearFifo();
+            void EmergencyStop();
+
+
+        private:
+            Arm* context;
+//TODO        osMessageQueueId_t commandFifo;
+            int commandFifo;
+            char strBuffer[64]{};
+        };
+//        CommandHandler commandHandler = CommandHandler(this);
+
+    private:
+        // CAN_HandleTypeDef* hcan;
+        float jointSpeed = DEFAULT_JOINT_SPEED;
+        float jointSpeedRatio = 1;
+        DOF6Kinematic::Joint6D_t dynamicJointSpeeds = {1, 1, 1, 1, 1, 1};
+        DOF6Kinematic* dof6Solver;
+        bool isEnabled = false;
+        bool isRGBEnabled = false;
+        uint32_t rgbMode = 0;
 };

@@ -1,6 +1,6 @@
 #pragma  once
 #include "CAN.h"
-
+#include <memory>
 class CtrlStepMotor
 {
 public:
@@ -12,7 +12,7 @@ public:
     };
     const uint32_t CTRL_CIRCLE_COUNT = 200 * 256;
 
-    CtrlStepMotor(HAL_CANHandle _hcan, uint8_t _id, bool _inverse = false, uint8_t _reduction = 1,
+    CtrlStepMotor(uint8_t _id, bool _inverse = false, uint8_t _reduction = 1,
                   float _angleLimitMin = -180, float _angleLimitMax = 180);
 
     uint8_t nodeID;
@@ -72,7 +72,7 @@ private:
                           This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
 
     } CAN_TxHeaderTypeDef;
-    HAL_CANHandle    m_canHandle;
+    std::shared_ptr<CAN>    m_canHandle;
     uint8_t canBuf[8] = {};
     CAN_TxHeaderTypeDef txHeader = {};
 };
