@@ -2,8 +2,8 @@
 #include "ds/DriverStation.h"
 #include "ds/GenericHID.h"
 #include "ds/XboxController.h"
-#include "mqtt/wrapper.h"
 #include "mqtt/mqttClient.h"
+#include "mqtt/wrapper.h"
 
 #include <iostream>
 bool m_exit = false;
@@ -18,40 +18,35 @@ void StartCompetition() {
     DriverStation::ProvideRefreshedDataEventHandle(event.GetHandle());
 
     while (!m_exit) {
-        if ( DriverStation::IsEnabled()) {
+        if (DriverStation::IsEnabled()) {
             modeThread.InDisabled(true);
             std::cout << " Robot is Enabled." << std::endl;
             bool state = joystick.GetRawButton(1);
-            if( state == 1) {
+            if (state == 1) {
                 std::cout << "GenericHID joystick button 1 is pressed." << std::endl;
-            }
-            else {
+            } else {
                 std::cout << "GenericHID joystick button 1 is released." << std::endl;
             }
             state = xbox_controller.GetAButton();
-            if( state == 1) {
+            if (state == 1) {
                 std::cout << "XboxController button AB is pressed." << std::endl;
-            }
-            else {
+            } else {
                 std::cout << "XboxController button AB is released." << std::endl;
             }
 
             modeThread.InDisabled(false);
-            while ( DriverStation::IsEnabled()) {
+            while (DriverStation::IsEnabled()) {
                 wpi::WaitForObject(event.GetHandle());
             }
-
         }
     }
 }
 
-
-
 extern "C" {
 namespace hal {
-    void InitializeDriverStation();
+void InitializeDriverStation();
 }
-    void InitializeFRCDriverStation();
+void InitializeFRCDriverStation();
 }
 std::shared_ptr<mqttClient> mqClient;
 int main() {

@@ -1,61 +1,61 @@
-#include <atomic>
-#include <cstring>
-#include <limits>
-#include "EventVector.h"
-#include <mutex>
 #include "DriverStation.h"
 #include "DriverStationTypes.h"
+#include "EventVector.h"
 #include "mqtt/mqttClient.h"
+#include <atomic>
+#include <cstring>
 #include <iostream>
+#include <limits>
+#include <mutex>
 
 static const int JOYSTICK_POS = 19;
-static_assert(sizeof(int32_t) >= sizeof(int),  "FRC_NetworkComm status variable is larger than 32 bits");
+static_assert(sizeof(int32_t) >= sizeof(int), "FRC_NetworkComm status variable is larger than 32 bits");
 
 namespace {
-    struct HAL_JoystickAxesInt {
-        int16_t count;
-        int16_t axes[HAL_kMaxJoystickAxes];
-    };
-}  // namespace
+struct HAL_JoystickAxesInt {
+    int16_t count;
+    int16_t axes[HAL_kMaxJoystickAxes];
+};
+}// namespace
 
 struct JoystickDataCache {
-        JoystickDataCache() { std::memset(this, 0, sizeof(*this)); }
-        void Update(const char* payload);
+    JoystickDataCache() { std::memset(this, 0, sizeof(*this)); }
+    void Update(const char *payload);
 
-        HAL_JoystickAxes axes[HAL_kMaxJoysticks];
-        HAL_JoystickPOVs povs[HAL_kMaxJoysticks];
-        HAL_JoystickButtons buttons[HAL_kMaxJoysticks];
-        HAL_ControlWord controlWord;
+    HAL_JoystickAxes axes[HAL_kMaxJoysticks];
+    HAL_JoystickPOVs povs[HAL_kMaxJoysticks];
+    HAL_JoystickButtons buttons[HAL_kMaxJoysticks];
+    HAL_ControlWord controlWord;
 };
 
 static_assert(std::is_standard_layout_v<JoystickDataCache>);
 
 struct FRCDriverStation {
-        EventVector newDataEvents;
+    EventVector newDataEvents;
 };
 
-static ::FRCDriverStation* driverStation;
+static ::FRCDriverStation *driverStation;
 
 // Message and Data variables
 static std::mutex msgMutex;
 
-static int32_t HAL_GetJoystickAxesInternal(__attribute__((unused)) const char* payload, int32_t joystickNum, HAL_JoystickAxes* axes) {
+static int32_t HAL_GetJoystickAxesInternal(__attribute__((unused)) const char *payload, int32_t joystickNum, HAL_JoystickAxes *axes) {
     HAL_JoystickAxesInt netcommAxes;
-    int32_t  joystick_size=payload[JOYSTICK_POS];
+    int32_t joystick_size = payload[JOYSTICK_POS];
 
-    if( joystick_size <= joystickNum)  //Invalid joystickNum  --how to know joystick is plugout?
+    if (joystick_size <= joystickNum)//Invalid joystickNum  --how to know joystick is plugout?
     {
-        std::cout <<"HAL_GetJoystickAxesInternal PARAMETER_OUT_OF_RANGE joystickNum : " << joystickNum << std::endl;
+        std::cout << "HAL_GetJoystickAxesInternal PARAMETER_OUT_OF_RANGE joystickNum : " << joystickNum << std::endl;
         return 0;
     }
 
-    int offset = JOYSTICK_POS+2;
-    netcommAxes.count = payload[offset];  // NumAxes
-    offset ++;
+    int offset = JOYSTICK_POS + 2;
+    netcommAxes.count = payload[offset];// NumAxes
+    offset++;
 
-    for(int i = 0; i < netcommAxes.count; i ++) {
+    for (int i = 0; i < netcommAxes.count; i++) {
         netcommAxes.axes[i] = payload[offset];
-        offset ++;
+        offset++;
     }
 
     // copy integer values to double values
@@ -73,57 +73,57 @@ static int32_t HAL_GetJoystickAxesInternal(__attribute__((unused)) const char* p
     return 0;
 }
 
-static int32_t HAL_GetJoystickPOVsInternal(__attribute__((unused)) const char* payload, int32_t joystickNum, HAL_JoystickPOVs* povs) {
-    int32_t  joystick_size=payload[JOYSTICK_POS];
-    if( joystick_size <= joystickNum)  //Invalid joystickNum  --how to know joystick is plugout?
+static int32_t HAL_GetJoystickPOVsInternal(__attribute__((unused)) const char *payload, int32_t joystickNum, HAL_JoystickPOVs *povs) {
+    int32_t joystick_size = payload[JOYSTICK_POS];
+    if (joystick_size <= joystickNum)//Invalid joystickNum  --how to know joystick is plugout?
     {
-        std::cout <<"HAL_GetJoystickAxesInternal PARAMETER_OUT_OF_RANGE joystickNum : " << joystickNum << std::endl;
+        std::cout << "HAL_GetJoystickAxesInternal PARAMETER_OUT_OF_RANGE joystickNum : " << joystickNum << std::endl;
         return 0;
     }
 
-    int offset = 6 + JOYSTICK_POS + payload[ JOYSTICK_POS + 2];   // NumHats
+    int offset = 6 + JOYSTICK_POS + payload[JOYSTICK_POS + 2];// NumHats
     povs->count = payload[offset];
-    offset ++;
-    for( int i = 0; i < povs->count; i++) {
-       povs->povs[i] = (payload[offset] << 8 ) + payload[offset+1];
-       offset = offset + 2;
+    offset++;
+    for (int i = 0; i < povs->count; i++) {
+        povs->povs[i] = (payload[offset] << 8) + payload[offset + 1];
+        offset = offset + 2;
     }
     return 0;
 }
 
-static int32_t HAL_GetJoystickButtonsInternal(__attribute__((unused)) const char* payload, int32_t joystickNum, HAL_JoystickButtons* buttons) {
-    int32_t  joystick_size=payload[JOYSTICK_POS];
-    if( joystick_size <= joystickNum)  //Invalid joystickNum  --how to know joystick is plugout?
+static int32_t HAL_GetJoystickButtonsInternal(__attribute__((unused)) const char *payload, int32_t joystickNum, HAL_JoystickButtons *buttons) {
+    int32_t joystick_size = payload[JOYSTICK_POS];
+    if (joystick_size <= joystickNum)//Invalid joystickNum  --how to know joystick is plugout?
     {
-        std::cout <<"HAL_GetJoystickAxesInternal PARAMETER_OUT_OF_RANGE joystickNum : " << joystickNum << std::endl;
+        std::cout << "HAL_GetJoystickAxesInternal PARAMETER_OUT_OF_RANGE joystickNum : " << joystickNum << std::endl;
         return 0;
     }
 
-    int offset = JOYSTICK_POS + 3 + payload[ JOYSTICK_POS + 2 ];   // NumAxes
+    int offset = JOYSTICK_POS + 3 + payload[JOYSTICK_POS + 2];// NumAxes
     buttons->count = payload[offset];
 
-    buttons->buttons = (payload[offset+1] << 8) + payload[offset+2] ;
+    buttons->buttons = (payload[offset + 1] << 8) + payload[offset + 2];
     return 0;
 }
 
-void JoystickDataCache::Update(const char* payload) {
-    HAL_GetJoystickAxesInternal(payload,0, &axes[0]);
-    HAL_GetJoystickPOVsInternal(payload,0, &povs[0]);
-    HAL_GetJoystickButtonsInternal(payload,0, &buttons[0]);
-    memcpy((unsigned char*)&controlWord,(unsigned char*)&payload[3],1);
+void JoystickDataCache::Update(const char *payload) {
+    HAL_GetJoystickAxesInternal(payload, 0, &axes[0]);
+    HAL_GetJoystickPOVsInternal(payload, 0, &povs[0]);
+    HAL_GetJoystickButtonsInternal(payload, 0, &buttons[0]);
+    memcpy((unsigned char *) &controlWord, (unsigned char *) &payload[3], 1);
 }
 
-#define CHECK_JOYSTICK_NUMBER(stickNum)                  \
-  if ((stickNum) < 0 || (stickNum) >= HAL_kMaxJoysticks) \
-  return PARAMETER_OUT_OF_RANGE
+#define CHECK_JOYSTICK_NUMBER(stickNum)                    \
+    if ((stickNum) < 0 || (stickNum) >= HAL_kMaxJoysticks) \
+    return PARAMETER_OUT_OF_RANGE
 
 static HAL_ControlWord newestControlWord;
 static JoystickDataCache caches[3];
-static JoystickDataCache* currentRead = &caches[0];
-static JoystickDataCache* currentReadLocal = &caches[0];
-static std::atomic<JoystickDataCache*> currentCache{nullptr};
-static JoystickDataCache* lastGiven = &caches[1];
-static JoystickDataCache* cacheToUpdate = &caches[2];
+static JoystickDataCache *currentRead = &caches[0];
+static JoystickDataCache *currentReadLocal = &caches[0];
+static std::atomic<JoystickDataCache *> currentCache{nullptr};
+static JoystickDataCache *lastGiven = &caches[1];
+static JoystickDataCache *cacheToUpdate = &caches[2];
 
 static std::mutex cacheMutex;
 
@@ -166,8 +166,8 @@ void HAL_GetAllJoystickData(HAL_JoystickAxes *axes, HAL_JoystickPOVs *povs, HAL_
     std::memcpy(buttons, currentRead->buttons, sizeof(currentRead->buttons));
 }
 
-static void newDataOccur(const void* payload, __attribute__((unused)) uint32_t payload_len) {
-    cacheToUpdate->Update(static_cast<const char*>(payload));
+static void newDataOccur(const void *payload, __attribute__((unused)) uint32_t payload_len) {
+    cacheToUpdate->Update(static_cast<const char *>(payload));
 
     JoystickDataCache *given = cacheToUpdate;
     JoystickDataCache *prev = currentCache.exchange(cacheToUpdate);
@@ -231,9 +231,9 @@ void HAL_RemoveNewDataEventHandle(WPI_EventHandle handle) {
 }
 
 namespace hal {
-    void InitializeDriverStation() {
-        // Set up the occur function internally with NetComm
-        g_mqttClient_ptr->SetOccurFuncPointer(newDataOccur);
-    }
-  }
+void InitializeDriverStation() {
+    // Set up the occur function internally with NetComm
+    g_mqttClient_ptr->SetOccurFuncPointer(newDataOccur);
+}
+}// namespace hal
 }

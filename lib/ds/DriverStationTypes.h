@@ -5,7 +5,7 @@
 #define HAL_IO_CONFIG_DATA_SIZE 32
 #define HAL_SYS_STATUS_DATA_SIZE 44
 #define HAL_USER_STATUS_DATA_SIZE \
-  (984 - HAL_IO_CONFIG_DATA_SIZE - HAL_SYS_STATUS_DATA_SIZE)
+    (984 - HAL_IO_CONFIG_DATA_SIZE - HAL_SYS_STATUS_DATA_SIZE)
 
 #define HALFRC_NetworkCommunication_DynamicType_DSEnhancedIO_Input 17
 #define HALFRC_NetworkCommunication_DynamicType_DSEnhancedIO_Output 18
@@ -93,4 +93,3 @@ struct HAL_JoystickDescriptor {
     uint8_t povCount;
 };
 typedef struct HAL_JoystickDescriptor HAL_JoystickDescriptor;
-

@@ -11,8 +11,8 @@ class EventLoop {
 public:
     EventLoop();
 
-    EventLoop(const EventLoop&) = delete;
-    EventLoop& operator=(const EventLoop&) = delete;
+    EventLoop(const EventLoop &) = delete;
+    EventLoop &operator=(const EventLoop &) = delete;
 
     /**
      * Bind a new action to run when the loop is polled.

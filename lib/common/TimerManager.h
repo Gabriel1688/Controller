@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #include "GenericTimerQueue.h"
 #include "TimerEvent.h"
 
@@ -9,10 +9,8 @@
  * Manages a queue of events to be processed after their associated timeout
  * period has elapsed.
  */
-class TimerManager
-{
+class TimerManager {
 public:
-
     /*!
      * \typedef timer_id_t - type used to uniquely identify each timed event.
      */
@@ -38,11 +36,10 @@ public:
      * \param event - event to queue.
      * \param milliseconds - timeout period
      */
-    timer_id_t startTimer(TimerEvent* event, long milliseconds);
+    timer_id_t startTimer(TimerEvent *event, long milliseconds);
 
-    timer_id_t stopTimer( TimerEvent::TimerEventType event_type, timer_id_t& id )
-    {
-        (void)event_type;
+    timer_id_t stopTimer(TimerEvent::TimerEventType event_type, timer_id_t &id) {
+        (void) event_type;
         return id;
     };
 
@@ -54,26 +51,23 @@ public:
      * \param id - receives the timer's identifier.
      * \return  true, if an expired timer was found; otherwise, false.
      */
-    bool getExpiredTimer(TimerEvent*& event, timer_id_t& id);
+    bool getExpiredTimer(TimerEvent *&event, timer_id_t &id);
 
 private:
-
     /*!
      * \struct Timer
      * Details for a single timer. Binds the timer's identifier to its event
      * object, enabling them to be queued together as a single entity.
      */
-    struct Timer
-    {
-        Timer(timer_id_t id, TimerEvent* evt)
-                : timer_id(id),
-                  event(evt)
-        {
+    struct Timer {
+        Timer(timer_id_t id, TimerEvent *evt)
+            : timer_id(id),
+              event(evt) {
             ;
         }
 
-        timer_id_t  timer_id;
-        TimerEvent* event;
+        timer_id_t timer_id;
+        TimerEvent *event;
     };
 
     /*!
@@ -82,21 +76,17 @@ private:
     inline timer_id_t getNextTimerId();
 
 private:
-
-    TimerManager(const TimerManager&);
-    TimerManager& operator = (const TimerManager&);
+    TimerManager(const TimerManager &);
+    TimerManager &operator=(const TimerManager &);
 
 private:
-
-    TimerQueue<Timer>* timer_queue_;
+    TimerQueue<Timer> *timer_queue_;
     timer_id_t next_timer_id_;
-    TimerQueue<Timer>* curl_timer_queue_;
+    TimerQueue<Timer> *curl_timer_queue_;
 };
 
-inline TimerManager::timer_id_t TimerManager::getNextTimerId()
-{
-    if (next_timer_id_ == INVALID_TIMER_ID)
-    {
+inline TimerManager::timer_id_t TimerManager::getNextTimerId() {
+    if (next_timer_id_ == INVALID_TIMER_ID) {
         next_timer_id_ = 1;
     }
 

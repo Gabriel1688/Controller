@@ -4,9 +4,9 @@
 typedef unsigned int WPI_Handle;
 /** An event handle. */
 typedef WPI_Handle WPI_EventHandle;
+#include <algorithm>
 #include <mutex>
 #include <vector>
-#include <algorithm>
 
 struct EventVector {
     std::mutex mutex;
@@ -30,8 +30,8 @@ struct EventVector {
     void Remove(WPI_EventHandle handle) {
         std::scoped_lock lock{mutex};
         auto it = std::find_if(
-                events.begin(), events.end(),
-                [=](const WPI_EventHandle fromHandle) { return fromHandle == handle; });
+            events.begin(), events.end(),
+            [=](const WPI_EventHandle fromHandle) { return fromHandle == handle; });
         if (it != events.end()) {
             events.erase(it);
         }
@@ -42,7 +42,7 @@ struct EventVector {
      */
     void Wakeup() {
         std::scoped_lock lock{mutex};
-        for (auto&& handle : events) {
+        for (auto &&handle : events) {
             wpi::SetEvent(handle);
         }
     }

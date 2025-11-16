@@ -1,42 +1,41 @@
 #include "DriverStation.h"
 #include "DriverStationTypes.h"
+#include "EventVector.h"
 #include <array>
 #include <string>
-#include "EventVector.h"
 
 #include <mutex>
 
 extern "C" {
-    namespace hal {
-        extern void InitializeDriverStation();
-    }
-    HAL_Bool HAL_RefreshDSData(void) ;
+namespace hal {
+extern void InitializeDriverStation();
+}
+HAL_Bool HAL_RefreshDSData(void);
 }
 
-struct Instance
-{
-     Instance();
-     ~Instance();
+struct Instance {
+    Instance();
+    ~Instance();
 
-     EventVector refreshEvents;
+    EventVector refreshEvents;
 
-     // Joystick button rising/falling edge flags
-     std::mutex buttonEdgeMutex;
-     std::array<HAL_JoystickButtons, DriverStation::kJoystickPorts>  previousButtonStates;
-     std::array<uint32_t, DriverStation::kJoystickPorts> joystickButtonsPressed;
-     std::array<uint32_t, DriverStation::kJoystickPorts> joystickButtonsReleased;
+    // Joystick button rising/falling edge flags
+    std::mutex buttonEdgeMutex;
+    std::array<HAL_JoystickButtons, DriverStation::kJoystickPorts> previousButtonStates;
+    std::array<uint32_t, DriverStation::kJoystickPorts> joystickButtonsPressed;
+    std::array<uint32_t, DriverStation::kJoystickPorts> joystickButtonsReleased;
 
-     // Robot state status variables
-     bool userInDisabled = false;
-     bool userInAutonomous = false;
-     bool userInTeleop = false;
-     bool userInTest = false;
-     int  nextMessageTime = 0;//0_s;
+    // Robot state status variables
+    bool userInDisabled = false;
+    bool userInAutonomous = false;
+    bool userInTeleop = false;
+    bool userInTest = false;
+    int nextMessageTime = 0;//0_s;
 };
 
 static constexpr auto kJoystickUnpluggedMessageInterval = 1;//1_s;
 
-static Instance& GetInstance() {
+static Instance &GetInstance() {
     static Instance instance;
     return instance;
 }
@@ -61,7 +60,7 @@ Instance::Instance() {
 
 Instance::~Instance() {
 }
-extern int32_t HAL_GetJoystickButtonsInternal(int32_t joystickNum, HAL_JoystickButtons* buttons);
+extern int32_t HAL_GetJoystickButtonsInternal(int32_t joystickNum, HAL_JoystickButtons *buttons);
 
 bool DriverStation::GetStickButton(int stick, int button) {
 
@@ -76,7 +75,7 @@ bool DriverStation::GetStickButtonPressed(int stick, int button) {
     HAL_JoystickButtons buttons;
     HAL_GetJoystickButtons(stick, &buttons);
 
-    auto& inst = ::GetInstance();
+    auto &inst = ::GetInstance();
     std::unique_lock lock(inst.buttonEdgeMutex);
     // If button was pressed, clear flag and return true
     if (inst.joystickButtonsPressed[stick] & 1 << (button - 1)) {
@@ -90,7 +89,7 @@ bool DriverStation::GetStickButtonReleased(int stick, int button) {
     HAL_JoystickButtons buttons;
     HAL_GetJoystickButtons(stick, &buttons);
 
-    auto& inst = ::GetInstance();
+    auto &inst = ::GetInstance();
     std::unique_lock lock(inst.buttonEdgeMutex);
     // If button was released, clear flag and return true
     if (inst.joystickButtonsReleased[stick] & 1 << (button - 1)) {
@@ -137,8 +136,7 @@ int DriverStation::GetStickButtonCount(int stick) {
 }
 
 bool DriverStation::IsJoystickConnected(int stick) {
-    return GetStickAxisCount(stick) > 0 || GetStickButtonCount(stick) > 0 ||
-           GetStickPOVCount(stick) > 0;
+    return GetStickAxisCount(stick) > 0 || GetStickButtonCount(stick) > 0 || GetStickPOVCount(stick) > 0;
 }
 
 bool DriverStation::IsEnabled() {
@@ -212,8 +210,8 @@ bool DriverStation::WaitForDsConnection(int timeout) {
 double DriverStation::GetBatteryVoltage() {
     int32_t status = 0;
     double voltage;
-//    double voltage = HAL_GetVinVoltage(&status);
-//    FRC_CheckErrorStatus(status, "getVinVoltage");
+    //    double voltage = HAL_GetVinVoltage(&status);
+    //    FRC_CheckErrorStatus(status, "getVinVoltage");
 
     return voltage;
 }
@@ -226,7 +224,7 @@ double DriverStation::GetBatteryVoltage() {
  */
 void DriverStation::RefreshData() {
     HAL_RefreshDSData();
-    auto& inst = ::GetInstance();
+    auto &inst = ::GetInstance();
     {
         // Compute the pressed and released buttons
         HAL_JoystickButtons currentButtons;
@@ -237,11 +235,11 @@ void DriverStation::RefreshData() {
 
             // If buttons weren't pressed and are now, set flags in m_buttonsPressed
             inst.joystickButtonsPressed[i] |=
-                    ~inst.previousButtonStates[i].buttons & currentButtons.buttons;
+                ~inst.previousButtonStates[i].buttons & currentButtons.buttons;
 
             // If buttons were pressed and aren't now, set flags in m_buttonsReleased
             inst.joystickButtonsReleased[i] |=
-                    inst.previousButtonStates[i].buttons & ~currentButtons.buttons;
+                inst.previousButtonStates[i].buttons & ~currentButtons.buttons;
 
             inst.previousButtonStates[i] = currentButtons;
         }
@@ -251,11 +249,11 @@ void DriverStation::RefreshData() {
 }
 
 void DriverStation::ProvideRefreshedDataEventHandle(WPI_EventHandle handle) {
-    auto& inst = ::GetInstance();
+    auto &inst = ::GetInstance();
     inst.refreshEvents.Add(handle);
 }
 
 void DriverStation::RemoveRefreshedDataEventHandle(WPI_EventHandle handle) {
-    auto& inst = ::GetInstance();
+    auto &inst = ::GetInstance();
     inst.refreshEvents.Remove(handle);
 }

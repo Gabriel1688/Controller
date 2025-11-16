@@ -4,15 +4,15 @@
 
 #pragma once
 
+#include "common/Synchronization.h"
+#include <map>
+#include <mutex>
 #include <stdint.h>
 #include <string>
-#include <mutex>
-#include <map>
-#include "common/Synchronization.h"
 
-using  HAL_CANHandle = int32_t;
+using HAL_CANHandle = int32_t;
 
-enum HAL_CANDeviceType:  int32_t {
+enum HAL_CANDeviceType : int32_t {
     /// Broadcast.
     HAL_CAN_Dev_kBroadcast = 0,
     /// Robot arm controller.
@@ -20,18 +20,18 @@ enum HAL_CANDeviceType:  int32_t {
     /// Robot gripper controller.
     HAL_CAN_Dev_kgripperController = 2,
     /// Robot gyros Motor controller.
-    HAL_CAN_Dev_kgyroSensor= 3,
+    HAL_CAN_Dev_kgyroSensor = 3,
     /// Motion controller.
     HAL_CAN_Dev_kMotionController = 4
 };
 
-enum HAL_CANManufacturer:  int32_t{
-/// Broadcast.
+enum HAL_CANManufacturer : int32_t {
+    /// Broadcast.
     HAL_CAN_Man_kBroadcast = 0,
-/// Dummy Robot.
-    HAL_CAN_Man_Dummy=1,
-/// DAMIAO.
-    HAL_CAN_Man_Dm=2
+    /// Dummy Robot.
+    HAL_CAN_Man_Dummy = 1,
+    /// DAMIAO.
+    HAL_CAN_Man_Dm = 2
 };
 
 /*
@@ -39,34 +39,33 @@ enum HAL_CANManufacturer:  int32_t{
  * both the the networking module and the rest of the application.
  */
 #pragma pack(1)
-struct CANFrameId
-{
-    uint32_t  forwardCANId;   /* Input CAN frame Id */
-    uint32_t  replyCANId;     /* Response CAN frame Id */
-    HAL_CANHandle hanlde;   /* CANStorage handle of this message */
-    CANFrameId() :forwardCANId(0),replyCANId(0),hanlde(0){};
+struct CANFrameId {
+    uint32_t forwardCANId; /* Input CAN frame Id */
+    uint32_t replyCANId;   /* Response CAN frame Id */
+    HAL_CANHandle hanlde;  /* CANStorage handle of this message */
+    CANFrameId() : forwardCANId(0), replyCANId(0), hanlde(0){};
 };
 #pragma pack()
 
 namespace {
-    struct Receives {
-        uint64_t lastTimeStamp;
-        uint8_t data[8];
-        uint8_t length;
-    };
+struct Receives {
+    uint64_t lastTimeStamp;
+    uint8_t data[8];
+    uint8_t length;
+};
 
-    struct CANStorage {
-        HAL_CANManufacturer manufacturer;
-        HAL_CANDeviceType deviceType;
-        uint8_t deviceId;
-        uint8_t masterId;  // reply frame id for Damiao protocol
-        std::mutex periodicSendsMutex;
-        std::mutex receivesMutex;
-        std::map<int32_t, Receives> receives;
-        std::map<int32_t, int32_t> periodicSends;
-        wpi::Event replyEvent{false, false};
-    };
-}  // namespace
+struct CANStorage {
+    HAL_CANManufacturer manufacturer;
+    HAL_CANDeviceType deviceType;
+    uint8_t deviceId;
+    uint8_t masterId;// reply frame id for Damiao protocol
+    std::mutex periodicSendsMutex;
+    std::mutex receivesMutex;
+    std::map<int32_t, Receives> receives;
+    std::map<int32_t, int32_t> periodicSends;
+    wpi::Event replyEvent{false, false};
+};
+}// namespace
 
 /**
  * @defgroup hal_canapi CAN API Functions
@@ -92,7 +91,7 @@ extern "C" {
  */
 HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
                                 int32_t deviceId, HAL_CANDeviceType deviceType,
-                                int32_t* status);
+                                int32_t *status);
 
 /**
  * Frees a CAN device
@@ -112,8 +111,8 @@ void HAL_CleanCAN(HAL_CANHandle handle);
  * @param[in] apiId   the ID to write (0-1023 bits)
  * @param[out] status Error status variable. 0 on success.
  */
-void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t* data,
-                        int32_t length, int32_t apiId, int32_t* status);
+void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t *data,
+                        int32_t length, int32_t apiId, int32_t *status);
 
 /**
  * Writes a repeating packet to the CAN device with a specific ID.
@@ -129,9 +128,9 @@ void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t* data,
  * @param[in] repeatMs the period to repeat in ms
  * @param[out] status  Error status variable. 0 on success.
  */
-void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
+void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t *data,
                                  int32_t length, int32_t apiId,
-                                 int32_t repeatMs, int32_t* status);
+                                 int32_t repeatMs, int32_t *status);
 
 /**
  * Stops a repeating packet with a specific ID.
@@ -143,7 +142,7 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t* data,
  * @param[out] status Error status variable. 0 on success.
  */
 void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId,
-                                int32_t* status);
+                                int32_t *status);
 
 /**
  * Reads a new CAN packet.
@@ -159,26 +158,25 @@ void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId,
  *                               of CLOCK_MONOTONIC)
  * @param[out] status            Error status variable. 0 on success.
  */
-void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
-                          int32_t* length, uint64_t* receivedTimestamp,
-                          int32_t* status);
-
+void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
+                          int32_t *length, uint64_t *receivedTimestamp,
+                          int32_t *status);
 
 // observer callback. will be called for every new message received by the server
-static  void onIncomingMsg(const uint8_t * msg, size_t size) ;
+static void onIncomingMsg(const uint8_t *msg, size_t size);
 
 // observer callback. will be called when server disconnects
-static  void onDisconnection(const std::string& ret) ;
+static void onDisconnection(const std::string &ret);
 
-void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
-                             int32_t* length, uint64_t* receivedTimestamp,
-                             int32_t* status);
+void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
+                             int32_t *length, uint64_t *receivedTimestamp,
+                             int32_t *status);
 void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
-                              uint8_t* data, int32_t* length,
-                              uint64_t* receivedTimestamp, int32_t timeoutMs,
-                              int32_t* status);
+                              uint8_t *data, int32_t *length,
+                              uint64_t *receivedTimestamp, int32_t timeoutMs,
+                              int32_t *status);
 
 #ifdef __cplusplus
-}  // extern "C"
+}// extern "C"
 #endif
 /** @} */

@@ -1,30 +1,30 @@
-#pragma  once
+#pragma once
 
-#include <string.h>
-#include <signal.h>
-#include <pthread.h>
-#include <assert.h>
-#include <iostream>
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-#include "spdlog/fmt/ostr.h"
-#include <memory>
-#include <chrono>
+#include "../src/subsystems/Arm.h"
+#include "../src/subsystems/Gripper.h"
 #include "Constants.h"
+#include "ds/BooleanEvent.h"
+#include "ds/EventLoop.h"
 #include "ds/GenericHID.h"
 #include "ds/XboxController.h"
-#include "ds/EventLoop.h"
-#include "ds/BooleanEvent.h"
 #include "robot/TimedRobot.h"
-#include "Arm.h"
-#include "Gripper.h"
+#include "spdlog/cfg/env.h"
+#include "spdlog/fmt/ostr.h"
+#include "spdlog/spdlog.h"
+#include <assert.h>
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <pthread.h>
+#include <signal.h>
+#include <string.h>
 
 using namespace spdlog;
 
 class Robot : public TimedRobot {
 public:
     void RobotInit() override;
-    void DriveWithJoystick(bool fieldRelative) ;
+    void DriveWithJoystick(bool fieldRelative);
 
     /**
      * Periodic code for all modes should go here.
@@ -34,12 +34,12 @@ public:
     /**
      * Initialization code for autonomous mode should go here.
      */
-    void AutonomousInit() override ;
+    void AutonomousInit() override;
 
     /**
      * Initialization code for teleop mode should go here.
      */
-    void TeleopInit()  override ;
+    void TeleopInit() override;
 
     /**
      * Periodic code for autonomous mode should go here.
@@ -49,8 +49,8 @@ public:
     /**
      * Periodic code for teleop mode should go here.
      */
-    void TeleopPeriodic() override ;
-    Robot()= default;
+    void TeleopPeriodic() override;
+    Robot() = default;
     ~Robot() override = default;
 
 private:
@@ -67,4 +67,3 @@ private:
     /// Perception subsystem.
     //Gripper gripper;
 };
-

@@ -2,7 +2,6 @@
 using namespace spdlog;
 
 void Robot::RobotInit() {
-
 }
 
 void Robot::AutonomousInit() {
@@ -25,7 +24,7 @@ void Robot::RobotPeriodic() {
     m_loop.Poll();
 }
 
-void Robot::AutonomousPeriodic()  {
+void Robot::AutonomousPeriodic() {
     SubsystemBase::RunAllAutonomousPeriodic();
     DriveWithJoystick(false);
 }
@@ -40,7 +39,7 @@ void Robot::DriveWithJoystick(__attribute__((unused)) bool fieldRelative) {
     const auto xSpeed = m_controller.GetLeftY();
     const auto ySpeed = m_controller.GetLeftX();
     const auto rot = m_controller.GetRightX();
-/*
+    /*
     https://github.com/wpilibsuite/allwpilib/blob/d32e60233fe516e8f67e0e94d3de87615e09f00f/wpilibcExamples/src/main/cpp/examples/EventLoop/cpp/Robot.cpp#L12
         // Get the x speed. We are inverting this because Xbox controllers return
         // negative values when we push forward.
@@ -73,4 +72,3 @@ void Robot::DriveWithJoystick(__attribute__((unused)) bool fieldRelative) {
 int main() {
     return StartRobot<Robot>();
 }
-

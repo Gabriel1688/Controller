@@ -1,6 +1,6 @@
+#include "TcpClient.h"
 #include <fcntl.h>
 #include <sys/epoll.h>
-#include "TcpClient.h"
 #define MAX_PACKET_SIZE 4096
 
 TcpClient::TcpClient() {
@@ -13,29 +13,28 @@ TcpClient::~TcpClient() {
 }
 
 void TcpClient::Start() {
-    if(pthread_create(&thread_id, nullptr, EntryOfThread,this) != 0) {
+    if (pthread_create(&thread_id, nullptr, EntryOfThread, this) != 0) {
     }
 }
 
 /*static*/
-void* TcpClient::EntryOfThread(void* argv)
-{
-    TcpClient* client = static_cast<TcpClient*>(argv);
+void *TcpClient::EntryOfThread(void *argv) {
+    TcpClient *client = static_cast<TcpClient *>(argv);
     client->run();
-    return (void*) client;
+    return (void *) client;
 }
 
-bool TcpClient::connectTo(const std::string & address, int port) {
+bool TcpClient::connectTo(const std::string &address, int port) {
     try {
-        _sockfd = socket(AF_INET , SOCK_STREAM , 0);
+        _sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
         const int inetSuccess = inet_aton(address.c_str(), &_server.sin_addr);
 
-        if(!inetSuccess) { // inet_addr failed to parse address
+        if (!inetSuccess) {// inet_addr failed to parse address
             // if hostname is not in IP strings and dots format, try resolve it
             struct hostent *host;
             struct in_addr **addrList;
-            if ( (host = gethostbyname( address.c_str() ) ) == nullptr){
+            if ((host = gethostbyname(address.c_str())) == nullptr) {
                 throw std::runtime_error("Failed to resolve hostname");
             }
             addrList = (struct in_addr **) host->h_addr_list;
@@ -43,15 +42,15 @@ bool TcpClient::connectTo(const std::string & address, int port) {
         }
         _server.sin_family = AF_INET;
         _server.sin_port = htons(port);
-    } catch (const std::runtime_error& error) {
-        std::cout << "client is already closed, "<< error.what() << std::endl;
+    } catch (const std::runtime_error &error) {
+        std::cout << "client is already closed, " << error.what() << std::endl;
         return false;
     }
 
-    const int connectResult = connect(_sockfd , (struct sockaddr *)&_server , sizeof(_server));
+    const int connectResult = connect(_sockfd, (struct sockaddr *) &_server, sizeof(_server));
     const bool connectionFailed = (connectResult == -1);
     if (connectionFailed) {
-        std::cout << "Failed to connect [" << address <<"][" << port <<"] , "<< strerror(errno) << std::endl;
+        std::cout << "Failed to connect [" << address << "][" << port << "] , " << strerror(errno) << std::endl;
         return false;
     }
     _isConnected = true;
@@ -59,52 +58,33 @@ bool TcpClient::connectTo(const std::string & address, int port) {
 
     return true;
 }
-#if 0
-void TcpClient::sendMsg(uint32_t messageID, const uint8_t* data, uint8_t dataSize, int32_t* status) {
 
-    //const char * msg, size_t size
-    //Need to build message based on the messageId/data.
-    const char * msg= nullptr;
-    const size_t numBytesSent = send(_sockfd, msg, dataSize, 0);
-
-    if (numBytesSent < 0 ) { // send failed
-        std::cout << "client is already closed"<<strerror(errno) << std::endl;
-    }
-    if (numBytesSent < dataSize) { // not all bytes were sent
-        char errorMsg[100];
-        sprintf(errorMsg, "Only %lu bytes out of %lu was sent to client", numBytesSent, dataSize);
-        std::cout << "client is already closed"<< errorMsg << std::endl;
-    }
-}
-#endif
-void TcpClient::sendMsg(CANFrameId frameId, const uint8_t* data, uint8_t dataSize, __attribute__((unused)) int32_t* status) {
+void TcpClient::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
 
     CANFrame frame;
     frame.modify(frameId.forwardCANId, data, dataSize);
-    const size_t numBytesSent = send(_sockfd, (uint8_t*)&frame, 5 + dataSize , 0);
+    const size_t numBytesSent = send(_sockfd, (uint8_t *) &frame, 5 + dataSize, 0);
 
     //Add reply frameId/handle to map for receiving reply.
     {
         std::scoped_lock lock(frameIdsMutex);
-        if (_frameIds.find(frameId.replyCANId) == _frameIds.end())
-        {
+        if (_frameIds.find(frameId.replyCANId) == _frameIds.end()) {
             _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
         }
     }
-    if (numBytesSent <= 0 ) { // send failed
-        std::cout << "client is already closed"<<strerror(errno) << std::endl;
+    if (numBytesSent <= 0) {// send failed
+        std::cout << "client is already closed" << strerror(errno) << std::endl;
     }
-    if (numBytesSent < dataSize) { // not all bytes were sent
+    if (numBytesSent < dataSize) {// not all bytes were sent
         char errorMsg[100];
         sprintf(errorMsg, "Only %lu bytes out of %d was sent to client", numBytesSent, dataSize);
-        std::cout << "client is already closed"<< errorMsg << std::endl;
+        std::cout << "client is already closed" << errorMsg << std::endl;
     }
 }
 
-
-void TcpClient::subscribe(const int32_t deviceId, const client_observer_t & observer) {
+void TcpClient::subscribe(const int32_t deviceId, const client_observer_t &observer) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
-    _subscribers.insert(std::make_pair(deviceId,observer));
+    _subscribers.insert(std::make_pair(deviceId, observer));
 }
 
 /*
@@ -113,20 +93,19 @@ void TcpClient::subscribe(const int32_t deviceId, const client_observer_t & obse
  * from clients with IP address identical to
  * the specific observer requested IP
  */
-void TcpClient::publishServerMsg(const uint8_t * msg, size_t msgSize) {
+void TcpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
     //std::lock_guard<std::mutex> lock(_subscribersMtx);
-    CANFrame* frame = (CANFrame*)msg;
+    CANFrame *frame = (CANFrame *) msg;
     //Get handle of message and wake up it.
     {
         auto FrameId = __builtin_bswap32(frame->FrameId);
         std::scoped_lock lock(frameIdsMutex);
         auto itmap = _frameIds.find(FrameId);
-        if ( itmap != _frameIds.end())
-        {
+        if (itmap != _frameIds.end()) {
             auto can = canHandles->find(itmap->second)->second;
             auto subscriber = _subscribers.find(can->deviceId);
-            if(subscriber != _subscribers.end()) {
-                subscriber->second.incomingPacketHandler(msg,msgSize);
+            if (subscriber != _subscribers.end()) {
+                subscriber->second.incomingPacketHandler(msg, msgSize);
             }
             can->replyEvent.Set();
         }
@@ -139,7 +118,7 @@ void TcpClient::publishServerMsg(const uint8_t * msg, size_t msgSize) {
  * with IP address identical to the specific
  * observer requested IP
  */
-void TcpClient::publishServerDisconnected(const std::string & ret) {
+void TcpClient::publishServerDisconnected(const std::string &ret) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
     for (const auto &subscriber : _subscribers) {
         if (subscriber.second.disconnectionHandler) {
@@ -161,30 +140,24 @@ void TcpClient::run() {
     int epfd = epoll_create(255);
     ev.data.fd = _sockfd;
     ev.events = EPOLLIN;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, _sockfd , &ev);
+    epoll_ctl(epfd, EPOLL_CTL_ADD, _sockfd, &ev);
 
     struct epoll_event events[256];
     std::cout << "TcpClient::receiveTask is running. " << std::endl;
-    while (_isConnected )
-    {
-        int ready = epoll_wait(epfd, events, 256, 20);  //20 milliseconds
-        if (ready < 0)
-        {
+    while (_isConnected) {
+        int ready = epoll_wait(epfd, events, 256, 20);//20 milliseconds
+        if (ready < 0) {
             perror("epoll_wait error.");
-            return ;
-        }
-        else if (ready == 0) {
+            return;
+        } else if (ready == 0) {
             /* timeout, no data coming */
             continue;
-        }
-        else {
+        } else {
 
-            for (int i = 0; i < ready; i++)
-            {
-                if (events[i].data.fd == _sockfd)
-                {
-                    uint8_t  msg[MAX_PACKET_SIZE];
-                    memset(msg,0,MAX_PACKET_SIZE);
+            for (int i = 0; i < ready; i++) {
+                if (events[i].data.fd == _sockfd) {
+                    uint8_t msg[MAX_PACKET_SIZE];
+                    memset(msg, 0, MAX_PACKET_SIZE);
                     const size_t numOfBytesReceived = recv(_sockfd, msg, MAX_PACKET_SIZE, 0);
                     if (numOfBytesReceived < 1) {
                         std::string errorMsg;
@@ -202,11 +175,10 @@ void TcpClient::run() {
                 }
             }
         }
-
     }
 }
 
-bool TcpClient::close(){
+bool TcpClient::close() {
     if (_isClosed) {
         std::cout << "client is already closed" << std::endl;
         return false;

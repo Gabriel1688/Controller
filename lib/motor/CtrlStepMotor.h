@@ -1,11 +1,9 @@
-#pragma  once
+#pragma once
 #include "CAN.h"
 #include <memory>
-class CtrlStepMotor
-{
+class CtrlStepMotor {
 public:
-    enum State
-    {
+    enum State {
         RUNNING,
         FINISH,
         STOP
@@ -53,26 +51,27 @@ public:
 
     void UpdateAngle();
     void UpdateAngleCallback(float _pos, bool _isFinished);
+
 private:
     typedef struct
     {
-        uint32_t StdId;    /*!< Specifies the standard identifier.
+        uint32_t StdId; /*!< Specifies the standard identifier.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0x7FF. */
 
-        uint32_t ExtId;    /*!< Specifies the extended identifier.
+        uint32_t ExtId; /*!< Specifies the extended identifier.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0x1FFFFFFF. */
 
-        uint32_t IDE;      /*!< Specifies the type of identifier for the message that will be transmitted.
+        uint32_t IDE; /*!< Specifies the type of identifier for the message that will be transmitted.
                           This parameter can be a value of @ref CAN_identifier_type */
 
-        uint32_t RTR;      /*!< Specifies the type of frame for the message that will be transmitted.
+        uint32_t RTR; /*!< Specifies the type of frame for the message that will be transmitted.
                           This parameter can be a value of @ref CAN_remote_transmission_request */
 
-        uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
+        uint32_t DLC; /*!< Specifies the length of the frame that will be transmitted.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
 
     } CAN_TxHeaderTypeDef;
-    std::shared_ptr<CAN>    m_canHandle;
+    std::shared_ptr<CAN> m_canHandle;
     uint8_t canBuf[8] = {};
     CAN_TxHeaderTypeDef txHeader = {};
 };

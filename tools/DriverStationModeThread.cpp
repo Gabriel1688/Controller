@@ -1,7 +1,7 @@
-#include <iostream>
-#include <ds/DriverStation.h>
-#include <common/Synchronization.h>
 #include "DriverStationModeThread.h"
+#include <common/Synchronization.h>
+#include <ds/DriverStation.h>
+#include <iostream>
 
 DriverStationModeThread::DriverStationModeThread() {
     m_keepAlive = true;
@@ -44,13 +44,13 @@ void DriverStationModeThread::Run() {
         DriverStation::RefreshData();
 
         if (m_userInDisabled) {
-           std::cout <<"DriverStationModeThread::Run user disabled." << std::endl;
+            std::cout << "DriverStationModeThread::Run user disabled." << std::endl;
         }
         if (m_userInAutonomous) {
-            std::cout <<"DriverStationModeThread::Run InAutonomous." << std::endl;
+            std::cout << "DriverStationModeThread::Run InAutonomous." << std::endl;
         }
         if (m_userInTeleop) {
-            std::cout <<"DriverStationModeThread::Run InTeleop." << std::endl;
+            std::cout << "DriverStationModeThread::Run InTeleop." << std::endl;
         }
     }
     HAL_RemoveNewDataEventHandle(event.GetHandle());

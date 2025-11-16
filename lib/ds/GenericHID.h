@@ -70,8 +70,8 @@ public:
     explicit GenericHID(int port);
     virtual ~GenericHID() = default;
 
-    GenericHID(GenericHID&&) = default;
-    GenericHID& operator=(GenericHID&&) = default;
+    GenericHID(GenericHID &&) = default;
+    GenericHID &operator=(GenericHID &&) = default;
 
     /**
      * Get the button value (starting at button 1).
@@ -122,7 +122,7 @@ public:
      * @return an event instance representing the button's digital signal attached
      * to the given loop.
      */
-    BooleanEvent Button(int button, EventLoop* loop) const;
+    BooleanEvent Button(int button, EventLoop *loop) const;
 
     /**
      * Get the value of the axis.
@@ -155,7 +155,7 @@ public:
      * @return a BooleanEvent instance based around this angle of a POV on the
      * HID.
      */
-    BooleanEvent POV(int angle, EventLoop* loop) const;
+    BooleanEvent POV(int angle, EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around this angle of a POV on the
@@ -170,7 +170,7 @@ public:
      * @return a BooleanEvent instance based around this angle of a POV on the
      * HID.
      */
-    BooleanEvent POV(int pov, int angle, EventLoop* loop) const;
+    BooleanEvent POV(int pov, int angle, EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 0 degree angle (up) of
@@ -179,7 +179,7 @@ public:
      * @return a BooleanEvent instance based around the 0 degree angle of a POV on
      * the HID.
      */
-    BooleanEvent POVUp(EventLoop* loop) const;
+    BooleanEvent POVUp(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 45 degree angle (right
@@ -188,7 +188,7 @@ public:
      * @return a BooleanEvent instance based around the 45 degree angle of a POV
      * on the HID.
      */
-    BooleanEvent POVUpRight(EventLoop* loop) const;
+    BooleanEvent POVUpRight(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 90 degree angle (right)
@@ -197,7 +197,7 @@ public:
      * @return a BooleanEvent instance based around the 90 degree angle of a POV
      * on the HID.
      */
-    BooleanEvent POVRight(EventLoop* loop) const;
+    BooleanEvent POVRight(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 135 degree angle (right
@@ -206,7 +206,7 @@ public:
      * @return a BooleanEvent instance based around the 135 degree angle of a POV
      * on the HID.
      */
-    BooleanEvent POVDownRight(EventLoop* loop) const;
+    BooleanEvent POVDownRight(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 180 degree angle (down)
@@ -215,7 +215,7 @@ public:
      * @return a BooleanEvent instance based around the 180 degree angle of a POV
      * on the HID.
      */
-    BooleanEvent POVDown(EventLoop* loop) const;
+    BooleanEvent POVDown(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 225 degree angle (down
@@ -224,7 +224,7 @@ public:
      * @return a BooleanEvent instance based around the 225 degree angle of a POV
      * on the HID.
      */
-    BooleanEvent POVDownLeft(EventLoop* loop) const;
+    BooleanEvent POVDownLeft(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 270 degree angle (left)
@@ -233,7 +233,7 @@ public:
      * @return a BooleanEvent instance based around the 270 degree angle of a POV
      * on the HID.
      */
-    BooleanEvent POVLeft(EventLoop* loop) const;
+    BooleanEvent POVLeft(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the 315 degree angle (left
@@ -242,7 +242,7 @@ public:
      * @return a BooleanEvent instance based around the 315 degree angle of a POV
      * on the HID.
      */
-    BooleanEvent POVUpLeft(EventLoop* loop) const;
+    BooleanEvent POVUpLeft(EventLoop *loop) const;
 
     /**
      * Constructs a BooleanEvent instance based around the center (not pressed) of
@@ -251,7 +251,7 @@ public:
      * @return a BooleanEvent instance based around the center of a POV on the
      * HID.
      */
-    BooleanEvent POVCenter(EventLoop* loop) const;
+    BooleanEvent POVCenter(EventLoop *loop) const;
 
     /**
      * Constructs an event instance that is true when the axis value is less than
@@ -263,7 +263,7 @@ public:
      * @return an event instance that is true when the axis value is less than the
      * provided threshold.
      */
-    BooleanEvent AxisLessThan(int axis, double threshold, EventLoop* loop) const;
+    BooleanEvent AxisLessThan(int axis, double threshold, EventLoop *loop) const;
 
     /**
      * Constructs an event instance that is true when the axis value is greater
@@ -275,7 +275,7 @@ public:
      * @return an event instance that is true when the axis value is greater than
      * the provided threshold.
      */
-    BooleanEvent AxisGreaterThan(int axis, double threshold,  EventLoop* loop) const;
+    BooleanEvent AxisGreaterThan(int axis, double threshold, EventLoop *loop) const;
 
     /**
      * Get the number of axes for the HID.

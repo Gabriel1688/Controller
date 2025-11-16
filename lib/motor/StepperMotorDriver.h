@@ -1,32 +1,33 @@
 #pragma once
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <vector>
 
+// get from the CANSparkMaxLowLevel which manage the SparkMax driver.
 struct StepperMotor_Obj {
 
-    uint8_t                         m_inverted;
+    uint8_t m_inverted;
 
-    int                             m_deviceId;
+    int m_deviceId;
 
-    int                             m_canTimeoutMs;
-    int                             m_controlFramePeriod;
-    int                             m_status0PeriodMs;
-    int                             m_status1PeriodMs;
-    int                             m_status2PeriodMs;
-    int                             m_status3PeriodMs;
-    int                             m_status4PeriodMs;
+    int m_canTimeoutMs;
+    int m_controlFramePeriod;
+    int m_status0PeriodMs;
+    int m_status1PeriodMs;
+    int m_status2PeriodMs;
+    int m_status3PeriodMs;
+    int m_status4PeriodMs;
 
-    float                           m_sensorRangeMin;
-    float                           m_sensorRangeMax;
+    float m_sensorRangeMin;
+    float m_sensorRangeMax;
 
-    int32_t                        m_canHandle;
+    int32_t m_canHandle;
 
-    int                             m_activeSetpointApi;
+    int m_activeSetpointApi;
 };
 
 extern "C" {
-typedef struct StepperMotor_Obj* StepperMotor_handle;
+typedef struct StepperMotor_Obj *StepperMotor_handle;
 
 typedef enum {
     StepperMotor_kForward = 0,
@@ -196,72 +197,69 @@ typedef struct {
     uint64_t timestamp;
 } StepperMotor_PeriodicStatus3;
 
-
 // CANSparkMaxLowLevel
 StepperMotor_handle StepperMotor_Create(int deviceId);
 void StepperMotor_Destroy(StepperMotor_handle handle);
 bool StepperMotor_CheckId(int deviceId);
-int  StepperMotor_GetDeviceId(StepperMotor_handle handle, int* deviceId);
+int StepperMotor_GetDeviceId(StepperMotor_handle handle, int *deviceId);
 //int  StepperMotor_SetPeriodicFramePeriod(StepperMotor_handle handle, StepperMotor_PeriodicFrame frameId, int periodMs);
 
 void StepperMotor_SetControlFramePeriod(StepperMotor_handle handle, int periodMs);
 int StepperMotor_GetControlFramePeriod(StepperMotor_handle handle);
 
-int  StepperMotor_SetParameterFloat32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, float value);
-int  StepperMotor_SetParameterInt32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, int32_t value);
-int  StepperMotor_SetParameterUint32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint32_t value);
-int  StepperMotor_SetParameterBool(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint8_t value);
-int  StepperMotor_GetParameterFloat32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, float* value);
-int  StepperMotor_GetParameterInt32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, int32_t* value);
-int  StepperMotor_GetParameterUint32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint32_t* value);
-int  StepperMotor_GetParameterBool(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint8_t* value);
-int  StepperMotor_GetPeriodicStatus3(StepperMotor_handle handle, StepperMotor_PeriodicStatus3* rawframe);
+int StepperMotor_SetParameterFloat32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, float value);
+int StepperMotor_SetParameterInt32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, int32_t value);
+int StepperMotor_SetParameterUint32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint32_t value);
+int StepperMotor_SetParameterBool(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint8_t value);
+int StepperMotor_GetParameterFloat32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, float *value);
+int StepperMotor_GetParameterInt32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, int32_t *value);
+int StepperMotor_GetParameterUint32(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint32_t *value);
+int StepperMotor_GetParameterBool(StepperMotor_handle handle, StepperMotor_ConfigParameter paramId, uint8_t *value);
+int StepperMotor_GetPeriodicStatus3(StepperMotor_handle handle, StepperMotor_PeriodicStatus3 *rawframe);
 
-int  StepperMotor_RestoreFactoryDefaults(StepperMotor_handle handle, uint8_t persist);
-int  StepperMotor_FactoryWipe(StepperMotor_handle handle, uint8_t persist);
+int StepperMotor_RestoreFactoryDefaults(StepperMotor_handle handle, uint8_t persist);
+int StepperMotor_FactoryWipe(StepperMotor_handle handle, uint8_t persist);
 float StepperMotor_SafeFloat(float f);
 
-int  StepperMotor_SetpointCommand(StepperMotor_handle handle, float value, StepperMotor_ControlType ctrl,
-                                                int pidSlot, float arbFeedforward, int arbFFUnits);
+int StepperMotor_SetpointCommand(StepperMotor_handle handle, float value, StepperMotor_ControlType ctrl,
+                                 int pidSlot, float arbFeedforward, int arbFFUnits);
 
 // CANSparkMax
-int  StepperMotor_SetInverted(StepperMotor_handle handle, uint8_t inverted);
-int  StepperMotor_GetInverted(StepperMotor_handle handle, uint8_t* inverted);
-int  StepperMotor_SetSmartCurrentLimit(StepperMotor_handle handle, uint8_t stallLimit, uint8_t freeLimit, uint32_t limitRPM);
-int  StepperMotor_GetSmartCurrentLimit(StepperMotor_handle handle, uint8_t* stallLimit, uint8_t* freeLimit, uint32_t* limitRPM);
-int  StepperMotor_SetSecondaryCurrentLimit(StepperMotor_handle handle, float limit, int chopCycles);
-int  StepperMotor_GetSecondaryCurrentLimit(StepperMotor_handle handle, float* limit, int* chopCycles); 
-int  StepperMotor_EnableVoltageCompensation(StepperMotor_handle handle, float nominalVoltage);
-int  StepperMotor_GetVoltageCompensationNominalVoltage(StepperMotor_handle handle, float* nominalVoltage);
-int  StepperMotor_DisableVoltageCompensation(StepperMotor_handle handle);
-int  StepperMotor_SetOpenLoopRampRate(StepperMotor_handle handle, float rate);
-int  StepperMotor_GetOpenLoopRampRate(StepperMotor_handle handle, float* rate);
-int  StepperMotor_SetClosedLoopRampRate(StepperMotor_handle handle, float rate);
-int  StepperMotor_GetClosedLoopRampRate(StepperMotor_handle handle, float* rate);
-int  StepperMotor_GetBusVoltage(StepperMotor_handle handle, float* busVoltage);
-int  StepperMotor_GetAppliedOutput(StepperMotor_handle handle, float* appliedOutput);
-int  StepperMotor_GetOutputCurrent(StepperMotor_handle handle, float* outputCurrent);
-int  StepperMotor_GetMotorTemperature(StepperMotor_handle handle, float* motorTemperature);
-int  StepperMotor_ClearFaults(StepperMotor_handle handle);
-int  StepperMotor_BurnFlash(StepperMotor_handle handle);
-int  StepperMotor_SetCANTimeout(StepperMotor_handle handle, int timeoutMs);
+int StepperMotor_SetInverted(StepperMotor_handle handle, uint8_t inverted);
+int StepperMotor_GetInverted(StepperMotor_handle handle, uint8_t *inverted);
+int StepperMotor_SetSmartCurrentLimit(StepperMotor_handle handle, uint8_t stallLimit, uint8_t freeLimit, uint32_t limitRPM);
+int StepperMotor_GetSmartCurrentLimit(StepperMotor_handle handle, uint8_t *stallLimit, uint8_t *freeLimit, uint32_t *limitRPM);
+int StepperMotor_SetSecondaryCurrentLimit(StepperMotor_handle handle, float limit, int chopCycles);
+int StepperMotor_GetSecondaryCurrentLimit(StepperMotor_handle handle, float *limit, int *chopCycles);
+int StepperMotor_EnableVoltageCompensation(StepperMotor_handle handle, float nominalVoltage);
+int StepperMotor_GetVoltageCompensationNominalVoltage(StepperMotor_handle handle, float *nominalVoltage);
+int StepperMotor_DisableVoltageCompensation(StepperMotor_handle handle);
+int StepperMotor_SetOpenLoopRampRate(StepperMotor_handle handle, float rate);
+int StepperMotor_GetOpenLoopRampRate(StepperMotor_handle handle, float *rate);
+int StepperMotor_SetClosedLoopRampRate(StepperMotor_handle handle, float rate);
+int StepperMotor_GetClosedLoopRampRate(StepperMotor_handle handle, float *rate);
+int StepperMotor_GetBusVoltage(StepperMotor_handle handle, float *busVoltage);
+int StepperMotor_GetAppliedOutput(StepperMotor_handle handle, float *appliedOutput);
+int StepperMotor_GetOutputCurrent(StepperMotor_handle handle, float *outputCurrent);
+int StepperMotor_GetMotorTemperature(StepperMotor_handle handle, float *motorTemperature);
+int StepperMotor_ClearFaults(StepperMotor_handle handle);
+int StepperMotor_BurnFlash(StepperMotor_handle handle);
+int StepperMotor_SetCANTimeout(StepperMotor_handle handle, int timeoutMs);
 
 // CANPIDController
-int  c_SparkMax_SetP(StepperMotor_handle handle, int slotID, float gain);
-int  StepperMotor_SetI(StepperMotor_handle handle, int slotID, float gain);
-int  StepperMotor_SetD(StepperMotor_handle handle, int slotID, float gain);
-int  StepperMotor_SetDFilter(StepperMotor_handle handle, int slotID, float gain);
-int  StepperMotor_SetFF(StepperMotor_handle handle, int slotID, float gain);
-int  StepperMotor_SetIZone(StepperMotor_handle handle, int slotID, float IZone);
-int  StepperMotor_SetOutputRange(StepperMotor_handle handle, int slotID, float min, float max);
-int  StepperMotor_GetP(StepperMotor_handle handle, int slotID, float* gain);
-int  StepperMotor_GetI(StepperMotor_handle handle, int slotID, float* gain);
-int  StepperMotor_GetD(StepperMotor_handle handle, int slotID, float* gain);
-int  StepperMotor_GetDFilter(StepperMotor_handle handle, int slotID, float* gain);
-int  StepperMotor_GetFF(StepperMotor_handle handle, int slotID, float* gain);
-int  StepperMotor_GetIZone(StepperMotor_handle handle, int slotID, float* IZone);
-int  StepperMotor_GetOutputMin(StepperMotor_handle handle, int slotID, float* min);
-int  StepperMotor_GetOutputMax(StepperMotor_handle handle, int slotID, float* max);
-}  // extern "C"
-
-
+int c_SparkMax_SetP(StepperMotor_handle handle, int slotID, float gain);
+int StepperMotor_SetI(StepperMotor_handle handle, int slotID, float gain);
+int StepperMotor_SetD(StepperMotor_handle handle, int slotID, float gain);
+int StepperMotor_SetDFilter(StepperMotor_handle handle, int slotID, float gain);
+int StepperMotor_SetFF(StepperMotor_handle handle, int slotID, float gain);
+int StepperMotor_SetIZone(StepperMotor_handle handle, int slotID, float IZone);
+int StepperMotor_SetOutputRange(StepperMotor_handle handle, int slotID, float min, float max);
+int StepperMotor_GetP(StepperMotor_handle handle, int slotID, float *gain);
+int StepperMotor_GetI(StepperMotor_handle handle, int slotID, float *gain);
+int StepperMotor_GetD(StepperMotor_handle handle, int slotID, float *gain);
+int StepperMotor_GetDFilter(StepperMotor_handle handle, int slotID, float *gain);
+int StepperMotor_GetFF(StepperMotor_handle handle, int slotID, float *gain);
+int StepperMotor_GetIZone(StepperMotor_handle handle, int slotID, float *IZone);
+int StepperMotor_GetOutputMin(StepperMotor_handle handle, int slotID, float *min);
+int StepperMotor_GetOutputMax(StepperMotor_handle handle, int slotID, float *max);
+}// extern "C"

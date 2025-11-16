@@ -1,8 +1,8 @@
 #pragma once
-#include <optional>
-#include <string>
 #include "DriverStationTypes.h"
 #include "common/Synchronization.h"
+#include <optional>
+#include <string>
 
 typedef int32_t HAL_Bool;
 /**
@@ -25,7 +25,7 @@ extern "C" {
 * @param controlWord the control word (out)
 * @return the error code, or 0 for success
 */
-int32_t HAL_GetControlWord(HAL_ControlWord* controlWord);
+int32_t HAL_GetControlWord(HAL_ControlWord *controlWord);
 
 /**
  * Gets the axes of a specific joystick.
@@ -34,7 +34,7 @@ int32_t HAL_GetControlWord(HAL_ControlWord* controlWord);
  * @param axes        the axes values (output)
  * @return the error code, or 0 for success
  */
-int32_t HAL_GetJoystickAxes(int32_t joystickNum, HAL_JoystickAxes* axes);
+int32_t HAL_GetJoystickAxes(int32_t joystickNum, HAL_JoystickAxes *axes);
 
 /**
  * Gets the POVs of a specific joystick.
@@ -43,7 +43,7 @@ int32_t HAL_GetJoystickAxes(int32_t joystickNum, HAL_JoystickAxes* axes);
  * @param povs        the POV values (output)
  * @return the error code, or 0 for success
  */
-int32_t HAL_GetJoystickPOVs(int32_t joystickNum, HAL_JoystickPOVs* povs);
+int32_t HAL_GetJoystickPOVs(int32_t joystickNum, HAL_JoystickPOVs *povs);
 
 /**
  * Gets the buttons of a specific joystick.
@@ -53,10 +53,10 @@ int32_t HAL_GetJoystickPOVs(int32_t joystickNum, HAL_JoystickPOVs* povs);
  * @return the error code, or 0 for success
  */
 int32_t HAL_GetJoystickButtons(int32_t joystickNum,
-                               HAL_JoystickButtons* buttons);
+                               HAL_JoystickButtons *buttons);
 
-void HAL_GetAllJoystickData(HAL_JoystickAxes* axes, HAL_JoystickPOVs* povs,
-                            HAL_JoystickButtons* buttons);
+void HAL_GetAllJoystickData(HAL_JoystickAxes *axes, HAL_JoystickPOVs *povs,
+                            HAL_JoystickButtons *buttons);
 
 /**
  * Refresh the DS control word.
@@ -79,9 +79,8 @@ void HAL_ProvideNewDataEventHandle(WPI_EventHandle handle);
  */
 void HAL_RemoveNewDataEventHandle(WPI_EventHandle handle);
 
-
 #ifdef __cplusplus
-}  // extern "C"
+}// extern "C"
 #endif
 /** @} */
 
@@ -89,21 +88,20 @@ void HAL_RemoveNewDataEventHandle(WPI_EventHandle handle);
  * Provide access to the network communication data to / from the Driver Station.
  */
 class DriverStation final {
-    public:
-
-     /**
+public:
+    /**
        * The type of robot match that the robot is part of.
        */
     enum MatchType {
-            /// None.
-            kNone,
-            /// Practice.
-            kPractice,
-            /// Qualification.
-            kQualification,
-            /// Elimination.
-            kElimination
-        };
+        /// None.
+        kNone,
+        /// Practice.
+        kPractice,
+        /// Qualification.
+        kQualification,
+        /// Elimination.
+        kElimination
+    };
 
     /// Number of Joystick ports.
     static constexpr int kJoystickPorts = 6;
@@ -260,7 +258,7 @@ class DriverStation final {
       */
     static bool IsTeleopEnabled();
 
-     /**
+    /**
        * Check if the DS is commanding test mode.
        *
        * @return True if the robot is being commanded to be in test mode
@@ -288,7 +286,7 @@ class DriverStation final {
       * @param timeout timeout in seconds. 0 for infinite.
       * @return true if connected, false if timeout
       */
-    static bool WaitForDsConnection(int  timeout);
+    static bool WaitForDsConnection(int timeout);
 
     /**
       * Read the battery voltage.
@@ -318,6 +316,6 @@ class DriverStation final {
       */
     static void RemoveRefreshedDataEventHandle(WPI_EventHandle handle);
 
-    private:
-        DriverStation() = default;
+private:
+    DriverStation() = default;
 };

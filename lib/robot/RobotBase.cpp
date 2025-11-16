@@ -1,11 +1,11 @@
 
 #include "RobotBase.h"
-#include "mqtt/wrapper.h"
-#include "mqtt/mqttClient.h"
 #include "motor/CANAPI.h"
+#include "mqtt/mqttClient.h"
+#include "mqtt/wrapper.h"
 
 namespace hal::init {
-    extern void InitializeCANAPI();
+extern void InitializeCANAPI();
 }
 
 std::shared_ptr<mqttClient> mqClient;
@@ -13,7 +13,7 @@ RobotBase::RobotBase() {
     m_threadId = (unsigned long) pthread_self();
 
 //    SetupMathShared();
-#if 0  //TODO:: check connection with driver station.
+#if 0//TODO:: check connection with driver station.
     auto inst = nt::NetworkTableInstance::GetDefault();
     // subscribe to "" to force persistent values to propagate to local
     nt::SubscribeMultiple(inst.GetHandle(), {{std::string_view{}}});
@@ -32,11 +32,11 @@ void InitializeHAL() {
     client_create();
     mqClient = std::shared_ptr<mqttClient>(g_mqttClient_ptr);
     mqClient->loadConfig("../config/config.txt");
-//    InitializeCAN();
+    //    InitializeCAN();
     hal::init::InitializeCANAPI();
-//    InitializeConstants();
-//    InitializeCounter();
-//    InitializeFRCDriverStation();
-//    InitializeMain();
-//    InitializeNotifier();
+    //    InitializeConstants();
+    //    InitializeCounter();
+    //    InitializeFRCDriverStation();
+    //    InitializeMain();
+    //    InitializeNotifier();
 }

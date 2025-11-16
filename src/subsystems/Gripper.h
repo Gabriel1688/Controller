@@ -1,6 +1,6 @@
-#pragma  once
-#include "robot/SubsystemBase.h"
+#pragma once
 #include "motor/CAN.h"
+#include "robot/SubsystemBase.h"
 #include <memory>
 
 class Gripper : public SubsystemBase {
@@ -22,8 +22,8 @@ public:
 
     Gripper();
 
-    Gripper(const Gripper&) = delete;
-    Gripper& operator=(const Gripper&) = delete;
+    Gripper(const Gripper &) = delete;
+    Gripper &operator=(const Gripper &) = delete;
 
     /**
      * Returns left encoder displacement. unit<meter>
@@ -57,7 +57,7 @@ public:
      * @param y         Y position of the robot in meters.
      * @param timestamp Absolute time the translation data comes from.
      */
-    void CorrectWithGlobalOutputs(float x, float y,long timestamp);
+    void CorrectWithGlobalOutputs(float x, float y, long timestamp);
 
     /**
      * Returns whether the Gripper controller is at the goal waypoint.
@@ -83,7 +83,6 @@ public:
     //void ControllerPeriodic() override;
 
 private:
-
     /**
      * Set Gripper motors to brake mode, which the feedback controllers
      * expect.
@@ -110,7 +109,6 @@ private:
      * Set the angle for both fingers.
      */
     void SetAngle(float left_angle, float right_angle);
-
 
     void SetMaxCurrent(float _val);
 

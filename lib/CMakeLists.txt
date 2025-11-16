@@ -1,7 +1,7 @@
 set(CMAKE_CXX_STANDARD 20)
-set (LWS_WITH_CLIENT 1)
-set (LWS_ROLE_MQTT 1)
-set (LWS_WITH_NETWORK 1)
+set(LWS_WITH_CLIENT 1)
+set(LWS_ROLE_MQTT 1)
+set(LWS_WITH_NETWORK 1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs  -fPIC -g -O0")
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs -Werror -fPIC -g -O0")

@@ -1,9 +1,8 @@
 #include "Gripper.h"
-#include "robot/RobotBase.h"
 #include "motor/CtrlStepMotor.h"
+#include "robot/RobotBase.h"
 
-Gripper::Gripper()
-{
+Gripper::Gripper() {
     // Reset the pose estimate to the field's bottom-left corner with the turret
     // facing in the target's general direction. This is relatively close to the
     // robot's testing configuration, so the turret won't hit the soft limits.
@@ -13,9 +12,9 @@ Gripper::Gripper()
 }
 
 void Gripper::Reset() {
-        uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
-        uint8_t apiId = 0x11;
-        can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
+    uint8_t apiId = 0x11;
+    can->WritePacket(data, sizeof(data) / sizeof(uint8_t), apiId);
 }
 
 //void Gripper::ControllerPeriodic() {
@@ -23,9 +22,7 @@ void Gripper::Reset() {
 //}
 
 void Gripper::RobotPeriodic() {
-
 }
-
 
 void Gripper::DisabledInit() {
     SetBrakeMode();
@@ -59,24 +56,24 @@ void Gripper::TeleopPeriodic() {
 }
 
 void Gripper::SetBrakeMode() {
-    uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+    uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
     uint8_t apiId = 0x11;
-    can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    can->WritePacket(data, sizeof(data) / sizeof(uint8_t), apiId);
 }
 
 void Gripper::SetCoastMode() {
-    uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+    uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
     uint8_t apiId = 0x11;
-    can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    can->WritePacket(data, sizeof(data) / sizeof(uint8_t), apiId);
 }
 
 /**
  * Enables the control loop.
  */
 void Gripper::Enable() {
-    uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+    uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
     uint8_t apiId = 0x11;
-    can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    can->WritePacket(data, sizeof(data) / sizeof(uint8_t), apiId);
     m_isEnabled = true;
 }
 
@@ -84,9 +81,9 @@ void Gripper::Enable() {
  * Disables the control loop.
  */
 void Gripper::Disable() {
-    uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+    uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
     uint8_t apiId = 0x11;
-    can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    can->WritePacket(data, sizeof(data) / sizeof(uint8_t), apiId);
     m_isEnabled = false;
 }
 
@@ -94,13 +91,13 @@ void Gripper::Disable() {
  * Set the angle of both fingers.
  */
 void Gripper::SetAngle(float left_angle, float right_angle) {
-    uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+    uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
     uint8_t apiId = 0x11;
-    can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    can->WritePacket(data, sizeof(data) / sizeof(uint8_t), apiId);
 }
 
-void Gripper::SetMaxCurrent(float _val){
-    uint8_t data[]={0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0xFC};
+void Gripper::SetMaxCurrent(float _val) {
+    uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
     uint8_t apiId = 0x11;
-    can->WritePacket(data,sizeof(data)/sizeof(uint8_t),apiId);
+    can->WritePacket(data, sizeof(data) / sizeof(uint8_t), apiId);
 }

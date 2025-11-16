@@ -15,9 +15,9 @@ namespace DriveConstants {
 //    constexpr units::meters_per_second_t kMaxSpeed = 4.8_mps;
 //    constexpr units::radians_per_second_t kMaxAngularSpeed{2 * std::numbers::pi};
 
-    constexpr double kDirectionSlewRate = 1.2;   // radians per second
-    constexpr double kMagnitudeSlewRate = 1.8;   // percent per second (1 = 100%)
-    constexpr double kRotationalSlewRate = 2.0;  // percent per second (1 = 100%)
+constexpr double kDirectionSlewRate = 1.2; // radians per second
+constexpr double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
+constexpr double kRotationalSlewRate = 2.0;// percent per second (1 = 100%)
 
 // Chassis configuration
 //    constexpr units::meter_t kTrackWidth =
@@ -32,22 +32,22 @@ namespace DriveConstants {
 //    constexpr double kRearRightChassisAngularOffset = std::numbers::pi / 2;
 
 // SPARK MAX CAN IDs
-    constexpr int kFrontLeftDrivingCanId  = 11;
-    constexpr int kRearLeftDrivingCanId   = 13;
-    constexpr int kFrontRightDrivingCanId = 15;
-    constexpr int kRearRightDrivingCanId  = 17;
+constexpr int kFrontLeftDrivingCanId = 11;
+constexpr int kRearLeftDrivingCanId = 13;
+constexpr int kFrontRightDrivingCanId = 15;
+constexpr int kRearRightDrivingCanId = 17;
 
-    constexpr int kFrontLeftTurningCanId  = 10;
-    constexpr int kRearLeftTurningCanId   = 12;
-    constexpr int kFrontRightTurningCanId = 14;
-    constexpr int kRearRightTurningCanId  = 16;
-}  // namespace DriveConstants
+constexpr int kFrontLeftTurningCanId = 10;
+constexpr int kRearLeftTurningCanId = 12;
+constexpr int kFrontRightTurningCanId = 14;
+constexpr int kRearRightTurningCanId = 16;
+}// namespace DriveConstants
 
 namespace ModuleConstants {
 // The MAXSwerve module can be configured with one of three pinion gears: 12T,
 // 13T, or 14T. This changes the drive speed of the module (a pinion gear with
 // more teeth will result in a robot that drives faster).
-    constexpr int kDrivingMotorPinionTeeth = 14;
+constexpr int kDrivingMotorPinionTeeth = 14;
 
 // Calculations required for driving motor conversion factors and feed forward
 //    constexpr double kDrivingMotorFreeSpeedRps =
@@ -57,12 +57,12 @@ namespace ModuleConstants {
 //            kWheelDiameter * std::numbers::pi;
 // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
 // teeth on the bevel pinion
-    constexpr double kDrivingMotorReduction =
-            (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
+constexpr double kDrivingMotorReduction =
+    (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
 //    constexpr double kDriveWheelFreeSpeedRps =
 //            (kDrivingMotorFreeSpeedRps * kWheelCircumference.value()) /
 //            kDrivingMotorReduction;
-}  // namespace ModuleConstants
+}// namespace ModuleConstants
 
 namespace AutoConstants {
 //    constexpr auto kMaxSpeed = 3_mps;
@@ -70,10 +70,10 @@ namespace AutoConstants {
 //    constexpr auto kMaxAngularSpeed = 3.142_rad_per_s;
 //    constexpr auto kMaxAngularAcceleration = 3.142_rad_per_s_sq;
 
-    constexpr double kPXController = 0.5;
-    constexpr double kPYController = 0.5;
-    constexpr double kPThetaController = 0.5;
+constexpr double kPXController = 0.5;
+constexpr double kPYController = 0.5;
+constexpr double kPThetaController = 0.5;
 
 //    extern const frc::TrapezoidProfile<units::radians>::Constraints
 //            kThetaControllerConstraints;
-}  // namespace AutoConstants
+}// namespace AutoConstants

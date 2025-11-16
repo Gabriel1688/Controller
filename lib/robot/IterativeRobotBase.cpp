@@ -1,10 +1,10 @@
 #include "IterativeRobotBase.h"
-#include "ds/DriverStation.h"
 #include "ds/DSControlWord.h"
+#include "ds/DriverStation.h"
 #include <iostream>
 
 IterativeRobotBase::IterativeRobotBase(int period)
-        : m_period(period) {}
+    : m_period(period) {}
 
 void IterativeRobotBase::RobotInit() {}
 
@@ -42,7 +42,6 @@ void IterativeRobotBase::TeleopPeriodic() {
 void IterativeRobotBase::AutonomousExit() {}
 
 void IterativeRobotBase::TeleopExit() {}
-
 
 int IterativeRobotBase::GetPeriod() const {
     return m_period;

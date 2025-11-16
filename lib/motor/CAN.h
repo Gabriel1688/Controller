@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <stdint.h>
 #include "CANAPI.h"
+#include <stdint.h>
 
 struct CANData {
     /** Contents of the CAN packet. */
@@ -45,8 +45,8 @@ public:
      */
     CAN(int deviceId, int deviceManufacturer, int deviceType);
 
-    CAN(CAN&&) = default;
-    CAN& operator=(CAN&&) = default;
+    CAN(CAN &&) = default;
+    CAN &operator=(CAN &&) = default;
 
     /**
      * Write a packet to the CAN device with a specific ID. This ID is 10 bits.
@@ -55,7 +55,7 @@ public:
      * @param length The data length to write
      * @param apiId The API ID to write.
      */
-    void WritePacket(const uint8_t* data, int length, int apiId);
+    void WritePacket(const uint8_t *data, int length, int apiId);
 
     /**
      * Write a repeating packet to the CAN device with a specific ID. This ID is
@@ -67,7 +67,7 @@ public:
      * @param apiId The API ID to write.
      * @param repeatMs The period to repeat the packet at.
      */
-    void WritePacketRepeating(const uint8_t* data, int length, int apiId, int repeatMs);
+    void WritePacketRepeating(const uint8_t *data, int length, int apiId, int repeatMs);
 
     /**
      * Write an RTR frame to the CAN device with a specific ID. This ID is 10
@@ -95,7 +95,7 @@ public:
      * @param data Storage for the received data.
      * @return True if the data is valid, otherwise false.
      */
-    bool ReadPacketNew(int apiId, CANData* data);
+    bool ReadPacketNew(int apiId, CANData *data);
 
     /**
      * Read a CAN packet. The will continuously return the last packet received,
@@ -105,7 +105,7 @@ public:
      * @param data Storage for the received data.
      * @return True if the data is valid, otherwise false.
      */
-    bool ReadPacketLatest(int apiId, CANData* data);
+    bool ReadPacketLatest(int apiId, CANData *data);
 
     /**
      * Read a CAN packet. The will return the last packet received until the
@@ -116,13 +116,13 @@ public:
      * @param data Storage for the received data.
      * @return True if the data is valid, otherwise false.
      */
-    bool ReadPacketTimeout(int apiId, int timeoutMs, CANData* data);
+    bool ReadPacketTimeout(int apiId, int timeoutMs, CANData *data);
 
     /// Team manufacturer.
-    static constexpr HAL_CANManufacturer kTeamManufacturer = static_cast<HAL_CANManufacturer>(1); //HAL_CAN_Man_Dummy;
+    static constexpr HAL_CANManufacturer kTeamManufacturer = static_cast<HAL_CANManufacturer>(1);//HAL_CAN_Man_Dummy;
 
     /// Team device type.
-    static constexpr HAL_CANDeviceType kTeamDeviceType = static_cast<HAL_CANDeviceType>(4); // HAL_CAN_Dev_kMotionController;
+    static constexpr HAL_CANDeviceType kTeamDeviceType = static_cast<HAL_CANDeviceType>(4);// HAL_CAN_Dev_kMotionController;
 
 private:
     HAL_CANHandle m_handle;

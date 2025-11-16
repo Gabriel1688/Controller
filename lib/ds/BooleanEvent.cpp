@@ -2,12 +2,12 @@
 #include <memory>
 #include <utility>
 
-BooleanEvent::BooleanEvent(EventLoop* loop, std::function<bool()> condition)
-        : m_loop(loop), m_signal(std::move(condition)) {
+BooleanEvent::BooleanEvent(EventLoop *loop, std::function<bool()> condition)
+    : m_loop(loop), m_signal(std::move(condition)) {
     m_state = std::make_shared<bool>(m_signal());
     m_loop->Bind(
-            // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-            [condition = m_signal, state = m_state] { *state = condition(); });
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
+        [condition = m_signal, state = m_state] { *state = condition(); });
 }
 
 bool BooleanEvent::GetAsBoolean() const {
@@ -31,11 +31,11 @@ BooleanEvent BooleanEvent::operator!() {
 }
 
 BooleanEvent BooleanEvent::operator&&(std::function<bool()> rhs) {
-    return BooleanEvent(this->m_loop,[state = m_state, rhs] { return *state && rhs(); });
+    return BooleanEvent(this->m_loop, [state = m_state, rhs] { return *state && rhs(); });
 }
 
 BooleanEvent BooleanEvent::operator||(std::function<bool()> rhs) {
-    return BooleanEvent(this->m_loop,[state = m_state, rhs] { return *state || rhs(); });
+    return BooleanEvent(this->m_loop, [state = m_state, rhs] { return *state || rhs(); });
 }
 
 BooleanEvent BooleanEvent::Rising() {

@@ -1,7 +1,7 @@
 #include "GenericHID.h"
-#include <string>
-#include "DriverStation.h"
 #include "BooleanEvent.h"
+#include "DriverStation.h"
+#include <string>
 
 GenericHID::GenericHID(int port) {
     m_port = port;
@@ -19,7 +19,7 @@ bool GenericHID::GetRawButtonReleased(int button) {
     return DriverStation::GetStickButtonReleased(m_port, button);
 }
 
-BooleanEvent GenericHID::Button(int button, EventLoop* loop) const {
+BooleanEvent GenericHID::Button(int button, EventLoop *loop) const {
     return BooleanEvent(loop, [this, button]() { return this->GetRawButton(button); });
 }
 
@@ -31,57 +31,57 @@ int GenericHID::GetPOV(int pov) const {
     return DriverStation::GetStickPOV(m_port, pov);
 }
 
-BooleanEvent GenericHID::POV(int angle, EventLoop* loop) const {
+BooleanEvent GenericHID::POV(int angle, EventLoop *loop) const {
     return POV(0, angle, loop);
 }
 
-BooleanEvent GenericHID::POV(int pov, int angle, EventLoop* loop) const {
-    return BooleanEvent( loop, [this, pov, angle] { return this->GetPOV(pov) == angle; });
+BooleanEvent GenericHID::POV(int pov, int angle, EventLoop *loop) const {
+    return BooleanEvent(loop, [this, pov, angle] { return this->GetPOV(pov) == angle; });
 }
 
-BooleanEvent GenericHID::POVUp(EventLoop* loop) const {
+BooleanEvent GenericHID::POVUp(EventLoop *loop) const {
     return POV(0, loop);
 }
 
-BooleanEvent GenericHID::POVUpRight(EventLoop* loop) const {
+BooleanEvent GenericHID::POVUpRight(EventLoop *loop) const {
     return POV(45, loop);
 }
 
-BooleanEvent GenericHID::POVRight(EventLoop* loop) const {
+BooleanEvent GenericHID::POVRight(EventLoop *loop) const {
     return POV(90, loop);
 }
 
-BooleanEvent GenericHID::POVDownRight(EventLoop* loop) const {
+BooleanEvent GenericHID::POVDownRight(EventLoop *loop) const {
     return POV(135, loop);
 }
 
-BooleanEvent GenericHID::POVDown(EventLoop* loop) const {
+BooleanEvent GenericHID::POVDown(EventLoop *loop) const {
     return POV(180, loop);
 }
 
-BooleanEvent GenericHID::POVDownLeft(EventLoop* loop) const {
+BooleanEvent GenericHID::POVDownLeft(EventLoop *loop) const {
     return POV(225, loop);
 }
 
-BooleanEvent GenericHID::POVLeft(EventLoop* loop) const {
+BooleanEvent GenericHID::POVLeft(EventLoop *loop) const {
     return POV(270, loop);
 }
 
-BooleanEvent GenericHID::POVUpLeft(EventLoop* loop) const {
+BooleanEvent GenericHID::POVUpLeft(EventLoop *loop) const {
     return POV(315, loop);
 }
 
-BooleanEvent GenericHID::POVCenter(EventLoop* loop) const {
+BooleanEvent GenericHID::POVCenter(EventLoop *loop) const {
     return POV(360, loop);
 }
 
-BooleanEvent GenericHID::AxisLessThan(int axis, double threshold, EventLoop* loop) const {
+BooleanEvent GenericHID::AxisLessThan(int axis, double threshold, EventLoop *loop) const {
     return BooleanEvent(loop, [this, axis, threshold]() {
         return this->GetRawAxis(axis) < threshold;
     });
 }
 
-BooleanEvent GenericHID::AxisGreaterThan(int axis, double threshold, EventLoop* loop) const {
+BooleanEvent GenericHID::AxisGreaterThan(int axis, double threshold, EventLoop *loop) const {
     return BooleanEvent(loop, [this, axis, threshold]() {
         return this->GetRawAxis(axis) > threshold;
     });

@@ -31,8 +31,8 @@ public:
 
     ~XboxController() override = default;
 
-    XboxController(XboxController&&) = default;
-    XboxController& operator=(XboxController&&) = default;
+    XboxController(XboxController &&) = default;
+    XboxController &operator=(XboxController &&) = default;
 
     /**
      * Get the X axis value of left side of the controller. Right is positive.
@@ -81,7 +81,7 @@ public:
      * @return an event instance that is true when the left trigger's axis
      * exceeds the provided threshold, attached to the given event loop
      */
-    BooleanEvent LeftTrigger(double threshold, EventLoop* loop) const;
+    BooleanEvent LeftTrigger(double threshold, EventLoop *loop) const;
 
     /**
      * Constructs an event instance around the axis value of the left trigger.
@@ -90,7 +90,7 @@ public:
      * @return an event instance that is true when the left trigger's axis
      * exceeds 0.5, attached to the given event loop
      */
-    BooleanEvent LeftTrigger(EventLoop* loop) const;
+    BooleanEvent LeftTrigger(EventLoop *loop) const;
 
     /**
      * Get the right trigger axis value of the controller. Note that this axis
@@ -111,7 +111,7 @@ public:
      * @return an event instance that is true when the right trigger's axis
      * exceeds the provided threshold, attached to the given event loop
      */
-    BooleanEvent RightTrigger(double threshold, EventLoop* loop) const;
+    BooleanEvent RightTrigger(double threshold, EventLoop *loop) const;
 
     /**
      * Constructs an event instance around the axis value of the right trigger.
@@ -120,7 +120,7 @@ public:
      * @return an event instance that is true when the right trigger's axis
      * exceeds 0.5, attached to the given event loop
      */
-    BooleanEvent RightTrigger(EventLoop* loop) const;
+    BooleanEvent RightTrigger(EventLoop *loop) const;
 
     /**
      * Read the value of the A button on the controller.
@@ -151,7 +151,7 @@ public:
      * @return an event instance representing the A button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent A(EventLoop* loop) const;
+    BooleanEvent A(EventLoop *loop) const;
 
     /**
      * Read the value of the B button on the controller.
@@ -182,7 +182,7 @@ public:
      * @return an event instance representing the B button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent B(EventLoop* loop) const;
+    BooleanEvent B(EventLoop *loop) const;
 
     /**
      * Read the value of the X button on the controller.
@@ -213,7 +213,7 @@ public:
      * @return an event instance representing the X button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent X(EventLoop* loop) const;
+    BooleanEvent X(EventLoop *loop) const;
 
     /**
      * Read the value of the Y button on the controller.
@@ -244,7 +244,7 @@ public:
      * @return an event instance representing the Y button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent Y(EventLoop* loop) const;
+    BooleanEvent Y(EventLoop *loop) const;
 
     /**
      * Read the value of the left bumper button on the controller.
@@ -275,7 +275,7 @@ public:
      * @return an event instance representing the left bumper button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent LeftBumper(EventLoop* loop) const;
+    BooleanEvent LeftBumper(EventLoop *loop) const;
 
     /**
      * Read the value of the right bumper button on the controller.
@@ -306,7 +306,7 @@ public:
      * @return an event instance representing the right bumper button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent RightBumper(EventLoop* loop) const;
+    BooleanEvent RightBumper(EventLoop *loop) const;
 
     /**
      * Read the value of the back button on the controller.
@@ -337,7 +337,7 @@ public:
      * @return an event instance representing the back button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent Back(EventLoop* loop) const;
+    BooleanEvent Back(EventLoop *loop) const;
 
     /**
      * Read the value of the start button on the controller.
@@ -368,7 +368,7 @@ public:
      * @return an event instance representing the start button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent Start(EventLoop* loop) const;
+    BooleanEvent Start(EventLoop *loop) const;
 
     /**
      * Read the value of the left stick button on the controller.
@@ -399,7 +399,7 @@ public:
      * @return an event instance representing the left stick button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent LeftStick(EventLoop* loop) const;
+    BooleanEvent LeftStick(EventLoop *loop) const;
 
     /**
      * Read the value of the right stick button on the controller.
@@ -430,7 +430,7 @@ public:
      * @return an event instance representing the right stick button's
      * digital signal attached to the given loop.
      */
-    BooleanEvent RightStick(EventLoop* loop) const;
+    BooleanEvent RightStick(EventLoop *loop) const;
 
     /** Represents a digital button on an XboxController. */
     struct Button {

@@ -1,38 +1,38 @@
 #include "Synchronization.h"
 #include <algorithm>
 #include <atomic>
+#include <condition_variable>
 #include <mutex>
 #include <vector>
-#include <condition_variable>
 
 static std::atomic_bool gShutdown{false};
 
 namespace {
 
-    struct State {
-        int signaled{0};
-        bool autoReset{false};
-        std::vector<std::condition_variable *> waiters;
-    };
+struct State {
+    int signaled{0};
+    bool autoReset{false};
+    std::vector<std::condition_variable *> waiters;
+};
 
-    struct HandleManager {
-        ~HandleManager() { gShutdown = true; }
+struct HandleManager {
+    ~HandleManager() { gShutdown = true; }
 
-        std::mutex mutex;
-        std::vector<int> eventIds;
-        std::vector<int> semaphoreIds;
-        std::unordered_map<WPI_Handle, State> states;
-    };
+    std::mutex mutex;
+    std::vector<int> eventIds;
+    std::vector<int> semaphoreIds;
+    std::unordered_map<WPI_Handle, State> states;
+};
 
-}  // namespace
+}// namespace
 
-static HandleManager& GetManager() {
+static HandleManager &GetManager() {
     static HandleManager manager;
     return manager;
 }
 
 WPI_EventHandle wpi::CreateEvent(bool manualReset, bool initialState) {
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return {};
     }
@@ -42,7 +42,7 @@ WPI_EventHandle wpi::CreateEvent(bool manualReset, bool initialState) {
     WPI_EventHandle handle = (kHandleTypeEvent << 24) | (index & 0xffffff);
 
     // configure state data
-    auto& state = manager.states[handle];
+    auto &state = manager.states[handle];
     state.signaled = initialState ? 1 : 0;
     state.autoReset = !manualReset;
 
@@ -56,15 +56,14 @@ void wpi::DestroyEvent(WPI_EventHandle handle) {
 
     DestroySignalObject(handle);
 
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return;
     }
     std::scoped_lock lock{manager.mutex};
 
     std::vector<int>::iterator position = std::find(manager.eventIds.begin(), manager.eventIds.end(), handle);
-    if (position != manager.eventIds.end())
-    {
+    if (position != manager.eventIds.end()) {
         manager.eventIds.erase(position);
     }
 }
@@ -86,7 +85,7 @@ void wpi::ResetEvent(WPI_EventHandle handle) {
 }
 
 WPI_SemaphoreHandle wpi::CreateSemaphore(int initialCount, int maximumCount) {
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return {};
     }
@@ -96,7 +95,7 @@ WPI_SemaphoreHandle wpi::CreateSemaphore(int initialCount, int maximumCount) {
     WPI_EventHandle handle = (kHandleTypeSemaphore << 24) | (index & 0xffffff);
 
     // configure state data
-    auto& state = manager.states[handle];
+    auto &state = manager.states[handle];
     state.signaled = initialCount;
     state.autoReset = true;
 
@@ -110,20 +109,19 @@ void wpi::DestroySemaphore(WPI_SemaphoreHandle handle) {
 
     DestroySignalObject(handle);
 
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return;
     }
     std::scoped_lock lock{manager.mutex};
     std::vector<int>::iterator position = std::find(manager.eventIds.begin(), manager.eventIds.end(), handle);
-    if (position != manager.eventIds.end())
-    {
+    if (position != manager.eventIds.end()) {
         manager.eventIds.erase(position);
     }
 }
 
 bool wpi::ReleaseSemaphore(WPI_SemaphoreHandle handle, int releaseCount,
-                           int* prevCount) {
+                           int *prevCount) {
     if ((handle >> 24) != kHandleTypeSemaphore) {
         return false;
     }
@@ -132,7 +130,7 @@ bool wpi::ReleaseSemaphore(WPI_SemaphoreHandle handle, int releaseCount,
     }
     int index = handle & 0xffffff;
 
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return true;
     }
@@ -141,7 +139,7 @@ bool wpi::ReleaseSemaphore(WPI_SemaphoreHandle handle, int releaseCount,
     if (it == manager.states.end()) {
         return false;
     }
-    auto& state = it->second;
+    auto &state = it->second;
     int maxCount = manager.eventIds[index];
     if (prevCount) {
         *prevCount = state.signaled;
@@ -150,7 +148,7 @@ bool wpi::ReleaseSemaphore(WPI_SemaphoreHandle handle, int releaseCount,
         return false;
     }
     state.signaled += releaseCount;
-    for (auto& waiter : state.waiters) {
+    for (auto &waiter : state.waiters) {
         waiter->notify_all();
     }
     return true;
@@ -160,10 +158,10 @@ bool wpi::WaitForObject(WPI_Handle handle) {
     return WaitForObject(handle, -1, nullptr);
 }
 
-bool wpi::WaitForObject(WPI_Handle handle, double timeout, bool* timedOut) {
+bool wpi::WaitForObject(WPI_Handle handle, double timeout, bool *timedOut) {
     WPI_Handle signaledValue;
     auto signaled = WaitForObjects(
-            std::span(&handle, 1), std::span(&signaledValue, 1), timeout, timedOut);
+        std::span(&handle, 1), std::span(&signaledValue, 1), timeout, timedOut);
     if (signaled.empty()) {
         return false;
     }
@@ -177,8 +175,8 @@ std::span<WPI_Handle> wpi::WaitForObjects(std::span<const WPI_Handle> handles,
 
 std::span<WPI_Handle> wpi::WaitForObjects(std::span<const WPI_Handle> handles,
                                           std::span<WPI_Handle> signaled,
-                                          double timeout, bool* timedOut) {
-    auto& manager = GetManager();
+                                          double timeout, bool *timedOut) {
+    auto &manager = GetManager();
     if (gShutdown) {
         *timedOut = false;
         return {};
@@ -198,7 +196,7 @@ std::span<WPI_Handle> wpi::WaitForObjects(std::span<const WPI_Handle> handles,
                     signaled[count++] = handle | 0x80000000ul;
                 }
             } else {
-                auto& state = it->second;
+                auto &state = it->second;
                 if (state.signaled > 0) {
                     if (count < signaled.size()) {
                         signaled[count++] = handle;
@@ -225,7 +223,7 @@ std::span<WPI_Handle> wpi::WaitForObjects(std::span<const WPI_Handle> handles,
         if (!addedWaiters) {
             addedWaiters = true;
             for (auto handle : handles) {
-                auto& state = manager.states[handle];
+                auto &state = manager.states[handle];
                 state.waiters.emplace_back(&cv);
             }
         }
@@ -233,8 +231,7 @@ std::span<WPI_Handle> wpi::WaitForObjects(std::span<const WPI_Handle> handles,
         if (timeout < 0) {
             cv.wait(lock);
         } else {
-            auto timeoutTime = std::chrono::steady_clock::now() +
-                               std::chrono::duration<double>(timeout);
+            auto timeoutTime = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout);
             if (cv.wait_until(lock, timeoutTime) == std::cv_status::timeout) {
                 timedOutVal = true;
             }
@@ -243,7 +240,7 @@ std::span<WPI_Handle> wpi::WaitForObjects(std::span<const WPI_Handle> handles,
 
     if (addedWaiters) {
         for (auto handle : handles) {
-            auto& state = manager.states[handle];
+            auto &state = manager.states[handle];
             auto it = std::find(state.waiters.begin(), state.waiters.end(), &cv);
             if (it != state.waiters.end()) {
                 state.waiters.erase(it);
@@ -260,18 +257,18 @@ std::span<WPI_Handle> wpi::WaitForObjects(std::span<const WPI_Handle> handles,
 
 void wpi::CreateSignalObject(WPI_Handle handle, bool manualReset,
                              bool initialState) {
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return;
     }
     std::scoped_lock lock{manager.mutex};
-    auto& state = manager.states[handle];
+    auto &state = manager.states[handle];
     state.signaled = initialState ? 1 : 0;
     state.autoReset = !manualReset;
 }
 
 void wpi::SetSignalObject(WPI_Handle handle) {
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return;
     }
@@ -280,9 +277,9 @@ void wpi::SetSignalObject(WPI_Handle handle) {
     if (it == manager.states.end()) {
         return;
     }
-    auto& state = it->second;
+    auto &state = it->second;
     state.signaled = 1;
-    for (auto& waiter : state.waiters) {
+    for (auto &waiter : state.waiters) {
         waiter->notify_all();
         if (state.autoReset) {
             // expect the first waiter to reset it
@@ -292,7 +289,7 @@ void wpi::SetSignalObject(WPI_Handle handle) {
 }
 
 void wpi::ResetSignalObject(WPI_Handle handle) {
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return;
     }
@@ -304,7 +301,7 @@ void wpi::ResetSignalObject(WPI_Handle handle) {
 }
 
 void wpi::DestroySignalObject(WPI_Handle handle) {
-    auto& manager = GetManager();
+    auto &manager = GetManager();
     if (gShutdown) {
         return;
     }
@@ -313,7 +310,7 @@ void wpi::DestroySignalObject(WPI_Handle handle) {
     auto it = manager.states.find(handle);
     if (it != manager.states.end()) {
         // wake up any waiters
-        for (auto& waiter : it->second.waiters) {
+        for (auto &waiter : it->second.waiters) {
             waiter->notify_all();
         }
         manager.states.erase(it);
@@ -347,7 +344,7 @@ void WPI_DestroySemaphore(WPI_SemaphoreHandle handle) {
 }
 
 int WPI_ReleaseSemaphore(WPI_SemaphoreHandle handle, int release_count,
-                         int* prev_count) {
+                         int *prev_count) {
     return wpi::ReleaseSemaphore(handle, release_count, prev_count);
 }
 
@@ -356,23 +353,23 @@ int WPI_WaitForObject(WPI_Handle handle) {
 }
 
 int WPI_WaitForObjectTimeout(WPI_Handle handle, double timeout,
-                             int* timed_out) {
+                             int *timed_out) {
     bool timedOutBool;
     int rv = wpi::WaitForObject(handle, timeout, &timedOutBool);
     *timed_out = timedOutBool ? 1 : 0;
     return rv;
 }
 
-int WPI_WaitForObjects(const WPI_Handle* handles, int handles_count,
-                       WPI_Handle* signaled) {
+int WPI_WaitForObjects(const WPI_Handle *handles, int handles_count,
+                       WPI_Handle *signaled) {
     return wpi::WaitForObjects(std::span(handles, handles_count),
                                std::span(signaled, handles_count))
-            .size();
+        .size();
 }
 
-int WPI_WaitForObjectsTimeout(const WPI_Handle* handles, int handles_count,
-                              WPI_Handle* signaled, double timeout,
-                              int* timed_out) {
+int WPI_WaitForObjectsTimeout(const WPI_Handle *handles, int handles_count,
+                              WPI_Handle *signaled, double timeout,
+                              int *timed_out) {
     bool timedOutBool;
     auto signaledResult = wpi::WaitForObjects(std::span(handles, handles_count),
                                               std::span(signaled, handles_count),
@@ -398,4 +395,4 @@ void WPI_DestroySignalObject(WPI_Handle handle) {
     wpi::DestroySignalObject(handle);
 }
 
-}  // extern "C"
+}// extern "C"

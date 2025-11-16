@@ -1,22 +1,22 @@
 #include "Notifier.h"
-#include <string>
-#include <mutex>
-#include <vector>
 #include <condition_variable>
+#include <mutex>
+#include <string>
+#include <vector>
 typedef int32_t HAL_Handle;
 
 namespace {
-    struct Notifier {
-        std::string name;
-        uint64_t waitTime = UINT64_MAX;
-        bool active = true;
-        bool waitTimeValid = false;    // True if waitTime is set and in the future
-        bool waitingForAlarm = false;  // True if in HAL_WaitForNotifierAlarm()
-        uint64_t waitCount = 0;        // Counts calls to HAL_WaitForNotifierAlarm()
-        std::mutex mutex;
-        std::condition_variable cond;
-    };
-}  // namespace
+struct Notifier {
+    std::string name;
+    uint64_t waitTime = UINT64_MAX;
+    bool active = true;
+    bool waitTimeValid = false;  // True if waitTime is set and in the future
+    bool waitingForAlarm = false;// True if in HAL_WaitForNotifierAlarm()
+    uint64_t waitCount = 0;      // Counts calls to HAL_WaitForNotifierAlarm()
+    std::mutex mutex;
+    std::condition_variable cond;
+};
+}// namespace
 
 static std::mutex notifiersWaiterMutex;
 static std::condition_variable notifiersWaiterCond;
@@ -24,8 +24,8 @@ static std::condition_variable notifiersWaiterCond;
 class NotifierHandleContainer {
 public:
     NotifierHandleContainer() = default;
-    NotifierHandleContainer(const NotifierHandleContainer&) = delete;
-    NotifierHandleContainer& operator=(const NotifierHandleContainer&) = delete;
+    NotifierHandleContainer(const NotifierHandleContainer &) = delete;
+    NotifierHandleContainer &operator=(const NotifierHandleContainer &) = delete;
 
     HAL_NotifierHandle Allocate(std::shared_ptr<Notifier> structure);
     int16_t GetIndex(HAL_NotifierHandle handle) {
@@ -34,19 +34,20 @@ public:
     std::shared_ptr<Notifier> Get(HAL_NotifierHandle handle);
     /* Returns structure previously at that handle (or nullptr if none) */
     std::shared_ptr<Notifier> Free(HAL_NotifierHandle handle);
-    void ResetHandles() ;
+    void ResetHandles();
 
     ~NotifierHandleContainer() {
-//        ForEach([](HAL_NotifierHandle handle, Notifier* notifier) {
-//            {
-//                std::scoped_lock lock(notifier->mutex);
-//                notifier->active = false;
-//                notifier->waitTimeValid = false;
-//            }
-//            notifier->cond.notify_all();  // wake up any waiting threads
-//        });
-//        notifiersWaiterCond.notify_all();
+        //        ForEach([](HAL_NotifierHandle handle, Notifier* notifier) {
+        //            {
+        //                std::scoped_lock lock(notifier->mutex);
+        //                notifier->active = false;
+        //                notifier->waitTimeValid = false;
+        //            }
+        //            notifier->cond.notify_all();  // wake up any waiting threads
+        //        });
+        //        notifiersWaiterCond.notify_all();
     }
+
 private:
     std::vector<std::shared_ptr<Notifier>> m_structures;
     std::mutex m_handleMutex;
@@ -86,7 +87,7 @@ HAL_NotifierHandle NotifierHandleContainer::Allocate(std::shared_ptr<Notifier> s
 
     m_structures.push_back(structure);
     return static_cast<HAL_NotifierHandle>(
-            createHandle(static_cast<int16_t>(i), 3, m_version));
+        createHandle(static_cast<int16_t>(i), 3, m_version));
 }
 
 std::shared_ptr<Notifier> NotifierHandleContainer::Get(HAL_NotifierHandle handle) {
@@ -107,25 +108,25 @@ std::shared_ptr<Notifier> NotifierHandleContainer::Free(HAL_NotifierHandle handl
     return std::move(m_structures[index]);
 }
 
-static NotifierHandleContainer* notifierHandles;
+static NotifierHandleContainer *notifierHandles;
 static std::atomic<bool> notifiersPaused{false};
 
 //namespace hal {
 namespace init {
-    void InitializeNotifier() {
-        static NotifierHandleContainer nH;
-        notifierHandles = &nH;
-    }
-}  // namespace init
+void InitializeNotifier() {
+    static NotifierHandleContainer nH;
+    notifierHandles = &nH;
+}
+}// namespace init
 //  using namespace hal;
 
-HAL_NotifierHandle HAL_InitializeNotifier(int32_t* status) {
+HAL_NotifierHandle HAL_InitializeNotifier(int32_t *status) {
     std::shared_ptr<Notifier> notifier = std::make_shared<Notifier>();
     HAL_NotifierHandle handle = notifierHandles->Allocate(notifier);
     return handle;
 }
 
-void HAL_StopNotifier(HAL_NotifierHandle notifierHandle, int32_t* status) {
+void HAL_StopNotifier(HAL_NotifierHandle notifierHandle, int32_t *status) {
     auto notifier = notifierHandles->Get(notifierHandle);
     if (!notifier) {
         return;
@@ -139,7 +140,7 @@ void HAL_StopNotifier(HAL_NotifierHandle notifierHandle, int32_t* status) {
     notifier->cond.notify_all();
 }
 uint64_t HAL_WaitForNotifierAlarm(HAL_NotifierHandle notifierHandle,
-                                  int32_t* status) {
+                                  int32_t *status) {
     auto notifier = notifierHandles->Get(notifierHandle);
     if (!notifier) {
         return 0;

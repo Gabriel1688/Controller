@@ -1,32 +1,32 @@
 #pragma once
-#include <chrono>
-#include <pthread.h>
-#include <mutex>
-#include <string>
-#include <condition_variable>
 #include "ds/DriverStation.h"
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
+#include <pthread.h>
+#include <string>
 
 void InitializeHAL();
 extern "C" {
 namespace hal {
-    void InitializeDriverStation();
+void InitializeDriverStation();
 }
 }
 
-template <class Robot>
-void RunRobot(std::mutex& m, Robot** robot) {
-     static Robot theRobot;
-     {
-         std::scoped_lock lock{m};
-         *robot = &theRobot;
-     }
-     theRobot.StartCompetition();
+template<class Robot>
+void RunRobot(std::mutex &m, Robot **robot) {
+    static Robot theRobot;
+    {
+        std::scoped_lock lock{m};
+        *robot = &theRobot;
+    }
+    theRobot.StartCompetition();
 }
 
-template <class Robot>
+template<class Robot>
 int StartRobot() {
     static std::mutex m;
-    static Robot* robot = nullptr;
+    static Robot *robot = nullptr;
     InitializeHAL();
     hal::InitializeDriverStation();
     RunRobot<Robot>(m, &robot);
@@ -112,7 +112,7 @@ public:
      *
      * @return The main thread ID.
      */
-//    static std::thread::id GetThreadId();
+    //    static std::thread::id GetThreadId();
 
     /**
      * Start the main robot code. This function will be called once and should not
@@ -172,11 +172,10 @@ public:
     virtual ~RobotBase() = default;
 
 protected:
-    RobotBase(RobotBase&&) = default;
-    RobotBase& operator=(RobotBase&&) = default;
+    RobotBase(RobotBase &&) = default;
+    RobotBase &operator=(RobotBase &&) = default;
 
     pthread_t m_threadId;
-//    NT_Listener connListenerHandle;
+    //    NT_Listener connListenerHandle;
     bool m_dashboardDetected = false;
 };
-

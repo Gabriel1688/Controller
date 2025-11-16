@@ -12,9 +12,9 @@ add_executable(
         Controller
 
         src/Robot.cpp
-        src/Arm.cpp
-        src/Gripper.cpp
-        src/ArmController.cpp
+        src/subsystems/Arm.cpp
+        src/subsystems/Gripper.cpp
+        src/controllers/ArmController.cpp
 )
 
 target_include_directories(

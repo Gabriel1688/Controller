@@ -33,11 +33,11 @@ double XboxController::GetLeftTriggerAxis() const {
     return GetRawAxis(Axis::kLeftTrigger);
 }
 
-BooleanEvent XboxController::LeftTrigger(double threshold, EventLoop* loop) const {
+BooleanEvent XboxController::LeftTrigger(double threshold, EventLoop *loop) const {
     return BooleanEvent(loop, [this, threshold] { return this->GetLeftTriggerAxis() > threshold; });
 }
 
-BooleanEvent XboxController::LeftTrigger(EventLoop* loop) const {
+BooleanEvent XboxController::LeftTrigger(EventLoop *loop) const {
     return this->LeftTrigger(0.5, loop);
 }
 
@@ -45,11 +45,11 @@ double XboxController::GetRightTriggerAxis() const {
     return GetRawAxis(Axis::kRightTrigger);
 }
 
-BooleanEvent XboxController::RightTrigger(double threshold, EventLoop* loop) const {
+BooleanEvent XboxController::RightTrigger(double threshold, EventLoop *loop) const {
     return BooleanEvent(loop, [this, threshold] { return this->GetRightTriggerAxis() > threshold; });
 }
 
-BooleanEvent XboxController::RightTrigger(EventLoop* loop) const {
+BooleanEvent XboxController::RightTrigger(EventLoop *loop) const {
     return this->RightTrigger(0.5, loop);
 }
 
@@ -65,7 +65,7 @@ bool XboxController::GetAButtonReleased() {
     return GetRawButtonReleased(Button::kA);
 }
 
-BooleanEvent XboxController::A(EventLoop* loop) const {
+BooleanEvent XboxController::A(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetAButton(); });
 }
 
@@ -81,7 +81,7 @@ bool XboxController::GetBButtonReleased() {
     return GetRawButtonReleased(Button::kB);
 }
 
-BooleanEvent XboxController::B(EventLoop* loop) const {
+BooleanEvent XboxController::B(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetBButton(); });
 }
 
@@ -97,7 +97,7 @@ bool XboxController::GetXButtonReleased() {
     return GetRawButtonReleased(Button::kX);
 }
 
-BooleanEvent XboxController::X(EventLoop* loop) const {
+BooleanEvent XboxController::X(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetXButton(); });
 }
 
@@ -113,7 +113,7 @@ bool XboxController::GetYButtonReleased() {
     return GetRawButtonReleased(Button::kY);
 }
 
-BooleanEvent XboxController::Y(EventLoop* loop) const {
+BooleanEvent XboxController::Y(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetYButton(); });
 }
 
@@ -129,7 +129,7 @@ bool XboxController::GetLeftBumperButtonReleased() {
     return GetRawButtonReleased(Button::kLeftBumper);
 }
 
-BooleanEvent XboxController::LeftBumper(EventLoop* loop) const {
+BooleanEvent XboxController::LeftBumper(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetLeftBumperButton(); });
 }
 
@@ -145,7 +145,7 @@ bool XboxController::GetRightBumperButtonReleased() {
     return GetRawButtonReleased(Button::kRightBumper);
 }
 
-BooleanEvent XboxController::RightBumper(EventLoop* loop) const {
+BooleanEvent XboxController::RightBumper(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetRightBumperButton(); });
 }
 
@@ -161,7 +161,7 @@ bool XboxController::GetBackButtonReleased() {
     return GetRawButtonReleased(Button::kBack);
 }
 
-BooleanEvent XboxController::Back(EventLoop* loop) const {
+BooleanEvent XboxController::Back(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetBackButton(); });
 }
 
@@ -177,7 +177,7 @@ bool XboxController::GetStartButtonReleased() {
     return GetRawButtonReleased(Button::kStart);
 }
 
-BooleanEvent XboxController::Start(EventLoop* loop) const {
+BooleanEvent XboxController::Start(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetStartButton(); });
 }
 
@@ -193,7 +193,7 @@ bool XboxController::GetLeftStickButtonReleased() {
     return GetRawButtonReleased(Button::kLeftStick);
 }
 
-BooleanEvent XboxController::LeftStick(EventLoop* loop) const {
+BooleanEvent XboxController::LeftStick(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetLeftStickButton(); });
 }
 
@@ -209,7 +209,7 @@ bool XboxController::GetRightStickButtonReleased() {
     return GetRawButtonReleased(Button::kRightStick);
 }
 
-BooleanEvent XboxController::RightStick(EventLoop* loop) const {
+BooleanEvent XboxController::RightStick(EventLoop *loop) const {
     return BooleanEvent(loop, [this]() { return this->GetRightStickButton(); });
 }
 
