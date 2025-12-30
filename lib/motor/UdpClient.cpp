@@ -3,28 +3,28 @@
 #include <sys/epoll.h>
 #define MAX_PACKET_SIZE 4096
 
-TcpClient::TcpClient() {
+UdpClient::UdpClient() {
     _isConnected = false;
     _isClosed = true;
 }
 
-TcpClient::~TcpClient() {
+UdpClient::~UdpClient() {
     close();
 }
 
-void TcpClient::Start() {
+void UdpClient::Start() {
     if (pthread_create(&thread_id, nullptr, EntryOfThread, this) != 0) {
     }
 }
 
 /*static*/
-void *TcpClient::EntryOfThread(void *argv) {
-    TcpClient *client = static_cast<TcpClient *>(argv);
+void *UdpClient::EntryOfThread(void *argv) {
+    UdpClient *client = static_cast<UdpClient *>(argv);
     client->run();
     return (void *) client;
 }
 
-bool TcpClient::connectTo(const std::string &address, int port) {
+bool UdpClient::connectTo(const std::string &address, int port) {
     try {
         _sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -59,7 +59,7 @@ bool TcpClient::connectTo(const std::string &address, int port) {
     return true;
 }
 
-void TcpClient::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
+void UdpClient::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
 
     CANFrame frame;
     frame.modify(frameId.forwardCANId, data, dataSize);
@@ -82,7 +82,7 @@ void TcpClient::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSiz
     }
 }
 
-void TcpClient::subscribe(const int32_t deviceId, const client_observer_t &observer) {
+void UdpClient::subscribe(const int32_t deviceId, const client_observer_t &observer) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
     _subscribers.insert(std::make_pair(deviceId, observer));
 }
@@ -93,7 +93,7 @@ void TcpClient::subscribe(const int32_t deviceId, const client_observer_t &obser
  * from clients with IP address identical to
  * the specific observer requested IP
  */
-void TcpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
+void UdpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
     //std::lock_guard<std::mutex> lock(_subscribersMtx);
     CANFrame *frame = (CANFrame *) msg;
     //Get handle of message and wake up it.
@@ -118,7 +118,7 @@ void TcpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
  * with IP address identical to the specific
  * observer requested IP
  */
-void TcpClient::publishServerDisconnected(const std::string &ret) {
+void UdpClient::publishServerDisconnected(const std::string &ret) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
     for (const auto &subscriber : _subscribers) {
         if (subscriber.second.disconnectionHandler) {
@@ -130,7 +130,7 @@ void TcpClient::publishServerDisconnected(const std::string &ret) {
 /*
  * Receive server packets, and notify user
  */
-void TcpClient::run() {
+void UdpClient::run() {
     /* Disable socket blocking */
     fcntl(_sockfd, F_SETFL, O_NONBLOCK);
 
@@ -178,7 +178,7 @@ void TcpClient::run() {
     }
 }
 
-bool TcpClient::close() {
+bool UdpClient::close() {
     if (_isClosed) {
         std::cout << "client is already closed" << std::endl;
         return false;

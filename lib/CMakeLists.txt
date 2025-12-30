@@ -12,10 +12,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 include(FetchContent)
 FetchContent_Declare(libwebsockets URL https://github.com/warmcat/libwebsockets/archive/refs/tags/v4.3.5.tar.gz)
 FetchContent_MakeAvailable(libwebsockets)
-
-FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.0.tar.gz)
-FetchContent_MakeAvailable(spdlog)
-
 message(CHECK_START "Fetching Eigen3")
 
 FetchContent_Declare(Eigen URL https://gitlab.com/libeigen/eigen/-/archive/3.4.1/eigen-3.4.1.tar.gz)
@@ -51,7 +47,7 @@ add_library(framework
 
         motor/CAN.cpp
         motor/CANAPI.cpp
-        motor/TcpClient.cpp
+        motor/UdpClient.cpp
         motor/CtrlStepMotor.cpp
 )
 set_target_properties(framework PROPERTIES DEBUG_POSTFIX "d")

@@ -7,7 +7,7 @@ Gripper::Gripper() {
     // facing in the target's general direction. This is relatively close to the
     // robot's testing configuration, so the turret won't hit the soft limits.
     //CAN(int deviceId, int deviceManufacturer, int deviceType);
-    std::shared_ptr<CAN> can = std::make_shared<CAN>(0x7, 0x1, 0x1);
+    can = std::make_shared<CAN>(0x7, 0x1, 0x1);
     Reset();
 }
 
