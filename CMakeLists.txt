@@ -22,6 +22,7 @@ target_include_directories(
         PRIVATE
         include
         lib
+        src
 )
 
 target_link_libraries(

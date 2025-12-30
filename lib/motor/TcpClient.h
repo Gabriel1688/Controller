@@ -20,6 +20,7 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+#include <memory>
 
 #pragma pack(1)
 struct CANFrame {

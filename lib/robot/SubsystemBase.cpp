@@ -1,4 +1,5 @@
 #include "SubsystemBase.h"
+#include <algorithm>
 
 std::vector<SubsystemBase *> SubsystemBase::m_subsystems;
 
