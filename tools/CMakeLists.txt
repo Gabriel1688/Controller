@@ -2,7 +2,6 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE")
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack -pie")
-
 add_executable(
         DriverStation
         DriverStationModeThread.cpp
@@ -10,8 +9,13 @@ add_executable(
 )
 
 add_executable(
-        Tcpserver
-        tcpserver.cpp
+        Udpserver
+        udpserver.cpp
+)
+target_include_directories(
+        Udpserver
+        PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug/_deps/spdlog-src/include>
 )
 
 target_include_directories(

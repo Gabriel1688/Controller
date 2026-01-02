@@ -3,30 +3,30 @@
 #include <sys/epoll.h>
 #define MAX_PACKET_SIZE 4096
 
-TcpClient::TcpClient() {
+UdpClient::UdpClient() {
     _isConnected = false;
     _isClosed = true;
 }
 
-TcpClient::~TcpClient() {
+UdpClient::~UdpClient() {
     close();
 }
 
-void TcpClient::Start() {
+void UdpClient::Start() {
     if (pthread_create(&thread_id, nullptr, EntryOfThread, this) != 0) {
     }
 }
 
 /*static*/
-void *TcpClient::EntryOfThread(void *argv) {
-    TcpClient *client = static_cast<TcpClient *>(argv);
+void *UdpClient::EntryOfThread(void *argv) {
+    UdpClient *client = static_cast<UdpClient *>(argv);
     client->run();
     return (void *) client;
 }
 
-bool TcpClient::connectTo(const std::string &address, int port) {
+bool UdpClient::connectTo(const std::string &address, int port) {
     try {
-        _sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        _sockfd = socket(AF_INET , SOCK_DGRAM,  IPPROTO_UDP);
 
         const int inetSuccess = inet_aton(address.c_str(), &_server.sin_addr);
 
@@ -46,43 +46,36 @@ bool TcpClient::connectTo(const std::string &address, int port) {
         std::cout << "client is already closed, " << error.what() << std::endl;
         return false;
     }
-
-    const int connectResult = connect(_sockfd, (struct sockaddr *) &_server, sizeof(_server));
-    const bool connectionFailed = (connectResult == -1);
-    if (connectionFailed) {
-        std::cout << "Failed to connect [" << address << "][" << port << "] , " << strerror(errno) << std::endl;
-        return false;
-    }
     _isConnected = true;
     _isClosed = false;
 
     return true;
 }
 
-void TcpClient::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
-
+void UdpClient::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
     CANFrame frame;
     frame.modify(frameId.forwardCANId, data, dataSize);
-    const size_t numBytesSent = send(_sockfd, (uint8_t *) &frame, 5 + dataSize, 0);
-
-    //Add reply frameId/handle to map for receiving reply.
-    {
-        std::scoped_lock lock(frameIdsMutex);
-        if (_frameIds.find(frameId.replyCANId) == _frameIds.end()) {
-            _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
+    //spdlog::info("<------ {0:04x} : {1:02x}", frame.FrameId, fmt::join(frame.data, " "));
+    const size_t numBytesSent = sendto(_sockfd, (uint8_t *) &frame, 5 + dataSize, 0, (struct sockaddr *) &_server, sizeof(_server));
+    if (numBytesSent < dataSize) { // not all bytes were sent
+        if (numBytesSent <= 0) {// send failed
+            std::cout << "client is already closed" << strerror(errno) << std::endl;
+        }
+        else {
+            char errorMsg[100];
+            sprintf(errorMsg, "Only %lu bytes out of %d was sent to client", numBytesSent, dataSize);
+            std::cout << "client is already closed" << errorMsg << std::endl;
         }
     }
-    if (numBytesSent <= 0) {// send failed
-        std::cout << "client is already closed" << strerror(errno) << std::endl;
-    }
-    if (numBytesSent < dataSize) {// not all bytes were sent
-        char errorMsg[100];
-        sprintf(errorMsg, "Only %lu bytes out of %d was sent to client", numBytesSent, dataSize);
-        std::cout << "client is already closed" << errorMsg << std::endl;
-    }
+    else {  //Add reply frameId/handle to map for receiving reply.
+           std::scoped_lock lock(frameIdsMutex);
+            if (_frameIds.find(frameId.replyCANId) == _frameIds.end()) {
+                _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
+            }
+     }
 }
 
-void TcpClient::subscribe(const int32_t deviceId, const client_observer_t &observer) {
+void UdpClient::subscribe(const int32_t deviceId, const client_observer_t &observer) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
     _subscribers.insert(std::make_pair(deviceId, observer));
 }
@@ -93,7 +86,7 @@ void TcpClient::subscribe(const int32_t deviceId, const client_observer_t &obser
  * from clients with IP address identical to
  * the specific observer requested IP
  */
-void TcpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
+void UdpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
     //std::lock_guard<std::mutex> lock(_subscribersMtx);
     CANFrame *frame = (CANFrame *) msg;
     //Get handle of message and wake up it.
@@ -118,7 +111,7 @@ void TcpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
  * with IP address identical to the specific
  * observer requested IP
  */
-void TcpClient::publishServerDisconnected(const std::string &ret) {
+void UdpClient::publishServerDisconnected(const std::string &ret) {
     std::lock_guard<std::mutex> lock(_subscribersMtx);
     for (const auto &subscriber : _subscribers) {
         if (subscriber.second.disconnectionHandler) {
@@ -130,22 +123,22 @@ void TcpClient::publishServerDisconnected(const std::string &ret) {
 /*
  * Receive server packets, and notify user
  */
-void TcpClient::run() {
+void UdpClient::run() {
     /* Disable socket blocking */
     fcntl(_sockfd, F_SETFL, O_NONBLOCK);
 
     /* Initialize variables for epoll */
     struct epoll_event ev;
 
-    int epfd = epoll_create(255);
+    int epfd = epoll_create(2);
     ev.data.fd = _sockfd;
     ev.events = EPOLLIN;
     epoll_ctl(epfd, EPOLL_CTL_ADD, _sockfd, &ev);
 
-    struct epoll_event events[256];
+    struct epoll_event events[2];
     std::cout << "TcpClient::receiveTask is running. " << std::endl;
     while (_isConnected) {
-        int ready = epoll_wait(epfd, events, 256, 20);//20 milliseconds
+        int ready = epoll_wait(epfd, events, 2, -1);//20 milliseconds
         if (ready < 0) {
             perror("epoll_wait error.");
             return;
@@ -153,12 +146,11 @@ void TcpClient::run() {
             /* timeout, no data coming */
             continue;
         } else {
-
             for (int i = 0; i < ready; i++) {
                 if (events[i].data.fd == _sockfd) {
-                    uint8_t msg[MAX_PACKET_SIZE];
-                    memset(msg, 0, MAX_PACKET_SIZE);
-                    const size_t numOfBytesReceived = recv(_sockfd, msg, MAX_PACKET_SIZE, 0);
+                    uint8_t msg[13];
+                    memset(msg, 0, 13);
+                    const size_t numOfBytesReceived = recvfrom(_sockfd, msg, MAX_PACKET_SIZE, 0, NULL, NULL);
                     if (numOfBytesReceived < 1) {
                         std::string errorMsg;
                         if (numOfBytesReceived == 0) {
@@ -178,7 +170,7 @@ void TcpClient::run() {
     }
 }
 
-bool TcpClient::close() {
+bool UdpClient::close() {
     if (_isClosed) {
         std::cout << "client is already closed" << std::endl;
         return false;

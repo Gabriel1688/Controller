@@ -8,6 +8,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(FetchContent)
+FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.15.0.tar.gz)
+FetchContent_MakeAvailable(spdlog)
+
+#FetchContent_Declare(fmt
+#        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#        GIT_TAG        10.2.1  # Use a known stable version
+#)
 add_executable(
         Controller
 
@@ -23,6 +31,7 @@ target_include_directories(
         include
         src
         lib
+        src
 )
 
 target_link_libraries(

@@ -1,4 +1,5 @@
 #include <sys/time.h>
+#include <ctime>
 
 #include "TimerManager.h"
 

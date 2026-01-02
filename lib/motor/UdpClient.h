@@ -20,6 +20,7 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+#include <memory>
 
 #pragma pack(1)
 struct CANFrame {
@@ -39,7 +40,7 @@ struct client_observer_t {
     std::function<void(const std::string &ret)> disconnectionHandler = nullptr;
 };
 
-class TcpClient {
+class UdpClient {
 private:
     int _sockfd;
     std::atomic<bool> _isConnected;
@@ -60,8 +61,8 @@ private:
     static void *EntryOfThread(void *argv);
 
 public:
-    TcpClient();
-    ~TcpClient();
+    UdpClient();
+    ~UdpClient();
     void Start();
     bool connectTo(const std::string &address, int port);
 

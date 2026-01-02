@@ -64,7 +64,7 @@ class MAXSwerveModule {
 
 static std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> *canHandles;
 
-static TcpClient *g_client;
+static UdpClient *g_client;
 //static UnlimitedHandleResource<HAL_CANHandle, CANStorage, HAL_HandleEnum::CAN>*  canHandles;
 
 namespace hal {
@@ -73,7 +73,7 @@ void InitializeCANAPI() {
     static std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> cH;
     canHandles = &cH;
 
-    static TcpClient client;
+    static UdpClient client;
     client.setCanHandles(canHandles);
     g_client = &client;
 

@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <vector>
+#include <unordered_map>
 
 static std::atomic_bool gShutdown{false};
 
