@@ -141,8 +141,7 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t *data,
  * @param[in] apiId   the ID to stop repeating (0-1023)
  * @param[out] status Error status variable. 0 on success.
  */
-void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId,
-                                int32_t *status);
+void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t *status);
 
 /**
  * Reads a new CAN packet.
@@ -164,9 +163,6 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
 
 // observer callback. will be called for every new message received by the server
 static void onIncomingMsg(const uint8_t *msg, size_t size);
-
-// observer callback. will be called when server disconnects
-static void onDisconnection(const std::string &ret);
 
 void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
                              int32_t *length, uint64_t *receivedTimestamp,

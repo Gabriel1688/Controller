@@ -95,27 +95,6 @@ void onIncomingMsg(const uint8_t *msg, size_t size) {
     }
 }
 
-// observer callback. will be called when server disconnects
-void onDisconnection(const std::string &ret) {
-    std::cout << "Server disconnected: " << ret << "\n";
-}
-
-#if 0
-static int32_t CreateCANId(CANStorage* storage, int32_t apiId) {
-    int32_t createdId = 0;
-    switch (storage->manufacturer) {
-        case HAL_CAN_Man_Dummy: //Dummy can FrameID
-            createdId |= (storage->deviceId & 0xF) << 7;
-            createdId |= apiId & 0x7F;
-            break;
-        case HAL_CAN_Man_Dm:   //DmBot can FrameID
-            createdId = apiId | (storage->deviceId & 0x3F);
-            break;
-    }
-    return createdId;
-}
-#endif
-
 static CANFrameId CreateCANId(CANStorage *storage, int32_t apiId, HAL_CANHandle handle) {
     CANFrameId createdId;
     switch (storage->manufacturer) {
@@ -150,11 +129,10 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
     can->deviceType = deviceType;
     can->manufacturer = manufacturer;
 
-    // configure and register observer
+    // configure and register observer for each can device respectively.
     client_observer_t observer;
     observer.wantedIP = "127.0.0.1";
     observer.incomingPacketHandler = onIncomingMsg;
-    observer.disconnectionHandler = onDisconnection;
     g_client->subscribe(deviceId, observer);
 
     return handle;
