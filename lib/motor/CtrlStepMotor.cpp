@@ -6,6 +6,7 @@
 CtrlStepMotor::CtrlStepMotor(uint8_t _id, bool _inverse,
                              uint8_t _reduction, float _angleLimitMin, float _angleLimitMax) : deviceId(_id), inverseDirection(_inverse), reduction(_reduction),
                                                                                                angleLimitMin(_angleLimitMin), angleLimitMax(_angleLimitMax) {
+    // Bind motor instance with CAN instance.
     m_canHandle = std::make_shared<CAN>(deviceId);
     txHeader =
         {
@@ -25,7 +26,7 @@ void CtrlStepMotor::SetEnable(bool _enable) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     int32_t status;
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_ENABLE_MOTOR);
+    CanSendMessage(canBuf, 4, CMD_API_ENABLE_MOTOR);
 }
 
 void CtrlStepMotor::SetEnableTemp(bool _enable) {
@@ -36,11 +37,11 @@ void CtrlStepMotor::SetEnableTemp(bool _enable) {
         canBuf[i] = *(b + i);
 
     int32_t status;
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH);
+    CanSendMessage(canBuf, 4, CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH);
 }
 
 void CtrlStepMotor::DoCalibration() {
-    m_canHandle->WritePacket(canBuf, 0, CMD_API_DO_CALIBRATION);
+    CanSendMessage(canBuf, 0, CMD_API_DO_CALIBRATION);
 }
 
 void CtrlStepMotor::SetCurrentSetPoint(float _val) {
@@ -51,7 +52,7 @@ void CtrlStepMotor::SetCurrentSetPoint(float _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
 
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_CURRENT_SET_POINT);
+    CanSendMessage(canBuf, 4, CMD_API_SET_CURRENT_SET_POINT);
 }
 
 void CtrlStepMotor::SetVelocitySetPoint(float _val) {
@@ -61,7 +62,7 @@ void CtrlStepMotor::SetVelocitySetPoint(float _val) {
     auto *b = (unsigned char *) &_val;
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_VELOCITY_SET_POINT);
+    CanSendMessage(canBuf, 4, CMD_API_SET_VELOCITY_SET_POINT);
 }
 
 void CtrlStepMotor::SetPositionSetPoint(float _val) {
@@ -71,7 +72,7 @@ void CtrlStepMotor::SetPositionSetPoint(float _val) {
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need ACK
 
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_POSITION_SET_POINT);
+    CanSendMessage(canBuf, 4, CMD_API_SET_POSITION_SET_POINT);
 }
 void CtrlStepMotor::SetPositionWithVelocityLimit(float _pos, float _vel) {
     // Float to Bytes
@@ -82,7 +83,7 @@ void CtrlStepMotor::SetPositionWithVelocityLimit(float _pos, float _vel) {
     for (int i = 4; i < 8; i++)
         canBuf[i] = *(b + i - 4);
 
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_POSITION_WITH_VELOCITY_LIMIT);
+    CanSendMessage(canBuf, 4, CMD_API_SET_POSITION_WITH_VELOCITY_LIMIT);
 }
 
 void CtrlStepMotor::SetNodeID(uint32_t _id) {
@@ -92,7 +93,7 @@ void CtrlStepMotor::SetNodeID(uint32_t _id) {
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
 
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_NODE_ID);
+    CanSendMessage(canBuf, 4, CMD_API_SET_NODE_ID);
 }
 
 void CtrlStepMotor::SetCurrentLimit(float _val) {
@@ -101,7 +102,7 @@ void CtrlStepMotor::SetCurrentLimit(float _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_CURRENT_LIMIT);
+    CanSendMessage(canBuf, 4, CMD_API_SET_CURRENT_LIMIT);
 }
 
 void CtrlStepMotor::SetVelocityLimit(float _val) {
@@ -110,7 +111,7 @@ void CtrlStepMotor::SetVelocityLimit(float _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH);
+    CanSendMessage(canBuf, 4, CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH);
 }
 
 void CtrlStepMotor::SetAcceleration(float _val) {
@@ -119,11 +120,11 @@ void CtrlStepMotor::SetAcceleration(float _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 0;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_ACCELERATION);
+    CanSendMessage(canBuf, 4, CMD_API_SET_ACCELERATION);
 }
 
 void CtrlStepMotor::ApplyPositionAsHome() {
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_APPLY_HOME_POSITION);
+    CanSendMessage(canBuf, 4, CMD_API_APPLY_HOME_POSITION);
 }
 
 void CtrlStepMotor::SetEnableOnBoot(bool _enable) {
@@ -133,7 +134,7 @@ void CtrlStepMotor::SetEnableOnBoot(bool _enable) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_AUTO_ENABLE);
+    CanSendMessage(canBuf, 4, CMD_API_SET_AUTO_ENABLE);
 }
 
 void CtrlStepMotor::SetEnableStallProtect(bool _enable) {
@@ -142,20 +143,20 @@ void CtrlStepMotor::SetEnableStallProtect(bool _enable) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_ENABLE_STALL_PROTECT);
+    CanSendMessage(canBuf, 4, CMD_API_SET_ENABLE_STALL_PROTECT);
 }
 
 void CtrlStepMotor::Reboot() {
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_REBOOT);
+    CanSendMessage(canBuf, 4, CMD_API_REBOOT);
 }
 
 uint32_t CtrlStepMotor::GetTemp() {
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_GET_TEMPERATURE);
+    CanSendMessage(canBuf, 4, CMD_API_GET_TEMPERATURE);
     return temperature;
 }
 
 void CtrlStepMotor::EraseConfigs() {
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_ERASE_CONFIGS);
+    CanSendMessage(canBuf, 4, CMD_API_ERASE_CONFIGS);
 }
 
 void CtrlStepMotor::SetAngle(float _angle) {
@@ -171,9 +172,9 @@ void CtrlStepMotor::SetAngleWithVelocityLimit(float _angle, float _vel) {
 }
 
 void CtrlStepMotor::UpdateAngle() {
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH);
+    CanSendMessage(canBuf, 4, CMD_API_ENABLE_MOTOR_TEMERATURE_WATCH);
 }
-
+//TODO: need to handle the call back/ get command, works in the async mode
 void CtrlStepMotor::UpdateAngleCallback(float _pos, bool _isFinished) {
     state = _isFinished ? FINISH : RUNNING;
 
@@ -186,7 +187,7 @@ void CtrlStepMotor::SetDceKp(int32_t _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_DEC_KP);
+    CanSendMessage(canBuf, 4, CMD_API_SET_DEC_KP);
 }
 
 void CtrlStepMotor::SetDceKv(int32_t _val) {
@@ -194,7 +195,7 @@ void CtrlStepMotor::SetDceKv(int32_t _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_DEC_KV);
+    CanSendMessage(canBuf, 4, CMD_API_SET_DEC_KV);
 }
 
 void CtrlStepMotor::SetDceKi(int32_t _val) {
@@ -202,7 +203,7 @@ void CtrlStepMotor::SetDceKi(int32_t _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_DEC_KI);
+    CanSendMessage(canBuf, 4, CMD_API_SET_DEC_KI);
 }
 
 void CtrlStepMotor::SetDceKd(int32_t _val) {
@@ -210,5 +211,8 @@ void CtrlStepMotor::SetDceKd(int32_t _val) {
     for (int i = 0; i < 4; i++)
         canBuf[i] = *(b + i);
     canBuf[4] = 1;// Need save to EEPROM or not
-    m_canHandle->WritePacket(canBuf, 4, CMD_API_SET_DEC_KD);
+    CanSendMessage(canBuf, 4, CMD_API_SET_DEC_KD);
+}
+void CtrlStepMotor::CanSendMessage(uint8_t *txData, int len, int command_id) {
+    m_canHandle->WritePacket(txData, len, command_id);
 }

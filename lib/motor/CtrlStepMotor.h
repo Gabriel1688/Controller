@@ -53,6 +53,8 @@ public:
     void UpdateAngleCallback(float _pos, bool _isFinished);
 
 private:
+    void CanSendMessage(uint8_t *txData, int len, int command_id);
+
     typedef struct
     {
         uint32_t StdId; /*!< Specifies the standard identifier.

@@ -152,8 +152,11 @@ int mqttClient::connect(struct lws_context *pcontext) {
     info.port = atoi(port.c_str());
 
     spdlog::info("connection client_id:[{}],username:[{}],address:[{}],host:[{}],port:[{}]",
-                 client_connect_param.client_id, client_connect_param.username,
-                 info.address, info.host, info.port);
+                 client_connect_param.client_id,
+                 client_connect_param.username,
+                 info.address,
+                 info.host,
+                 info.port);
     if (!lws_client_connect_via_info(&info)) {
         lwsl_err("%s: Client Connect Failed\n", __func__);
         return 1;
@@ -169,18 +172,18 @@ void mqttClient::disconnect() {
 }
 
 void mqttClient::publish(std::string &p_topic, const std::shared_ptr<MESSAGE> &p_message) {
-
     MqttMessage_ msg = std::make_pair(p_topic, p_message);
     {
         std::lock_guard<std::mutex> lock(mqttMutex);
         messages.emplace_back(msg);
     }
 
+    //Need to differentiate the component for the message.
     std::string componentName = "app";
     struct lws *wsi = getWsiInstance(componentName);
     lws_callback_on_writable(wsi);
 }
-
+//TODO need to decide when to unsubscribe the topic,
 int mqttClient::unsubscribe(__attribute__((unused)) const std::string &topicFilter) {
     return 0;
 }
@@ -235,8 +238,6 @@ void mqttClient::onClientWriteAble(struct lws *wsi, struct pss *pss) {
             elem = messages.front();
             messages.erase(messages.begin());
         }
-        char *topic = "hello_world";
-        char payload[] = "";
         pub_param.topic = const_cast<char *>(elem.first.c_str());
         pub_param.topic_len = elem.first.length();
         pub_param.qos = QOS0;
@@ -264,15 +265,17 @@ int mqttClient::callback(struct lws *wsi, enum lws_callback_reasons reason, void
         lwsl_user("%s: CLIENT_CLOSED\n", __func__);
         std::string componentName = "app";
         removeWsiInstance(componentName);
-    } break;
+        break;
+    }
 
     case LWS_CALLBACK_MQTT_CLIENT_ESTABLISHED: {
         lwsl_user("%s: MQTT_CLIENT_ESTABLISHED\n", __func__);
+        //TODO how to handle more than one connection
         std::string componentName = "app";
         addWsiInstance(componentName, wsi);
         lws_callback_on_writable(wsi);
+        break;
     }
-        return 0;
 
     case LWS_CALLBACK_MQTT_SUBSCRIBED:
         lwsl_user("%s: MQTT_SUBSCRIBED\n", __func__);
@@ -292,9 +295,6 @@ int mqttClient::callback(struct lws *wsi, enum lws_callback_reasons reason, void
         break;
     case LWS_CALLBACK_MQTT_RESEND:
         lwsl_user("%s: MQTT_RESEND\n", __func__);
-        /*
-		     * We must resend the packet ID mentioned in len
-		     */
         if (++pss->retries == 3) {
             break;
         }
@@ -305,24 +305,6 @@ int mqttClient::callback(struct lws *wsi, enum lws_callback_reasons reason, void
     case LWS_CALLBACK_MQTT_CLIENT_RX:
         lwsl_user("%s: MQTT_CLIENT_RX\n", __func__);
         processMessage(in, len, wsi);
-        /*
-	    {
-	        Client * const client = (Client *)user;
-	        const size_t remaining = lws_remaining_packet_payload(wsi);
-
-	        if (!remaining && lws_is_final_fragment(wsi)) {
-	            if (client->HasFragments()) {
-	                client->AppendMessageFragment(in, len, 0);
-	                in = (void *)client->GetMessage();
-	                len = client->GetMessageLength();
-	            }
-
-	            client->ProcessMessage((char *)in, len, wsi);
-	            client->ResetMessage();
-	        } else
-	            client->AppendMessageFragment(in, len, remaining);
-	    }
-        */
         return 0;
     default:
         break;
@@ -346,18 +328,39 @@ void mqttClient::processMessage(void *in, __attribute__((unused)) size_t len, __
 
     lwsl_hexdump_notice(pub_param->topic, pub_param->topic_len);
     lwsl_hexdump_notice(pub_param->payload, pub_param->payload_len);
+    //TODO:: dispatch message according to the topic type.
     //if("FRC_ROBOT" == pub_param->topic)
     {
         newDataOccurHandler(pub_param->payload, pub_param->payload_len);
     }
+    //else { "Command" ==  pub_param->topic )
+
+    //}
+    /*
+	 {
+	     Client * const client = (Client *)user;
+	     const size_t remaining = lws_remaining_packet_payload(wsi);
+
+         if (!remaining && lws_is_final_fragment(wsi)) {
+            if (client->HasFragments()) {
+                client->AppendMessageFragment(in, len, 0);
+                in = (void *)client->GetMessage();
+                len = client->GetMessageLength();
+            }
+
+            client->ProcessMessage((char *)in, len, wsi);
+            client->ResetMessage();
+        } else {
+            client->AppendMessageFragment(in, len, remaining);
+        }
+    }
+    */
 }
 
 void mqttClient::addWsiInstance(std::string &componentName, struct lws *wsi) {
     const std::lock_guard<std::mutex> lock(wsiMapMutex);
-    wsi_map_type_::iterator itmap = wsi_map.find(componentName);
-    if (itmap == wsi_map.end()) {
-        std::pair<std::string, struct lws *> instance = std::make_pair(componentName, wsi);
-        wsi_map.insert(instance);
+    if (wsi_map.find(componentName) == wsi_map.end()) {
+        wsi_map.insert(std::make_pair(componentName, wsi));
         spdlog::trace("wsi instance for [{}] is added.", componentName);
     } else {
         spdlog::warn("wsi instance for [{}] exist.", componentName);
