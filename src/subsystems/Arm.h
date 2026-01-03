@@ -292,7 +292,7 @@ private:
 private:
     // CAN_HandleTypeDef* hcan;
     float jointSpeed = DEFAULT_JOINT_SPEED;
-    float jointSpeedRatio = 1;
+    float jointSpeedRatio = 1;//by default
     DOF6Kinematic::Joint6D_t dynamicJointSpeeds = {1, 1, 1, 1, 1, 1};
     DOF6Kinematic *dof6Solver;
     bool isEnabled = false;

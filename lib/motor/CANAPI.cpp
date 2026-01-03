@@ -1,5 +1,5 @@
 #include "CANAPI.h"
-#include "TcpClient.h"
+#include "UdpClient.h"
 #include <chrono>
 #include <cstring>
 #include <map>
@@ -99,14 +99,13 @@ static CANFrameId CreateCANId(CANStorage *storage, int32_t apiId, HAL_CANHandle 
     CANFrameId createdId;
     switch (storage->manufacturer) {
     case HAL_CAN_Man_Dummy://Dummy can FrameID
-        // createdId.forwardCANId = (storage->deviceId & 0xF) << 7;
-        createdId.forwardCANId |= apiId & 0x7F;
+        createdId.forwardCANId = (storage->deviceId & 0xF) << 7 | apiId;
         createdId.replyCANId = createdId.forwardCANId;
         createdId.hanlde = handle;
         break;
     case HAL_CAN_Man_Dm://DmBot can FrameID
-        createdId.forwardCANId = apiId | (storage->deviceId & 0x3F);
-        createdId.replyCANId = storage->masterId;
+        createdId.forwardCANId = storage->deviceId & 0x3F;
+        createdId.replyCANId = (storage->deviceId & 0x3F) | (0x1 << 4);
         createdId.hanlde = handle;
         break;
     default:
@@ -166,7 +165,7 @@ void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t *data, int32_t lengt
 
     g_client->sendMsg(id, data, length, status);
 
-    wpi::WaitForObject(can->replyEvent.GetHandle());
+    //TODO:: only wait for which reply. wpi::WaitForObject(can->replyEvent.GetHandle());
 }
 
 void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t *data,

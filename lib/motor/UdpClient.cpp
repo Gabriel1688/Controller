@@ -1,5 +1,7 @@
-#include "TcpClient.h"
+#include "UdpClient.h"
+#include "spdlog/spdlog.h"
 #include <fcntl.h>
+#include <iomanip>
 #include <sys/epoll.h>
 #define MAX_PACKET_SIZE 4096
 
@@ -26,7 +28,7 @@ void *UdpClient::EntryOfThread(void *argv) {
 
 bool UdpClient::connectTo(const std::string &address, int port) {
     try {
-        _sockfd = socket(AF_INET , SOCK_DGRAM,  IPPROTO_UDP);
+        _sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
         const int inetSuccess = inet_aton(address.c_str(), &_server.sin_addr);
 
@@ -55,24 +57,22 @@ bool UdpClient::connectTo(const std::string &address, int port) {
 void UdpClient::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
     CANFrame frame;
     frame.modify(frameId.forwardCANId, data, dataSize);
-    //spdlog::info("<------ {0:04x} : {1:02x}", frame.FrameId, fmt::join(frame.data, " "));
+    spdlog::info("<------ {0:04x} : {1:}", frame.FrameId, concatenation(frame.data, 13, " "));
     const size_t numBytesSent = sendto(_sockfd, (uint8_t *) &frame, 5 + dataSize, 0, (struct sockaddr *) &_server, sizeof(_server));
-    if (numBytesSent < dataSize) { // not all bytes were sent
-        if (numBytesSent <= 0) {// send failed
+    if (numBytesSent < dataSize) {// not all bytes were sent
+        if (numBytesSent <= 0) {  // send failed
             std::cout << "client is already closed" << strerror(errno) << std::endl;
-        }
-        else {
+        } else {
             char errorMsg[100];
             sprintf(errorMsg, "Only %lu bytes out of %d was sent to client", numBytesSent, dataSize);
             std::cout << "client is already closed" << errorMsg << std::endl;
         }
+    } else {//Add reply frameId/handle to map for receiving reply.
+        std::scoped_lock lock(frameIdsMutex);
+        if (_frameIds.find(frameId.replyCANId) == _frameIds.end()) {
+            _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
+        }
     }
-    else {  //Add reply frameId/handle to map for receiving reply.
-           std::scoped_lock lock(frameIdsMutex);
-            if (_frameIds.find(frameId.replyCANId) == _frameIds.end()) {
-                _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
-            }
-     }
 }
 
 void UdpClient::subscribe(const int32_t deviceId, const client_observer_t &observer) {
@@ -136,7 +136,7 @@ void UdpClient::run() {
     epoll_ctl(epfd, EPOLL_CTL_ADD, _sockfd, &ev);
 
     struct epoll_event events[2];
-    std::cout << "TcpClient::receiveTask is running. " << std::endl;
+    std::cout << "UdpClient::receiveTask is running. " << std::endl;
     while (_isConnected) {
         int ready = epoll_wait(epfd, events, 2, -1);//20 milliseconds
         if (ready < 0) {
@@ -190,4 +190,18 @@ bool UdpClient::close() {
     }
     _isClosed = true;
     return true;
+}
+
+std::string UdpClient::concatenation(const uint8_t *elements, size_t size, const std::string delimiter) {
+    // Manual concatenation
+    std::ostringstream oss;
+    for (size_t i = 0; i < size; ++i) {
+        oss << "0x"
+            << std::setfill('0') << std::setw(sizeof(uint8_t) * 2)
+            << std::hex << elements[i];
+        if (i < size - 1) {
+            oss << delimiter;
+        }
+    }
+    return oss.str();
 }

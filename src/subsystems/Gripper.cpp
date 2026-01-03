@@ -1,13 +1,13 @@
 #include "Gripper.h"
 #include "motor/CtrlStepMotor.h"
 #include "robot/RobotBase.h"
+#include "spdlog/spdlog.h"
 
 Gripper::Gripper() {
     // Reset the pose estimate to the field's bottom-left corner with the turret
     // facing in the target's general direction. This is relatively close to the
     // robot's testing configuration, so the turret won't hit the soft limits.
-    //CAN(int deviceId, int deviceManufacturer, int deviceType);
-    can = std::make_shared<CAN>(0x7, 0x1, 0x1);
+    can = std::make_shared<CAN>(0x1, HAL_CAN_Man_Dummy, HAL_CAN_Dev_kgripperController);
     Reset();
 }
 
@@ -22,6 +22,7 @@ void Gripper::Reset() {
 //}
 
 void Gripper::RobotPeriodic() {
+    spdlog::info("Gripper::RobotPeriodic");
 }
 
 void Gripper::DisabledInit() {

@@ -31,11 +31,12 @@ void Robot::AutonomousPeriodic() {
 
 void Robot::TeleopPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
+    spdlog::info("Robot::TeleopPeriodic");
     DriveWithJoystick(true);
 }
 
 void Robot::DriveWithJoystick(__attribute__((unused)) bool fieldRelative) {
-    //std::cout <<"Robot DriveWithJoystick" << std::endl;
+    std::cout << "Robot DriveWithJoystick" << std::endl;
     const auto xSpeed = m_controller.GetLeftY();
     const auto ySpeed = m_controller.GetLeftX();
     const auto rot = m_controller.GetRightX();
@@ -65,8 +66,8 @@ void Robot::DriveWithJoystick(__attribute__((unused)) bool fieldRelative) {
         m_swerve.Drive(xSpeed, ySpeed, rot, fieldRelative, GetPeriod());
 */
 
-    //BooleanEvent intakeButton{ &m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
-    //BooleanEvent shootTrigger{ &m_loop, [&joystick = m_joystick] { return joystick.GetRawButtonPressed(2);}};
+    BooleanEvent intakeButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent shootTrigger{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButtonPressed(2); }};
 }
 
 int main() {

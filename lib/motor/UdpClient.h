@@ -7,6 +7,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -20,7 +21,6 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
-#include <memory>
 
 #pragma pack(1)
 struct CANFrame {
@@ -59,6 +59,7 @@ private:
     void publishServerDisconnected(const std::string &ret);
     void run();
     static void *EntryOfThread(void *argv);
+    std::string concatenation(const uint8_t *elements, size_t size, const std::string delimiter);
 
 public:
     UdpClient();

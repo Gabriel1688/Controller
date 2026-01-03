@@ -6,6 +6,7 @@
 #include "motor/CtrlStepMotor.h"
 #include "robot/ControlledSubsystemBase.h"
 #include "robot/RobotBase.h"
+#include "spdlog/spdlog.h"
 
 Arm::Arm() {
     // Reset the pose estimate to the field's bottom-left corner with the turret
@@ -45,6 +46,16 @@ void Arm::ControllerPeriodic() {
 }
 
 void Arm::RobotPeriodic() {
+    spdlog::info("Arm::RobotPeriodic");
+    //    if (IsEnabled()) {
+    //        // Send control command to Motors & update Joint states
+    //        MoveJoints(targetJoints);
+    //        UpdateJointPose6D();
+    //    } else {
+    //        // Just update Joint states
+    //        UpdateJointAngles();
+    //        UpdateJointPose6D();
+    //    }
 }
 
 const Eigen::Vector<double, 2> &Arm::GetInputs() const {
@@ -63,9 +74,13 @@ void Arm::AutonomousInit() {
 }
 
 void Arm::TeleopInit() {
-    //---get from dummy robot.
-    //    SetCommandMode(DEFAULT_COMMAND_MODE);
+
+    SetEnable(true);
+
+    SetJointAcceleration(DEFAULT_JOINT_ACCELERATION_LOW);
+
     SetJointSpeed(DEFAULT_JOINT_SPEED);
+
     ////
 
     SetBrakeMode();
@@ -80,7 +95,7 @@ void Arm::TeleopInit() {
     // turning action so teleop driving can occur.
     // AbortTurnInPlace();
 
-    Enable();
+    //Enable();
 }
 
 void Arm::TeleopPeriodic() {
@@ -231,7 +246,6 @@ bool Arm::MoveL(float _x, float _y, float _z, float _a, float _b, float _c) {
                      ikSolves.config[indexConfig].a[2], ikSolves.config[indexConfig].a[3],
                      ikSolves.config[indexConfig].a[4], ikSolves.config[indexConfig].a[5]);
     }
-
     return false;
 }
 
@@ -314,29 +328,24 @@ void Arm::Homing() {
     SetJointSpeed(lastSpeed);
 }
 
-#if 0
-void Arm::Resting()
-{
+void Arm::Resting() {
     float lastSpeed = jointSpeed;
     SetJointSpeed(10);
 
     MoveJ(REST_POSE.a[0], REST_POSE.a[1], REST_POSE.a[2],
           REST_POSE.a[3], REST_POSE.a[4], REST_POSE.a[5]);
     MoveJoints(targetJoints);
-    while (IsMoving())
-        osDelay(10);
+    //    while (IsMoving())
+    //        osDelay(10);
 
     SetJointSpeed(lastSpeed);
 }
 
-
-void Arm::SetEnable(bool _enable)
-{
+void Arm::SetEnable(bool _enable) {
     motorJ[ALL]->SetEnable(_enable);
-    isEnabled = _enable;
+    _enable ? Enable() : Disable();
 }
 
-#endif
 void Arm::UpdateJointPose6D() {
     dof6Solver->SolveFK(currentJoints, currentPose6D);
     currentPose6D.X *= 1000;// m -> mm
