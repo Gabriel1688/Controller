@@ -62,8 +62,8 @@ private:
     Arm arm;
 
     /// Gripper subsystem.
-    Gripper gripper;
+    //  Gripper gripper;
 
     /// Perception subsystem.
-    //Gripper gripper;
+    //  Gripper gripper;
 };

@@ -196,9 +196,8 @@ std::string UdpClient::concatenation(const uint8_t *elements, size_t size, const
     // Manual concatenation
     std::ostringstream oss;
     for (size_t i = 0; i < size; ++i) {
-        oss << "0x"
-            << std::setfill('0') << std::setw(sizeof(uint8_t) * 2)
-            << std::hex << elements[i];
+        oss << "0x" << std::setfill('0') << std::setw(sizeof(uint8_t) * 2)
+            << std::hex << static_cast<unsigned int>(elements[i]);
         if (i < size - 1) {
             oss << delimiter;
         }
