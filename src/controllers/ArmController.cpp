@@ -18,16 +18,15 @@ Eigen::Vector<double, 7> ArmController::Dynamics(const Eigen::Vector<double, 7> 
     Eigen::Vector<double, 7> xdot;
     return xdot;
 }
-
+//it will be called by implicitly eigen function
 inline float cosf(float x) {
-    //return arm_cos_f32(x);
     return std::cos(x);
 }
-
+//it will be called by implicitly eigen function
 inline float sinf(float x) {
     return std::sin(x);
 }
-
+//how to replace these to eigen function
 static void MatMultiply(const float *_matrix1, const float *_matrix2, float *_matrixOut,
                         const int _m, const int _l, const int _n) {
     float tmp;
@@ -42,7 +41,7 @@ static void MatMultiply(const float *_matrix1, const float *_matrix2, float *_ma
         }
     }
 }
-
+//how to replace these to eigen function
 static void RotMatToEulerAngle(const float *_rotationM, float *_eulerAngles) {
     float A, B, C, cb;
 
@@ -67,7 +66,7 @@ static void RotMatToEulerAngle(const float *_rotationM, float *_eulerAngles) {
     _eulerAngles[1] = B;
     _eulerAngles[2] = A;
 }
-
+//how to replace these to eigen function
 static void EulerAngleToRotMat(const float *_eulerAngles, float *_rotationM) {
     float ca, cb, cc, sa, sb, sc;
 

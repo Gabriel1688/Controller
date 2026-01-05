@@ -65,9 +65,26 @@ void Robot::DriveWithJoystick(__attribute__((unused)) bool fieldRelative) {
 
         m_swerve.Drive(xSpeed, ySpeed, rot, fieldRelative, GetPeriod());
 */
+    // Configure your button bindings here
+    // "STOP",       "START",      "HOME",    "CALIBRATION",  "RESET",  "DISABLE", "REBOOT"
+    // "GETJPOS",    "GETLPOS"
+    // "CMDMODE"
+    // "SET_DCE_KD", "SET_DCE_KI", "SET_DCE_KP"
+    // need to layout the keyboard of joystick, mapping to below event.
+    BooleanEvent stopButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent startButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent homeButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent calibrationButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent resetButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent disableButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent rebootButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent getJPosButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent getLPosButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    BooleanEvent cmdModeButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
+    // select motor/node incremental/decremental.
 
-    BooleanEvent intakeButton{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButton(2); }};
-    BooleanEvent shootTrigger{&m_loop, [&joystick = m_joystick] { return joystick.GetRawButtonPressed(2); }};
+    // "SET_DCE_KD", "SET_DCE_KI", "SET_DCE_KP"
+    // TBD
 }
 
 int main() {

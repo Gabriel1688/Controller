@@ -7,6 +7,7 @@
 #include "robot/ControlledSubsystemBase.h"
 #include "robot/RobotBase.h"
 #include "spdlog/spdlog.h"
+#include <unistd.h>
 
 Arm::Arm() {
     // Reset the pose estimate to the field's bottom-left corner with the turret
@@ -182,9 +183,7 @@ bool Arm::MoveJ(float _j1, float _j2, float _j3, float _j4, float _j5, float _j6
         DOF6Kinematic::Joint6D_t deltaJoints = targetJointsTmp - currentJoints;
         uint8_t index;
         float maxAngle = AbsMaxOf6(deltaJoints, index);
-        //float time = maxAngle * (float) (motorJ[index + 1]->reduction) / jointSpeed;
-        // TODO:: motorJ without the ctrlstep instance.
-        float time = 0;// maxAngle * (float) (motorJ[index + 1]->reduction) / jointSpeed;
+        float time = maxAngle * (float) (motorJ[index + 1]->reduction) / jointSpeed;
         for (int j = 1; j <= 6; j++) {
             dynamicJointSpeeds.a[j - 1] =
                 abs(deltaJoints.a[j - 1] * (float) (motorJ[j]->reduction) / time * 0.1f);//0~10r/s
@@ -211,16 +210,12 @@ bool Arm::MoveL(float _x, float _y, float _z, float _a, float _b, float _c) {
 
     for (int i = 0; i < 8; i++) {
         valid[i] = true;
-
-        //        for (int j = 1; j <= 6; j++)
-        //        {
-        //            if (ikSolves.config[i].a[j - 1] > motorJ[j]->angleLimitMax ||
-        //                ikSolves.config[i].a[j - 1] < motorJ[j]->angleLimitMin)
-        //            {
-        //                valid[i] = false;
-        //                continue;
-        //            }
-        //        }
+        for (int j = 1; j <= 6; j++) {
+            if (ikSolves.config[i].a[j - 1] > motorJ[j]->angleLimitMax || ikSolves.config[i].a[j - 1] < motorJ[j]->angleLimitMin) {
+                valid[i] = false;
+                continue;
+            }
+        }
 
         if (valid[i])
             validCnt++;
@@ -282,9 +277,7 @@ void Arm::SetJointAcceleration(float _acc) {
         motorJ[i]->SetAcceleration(_acc / 100 * DEFAULT_JOINT_ACCELERATION_BASES.a[i - 1]);
 }
 
-#if 0
-void Arm::CalibrateHomeOffset()
-{
+void Arm::CalibrateHomeOffset() {
     // Disable FixUpdate, but not disable motors
     isEnabled = false;
     motorJ[ALL]->SetEnable(true);
@@ -293,37 +286,41 @@ void Arm::CalibrateHomeOffset()
     // ...
     motorJ[2]->SetCurrentLimit(0.5);
     motorJ[3]->SetCurrentLimit(0.5);
-    osDelay(500);
+    usleep(500);
 
     // 2.Apply Home-Offset the first time
     motorJ[ALL]->ApplyPositionAsHome();
-    osDelay(500);
+    usleep(500);
 
     // 3.Go to Resting-Pose
     initPose = DOF6Kinematic::Joint6D_t(0, 0, 90, 0, 0, 0);
     currentJoints = DOF6Kinematic::Joint6D_t(0, 0, 90, 0, 0, 0);
     Resting();
-    osDelay(500);
+    usleep(500);
 
     // 4.Apply Home-Offset the second time
     motorJ[ALL]->ApplyPositionAsHome();
-    osDelay(500);
+    usleep(500);
+
     motorJ[2]->SetCurrentLimit(1);
     motorJ[3]->SetCurrentLimit(1);
-    osDelay(500);
+    usleep(500);
 
     Reboot();
 }
-#endif
-
+void Arm::Reboot() {
+    motorJ[ALL]->Reboot();
+    usleep(500);
+}
 void Arm::Homing() {
     float lastSpeed = jointSpeed;
     SetJointSpeed(10);
 
     MoveJ(0, 0, 90, 0, 0, 0);
     MoveJoints(targetJoints);
-    //    while (IsMoving())
-    //        osDelay(10);
+    while (IsMoving()) {
+        usleep(100);
+    }
 
     SetJointSpeed(lastSpeed);
 }
@@ -335,9 +332,9 @@ void Arm::Resting() {
     MoveJ(REST_POSE.a[0], REST_POSE.a[1], REST_POSE.a[2],
           REST_POSE.a[3], REST_POSE.a[4], REST_POSE.a[5]);
     MoveJoints(targetJoints);
-    //    while (IsMoving())
-    //        osDelay(10);
-
+    while (IsMoving()) {
+        usleep(100);
+    }
     SetJointSpeed(lastSpeed);
 }
 
@@ -386,15 +383,6 @@ void Arm::SetCommandMode(uint32_t _mode)
     }
 }
 
-uint32_t DummyRobot::CommandHandler::Push(const std::string &_cmd)
-{
-    osStatus_t status = osMessageQueuePut(commandFifo, _cmd.c_str(), 0U, 0U);
-    if (status == osOK)
-        return osMessageQueueGetSpace(commandFifo);
-
-    return 0xFF; // failed
-}
-
 void DummyRobot::CommandHandler::EmergencyStop()
 {
     context->MoveJ(context->currentJoints.a[0], context->currentJoints.a[1], context->currentJoints.a[2],
@@ -404,17 +392,6 @@ void DummyRobot::CommandHandler::EmergencyStop()
     ClearFifo();
 }
 
-std::string DummyRobot::CommandHandler::Pop(uint32_t timeout)
-{
-    osStatus_t status = osMessageQueueGet(commandFifo, strBuffer, nullptr, timeout);
-
-    return std::string{strBuffer};
-}
-
-uint32_t DummyRobot::CommandHandler::GetSpace()
-{
-    return osMessageQueueGetSpace(commandFifo);
-}
 #endif
 
 uint32_t Arm::CommandHandler::ParseCommand(const std::string &_cmd) {
@@ -444,8 +421,9 @@ uint32_t Arm::CommandHandler::ParseCommand(const std::string &_cmd) {
             // Trigger a transmission immediately, in case IsMoving() returns false
             context->MoveJoints(context->targetJoints);
 
-            //                while (context->IsMoving() && context->IsEnabled())
-            //                    osDelay(5);
+            while (context->IsMoving() && context->IsEnabled()) {
+                usleep(50);
+            }
             //                Respond(*usbStreamOutputPtr, "ok");
             //                Respond(*uart4StreamOutputPtr, "ok");
         } else if (_cmd[0] == '@') {
