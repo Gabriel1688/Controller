@@ -45,7 +45,7 @@ private:
     int _sockfd;
     std::atomic<bool> _isConnected;
     std::atomic<bool> _isClosed;
-    struct sockaddr_in _server;
+    sockaddr_in _server;
     std::map<int32_t, client_observer_t> _subscribers;
     std::thread *_receiveTask = nullptr;
     std::mutex _subscribersMtx;
@@ -55,7 +55,7 @@ private:
     std::map<int32_t, HAL_CANHandle> _frameIds;// keep the reply frameId and handle of device.
     std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> *canHandles;
 
-    void publishServerMsg(const uint8_t *msg, size_t msgSize);
+    void preprocessUdpPackage(std::string ClientAddr, int port, const uint8_t *msg, size_t msgSize);
     void publishServerDisconnected(const std::string &ret);
     void run();
     static void *EntryOfThread(void *argv);

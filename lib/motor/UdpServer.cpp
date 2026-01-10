@@ -17,7 +17,7 @@ bool UdpServer::init(const std::string address, uint16_t port) {
     // bind socket and listen to UDP Server port.
     bool connected = false;
     _sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    const int status = inet_aton(address.c_str(), &_server.sin_addr);
+    int status = inet_aton(address.c_str(), &_server.sin_addr);
 
     if (!status) {// inet_addr failed to parse address
         // if hostname is not in IP strings and dots format, try resolve it
@@ -31,11 +31,14 @@ bool UdpServer::init(const std::string address, uint16_t port) {
     }
     _server.sin_family = AF_INET;
     _server.sin_port = htons(port);
-    int Status = bind(_sockfd, (struct sockaddr *) &_server, sizeof(_server));
-    if (Status < 0) {
+    status = bind(_sockfd, (struct sockaddr *) &_server, sizeof(_server));
+    if (!status) {
         std::cout  << "Error binding socket to local address, errno:"<< strerror(errno) << std::endl;
-        exit(0);
     }
+
+    /* Disable socket blocking */
+    fcntl(_sockfd, F_SETFL, O_NONBLOCK);
+
     _isConnected = true;
     _isClosed = false;
     return true;
@@ -46,15 +49,16 @@ void UdpServer::Start() {
     }
     else {
         if (pthread_create(&thread_id, nullptr, EntryOfThread, this) != 0) {
+            spdlog::error("Failed to initialize thread");
         }
     }
 }
 
 /*static*/
 void *UdpServer::EntryOfThread(void *argv) {
-    UdpServer *client = static_cast<UdpServer *>(argv);
-    client->run();
-    return (void *) client;
+    UdpServer *server = static_cast<UdpServer *>(argv);
+    server->run();
+    return (void *) server;
 }
 
 void UdpServer::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
@@ -89,11 +93,20 @@ void UdpServer::subscribe(const int32_t deviceId, const client_observer_t &obser
  * from clients with IP address identical to
  * the specific observer requested IP
  */
-void UdpServer::publishServerMsg(const uint8_t *msg, size_t msgSize) {
-    //std::lock_guard<std::mutex> lock(_subscribersMtx);
-    for (int i= 0; i < msgSize; i++) {
-        spdlog::info("[{0:02x}]------ {1:02x}",i, static_cast<unsigned int>(msg[i]));
+void UdpServer::preprocessUdpPackage(std::string clientAddr, int port, const uint8_t *msg, size_t msgSize) {
+    //split into standard CAN Frame.
+    int chunk_size = 13;
+    for (int i = 0; i * chunk_size < msgSize; ++i) {
+        // Calculate the start pointer for the current chunk
+        const uint8_t* current_ptr = msg + (i * chunk_size);
+
+        // Determine the length of the current chunk (last chunk might be smaller)
+        int remaining_elements = msgSize - (i * chunk_size);
+        int length = (remaining_elements < chunk_size) ? remaining_elements : chunk_size;
+        spdlog::info("{}:{}-->{}",clientAddr,port, concatenation(current_ptr, length, " "));
+        //processCanFrame(current_ptr, length, i);
     }
+    //std::lock_guard<std::mutex> lock(_subscribersMtx);
     CANFrame *frame = (CANFrame *) msg;
     //Get handle of message and wake up it.
     {
@@ -132,8 +145,9 @@ void UdpServer::publishServerDisconnected(const std::string &ret) {
  * Receive server packets, and notify user
  */
 void UdpServer::run() {
-    /* Disable socket blocking */
-    fcntl(_sockfd, F_SETFL, O_NONBLOCK);
+    char address[INET_ADDRSTRLEN];
+    sockaddr_in clientAddr;
+    socklen_t clientAddrSize = sizeof(clientAddr);
 
     /* Initialize variables for epoll */
     struct epoll_event ev;
@@ -146,22 +160,22 @@ void UdpServer::run() {
     struct epoll_event events[2];
     std::cout << "UdpServer ::receiveTask is running. " << std::endl;
     while (_isConnected) {
-        int ready = epoll_wait(epfd, events, 2, -1);//20 milliseconds
+        int ready = epoll_wait(epfd, events, 2, -1);
         if (ready < 0) {
             perror("epoll_wait error.");
             return;
-        } else if (ready == 0) {
-            /* timeout, no data coming */
-            continue;
-        } else {
+        }
+        else {
+            inet_ntop(AF_INET, &(clientAddr.sin_addr), address, INET_ADDRSTRLEN);
             for (int i = 0; i < ready; i++) {
                 if (events[i].data.fd == _sockfd) {
-                    uint8_t msg[13];
-                    memset(msg, 0, 13);
-                    const size_t numOfBytesReceived = recvfrom(_sockfd, msg, MAX_PACKET_SIZE, 0, NULL, NULL);
-                    if (numOfBytesReceived < 1) {
+                    uint8_t msg[130];  //maximun 10 CAN message in a UDP package
+                    memset(msg, 0, 130);
+                    const size_t length = recvfrom(_sockfd, msg, sizeof(msg)-1, 0,
+                                                  (struct sockaddr *)&clientAddr, &clientAddrSize);
+                    if (length < 1) {
                         std::string errorMsg;
-                        if (numOfBytesReceived == 0) {
+                        if (length == 0) {
                             errorMsg = "Server closed connection";
                         } else {
                             errorMsg = strerror(errno);
@@ -170,7 +184,11 @@ void UdpServer::run() {
                         publishServerDisconnected(errorMsg);
                         return;
                     } else {
-                        publishServerMsg(msg, numOfBytesReceived);
+                        // Extract client IP address and port
+                        char client_ip[INET_ADDRSTRLEN];
+                        inet_ntop(AF_INET, &(clientAddr.sin_addr), client_ip, INET_ADDRSTRLEN);
+                        int port = ntohs(clientAddr.sin_port);
+                        preprocessUdpPackage(std::string(client_ip),port, msg, length);
                     }
                 }
             }
@@ -201,7 +219,6 @@ bool UdpServer::close() {
 }
 
 std::string UdpServer::concatenation(const uint8_t *elements, size_t size, const std::string delimiter) {
-    // Manual concatenation
     std::ostringstream oss;
     for (size_t i = 0; i < size; ++i) {
         oss << "0x" << std::setfill('0') << std::setw(sizeof(uint8_t) * 2)
