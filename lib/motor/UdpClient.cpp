@@ -15,6 +15,32 @@ UdpClient::~UdpClient() {
 }
 
 void UdpClient::Start() {
+    bool connected = false;
+    //bind the socket to its local address
+    std::string localhost = "192.168.4.100";
+    int localPort = 8886;
+    const int status = inet_aton(localhost.c_str(), &_client.sin_addr);
+
+    if (!status) {// inet_addr failed to parse address
+        // if hostname is not in IP strings and dots format, try resolve it
+        struct hostent *host;
+        struct in_addr **addrList;
+        if ((host = gethostbyname(localhost.c_str())) == nullptr) {
+            throw std::runtime_error("Failed to resolve hostname");
+        }
+        addrList = (struct in_addr **) host->h_addr_list;
+        _client.sin_addr = *addrList[0];
+    }
+    _client.sin_family = AF_INET;
+    _client.sin_port = htons(localPort);
+    int bindStatus = bind(_sockfd, (struct sockaddr *) &_client, sizeof(_client));
+    if (bindStatus < 0) {
+        std::cout  << "Error binding socket to local address" << std::endl;
+        exit(0);
+    }
+    _isConnected = true;
+    _isClosed = false;
+    //listen to UDP Server port.
     if (pthread_create(&thread_id, nullptr, EntryOfThread, this) != 0) {
     }
 }
@@ -47,6 +73,29 @@ bool UdpClient::connectTo(const std::string &address, int port) {
     } catch (const std::runtime_error &error) {
         std::cout << "client is already closed, " << error.what() << std::endl;
         return false;
+    }
+
+    //bind the socket to its local address
+    std::string localhost = "192.168.4.100";
+    int localPort = 8886;
+    const int status = inet_aton(localhost.c_str(), &_client.sin_addr);
+
+    if (!status) {// inet_addr failed to parse address
+        // if hostname is not in IP strings and dots format, try resolve it
+        struct hostent *host;
+        struct in_addr **addrList;
+        if ((host = gethostbyname(localhost.c_str())) == nullptr) {
+            throw std::runtime_error("Failed to resolve hostname");
+        }
+        addrList = (struct in_addr **) host->h_addr_list;
+        _client.sin_addr = *addrList[0];
+    }
+    _client.sin_family = AF_INET;
+    _client.sin_port = htons(localPort);
+    int bindStatus = bind(_sockfd, (struct sockaddr *) &_client, sizeof(_client));
+    if (bindStatus < 0) {
+        std::cout  << "Error binding socket to local address" << std::endl;
+        exit(0);
     }
     _isConnected = true;
     _isClosed = false;
@@ -88,10 +137,14 @@ void UdpClient::subscribe(const int32_t deviceId, const client_observer_t &obser
  */
 void UdpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
     //std::lock_guard<std::mutex> lock(_subscribersMtx);
+    for (int i= 0; i < msgSize; i++) {
+        spdlog::info("[{0:02x}]------ {1:02x}",i, static_cast<unsigned int>(msg[i]));
+    }
     CANFrame *frame = (CANFrame *) msg;
     //Get handle of message and wake up it.
     {
         auto FrameId = __builtin_bswap32(frame->FrameId);
+#if 0
         std::scoped_lock lock(frameIdsMutex);
         auto itmap = _frameIds.find(FrameId);
         if (itmap != _frameIds.end()) {
@@ -102,6 +155,7 @@ void UdpClient::publishServerMsg(const uint8_t *msg, size_t msgSize) {
             }
             can->replyEvent.Set();
         }
+#endif
     }
 }
 
@@ -136,7 +190,7 @@ void UdpClient::run() {
     epoll_ctl(epfd, EPOLL_CTL_ADD, _sockfd, &ev);
 
     struct epoll_event events[2];
-    std::cout << "UdpClient::receiveTask is running. " << std::endl;
+    std::cout << "UdpServer ::receiveTask is running. " << std::endl;
     while (_isConnected) {
         int ready = epoll_wait(epfd, events, 2, -1);//20 milliseconds
         if (ready < 0) {

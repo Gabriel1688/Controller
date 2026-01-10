@@ -76,12 +76,6 @@ void InitializeCANAPI() {
     static UdpClient client;
     client.setCanHandles(canHandles);
     g_client = &client;
-
-    //Connect to TCP server.
-    bool connected = false;
-    while (!connected) {
-        connected = client.connectTo("127.0.0.1", 1180);
-    }
     client.Start();
 }
 }// namespace init

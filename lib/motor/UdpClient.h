@@ -46,6 +46,7 @@ private:
     std::atomic<bool> _isConnected;
     std::atomic<bool> _isClosed;
     struct sockaddr_in _server;
+    struct sockaddr_in _client;
     std::map<int32_t, client_observer_t> _subscribers;
     std::thread *_receiveTask = nullptr;
     std::mutex _subscribersMtx;
