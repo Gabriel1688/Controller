@@ -47,7 +47,7 @@ add_library(framework
 
         motor/CAN.cpp
         motor/CANAPI.cpp
-        motor/UdpClient.cpp
+        motor/UdpServer.cpp
         motor/CtrlStepMotor.cpp
 )
 set_target_properties(framework PROPERTIES DEBUG_POSTFIX "d")

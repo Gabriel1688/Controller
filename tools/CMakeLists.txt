@@ -9,11 +9,11 @@ add_executable(
 )
 
 add_executable(
-        Udpserver
-        udpserver.cpp
+        UdpClient
+        UdpClient.cpp
 )
 target_include_directories(
-        Udpserver
+        UdpClient
         PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug/_deps/spdlog-src/include>
 )

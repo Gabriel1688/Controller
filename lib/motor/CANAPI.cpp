@@ -1,5 +1,6 @@
 #include "CANAPI.h"
-#include "UdpClient.h"
+#include "UdpServer.h"
+
 #include <chrono>
 #include <cstring>
 #include <map>
@@ -64,7 +65,7 @@ class MAXSwerveModule {
 
 static std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> *canHandles;
 
-static UdpClient *g_client;
+static UdpServer *g_client;
 //static UnlimitedHandleResource<HAL_CANHandle, CANStorage, HAL_HandleEnum::CAN>*  canHandles;
 
 namespace hal {
@@ -73,10 +74,10 @@ void InitializeCANAPI() {
     static std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> cH;
     canHandles = &cH;
 
-    static UdpClient client;
-    client.setCanHandles(canHandles);
-    g_client = &client;
-    client.Start();
+    static UdpServer server;
+    server.setCanHandles(canHandles);
+    g_client = &server;
+    server.Start();
 }
 }// namespace init
 }// namespace hal

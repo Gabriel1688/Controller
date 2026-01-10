@@ -16,7 +16,7 @@ CAN::CAN(int deviceId, int deviceManufacturer, int deviceType) {
 void CAN::WritePacket(const uint8_t *data, int length, int apiId) {
     int32_t status = 0;
     HAL_WriteCANPacket(m_handle, data, length, apiId, &status);
-    std::cout << "CAN::WritePacket Received response." << std::endl;
+    //std::cout << "CAN::WritePacket Received response." << std::endl;
 }
 
 void CAN::WritePacketRepeating(const uint8_t *data, int length, int apiId, int repeatMs) {

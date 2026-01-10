@@ -40,13 +40,12 @@ struct client_observer_t {
     std::function<void(const std::string &ret)> disconnectionHandler = nullptr;
 };
 
-class UdpClient {
+class UdpServer {
 private:
     int _sockfd;
     std::atomic<bool> _isConnected;
     std::atomic<bool> _isClosed;
     struct sockaddr_in _server;
-    struct sockaddr_in _client;
     std::map<int32_t, client_observer_t> _subscribers;
     std::thread *_receiveTask = nullptr;
     std::mutex _subscribersMtx;
@@ -61,10 +60,10 @@ private:
     void run();
     static void *EntryOfThread(void *argv);
     std::string concatenation(const uint8_t *elements, size_t size, const std::string delimiter);
-
+    bool init(const std::string address, uint16_t port);
 public:
-    UdpClient();
-    ~UdpClient();
+    UdpServer();
+    ~UdpServer();
     void Start();
     bool connectTo(const std::string &address, int port);
 

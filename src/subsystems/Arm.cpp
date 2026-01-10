@@ -47,7 +47,7 @@ void Arm::ControllerPeriodic() {
 }
 
 void Arm::RobotPeriodic() {
-    spdlog::info("Arm::RobotPeriodic");
+    //spdlog::info("Arm::RobotPeriodic");
     //    if (IsEnabled()) {
     //        // Send control command to Motors & update Joint states
     //        MoveJoints(targetJoints);
@@ -76,11 +76,11 @@ void Arm::AutonomousInit() {
 
 void Arm::TeleopInit() {
 
-    SetEnable(true);
+//    SetEnable(true);
 
-    SetJointAcceleration(DEFAULT_JOINT_ACCELERATION_LOW);
+//    SetJointAcceleration(DEFAULT_JOINT_ACCELERATION_LOW);
 
-    SetJointSpeed(DEFAULT_JOINT_SPEED);
+//    SetJointSpeed(DEFAULT_JOINT_SPEED);
 
     ////
 

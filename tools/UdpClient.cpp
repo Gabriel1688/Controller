@@ -40,8 +40,8 @@ std::string concatenation(const uint8_t *elements, size_t size, const std::strin
 
 std::map<int, std::array<uint8_t, 13>> responses;
 int main(int argc, char *argv[]) {
-    //grab the port number
-    int port = 1180;
+    //local port number
+    int port = 8886;
     //setup a socket and connection tools
     sockaddr_in servAddr;
     bzero((char *) &servAddr, sizeof(servAddr));
@@ -58,13 +58,6 @@ int main(int argc, char *argv[]) {
     }
     /* Disable socket blocking */
     fcntl(_sockfd, F_SETFL, O_NONBLOCK);
-    //bind the socket to its local address
-    int bindStatus = bind(_sockfd, (struct sockaddr *) &servAddr, sizeof(servAddr));
-    if (bindStatus < 0) {
-        cerr << "Error binding socket to local address" << endl;
-        exit(0);
-    }
-    cout << "Waiting for a client to connect..." << endl;
     //client address
     sockaddr_in clientAddr;
     socklen_t clientAddrSize = sizeof(clientAddr);
@@ -102,7 +95,7 @@ int main(int argc, char *argv[]) {
                     memset(msg, 0, 13);
 
                     //handle the new connection with client address
-                    const size_t numOfBytesReceived = recvfrom(_sockfd, msg, 13, 0, (struct sockaddr *) &clientAddr, (socklen_t *) &clientAddrSize);
+                    const size_t numOfBytesReceived = recvfrom(_sockfd, msg, 13, 0, NULL, NULL);
                     if (numOfBytesReceived < 1) {
                         std::string errorMsg;
                         if (numOfBytesReceived == 0) {
