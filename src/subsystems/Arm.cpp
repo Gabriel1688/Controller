@@ -75,8 +75,7 @@ void Arm::AutonomousInit() {
 }
 
 void Arm::TeleopInit() {
-
-//    SetEnable(true);
+    SetEnable(true);
 
 //    SetJointAcceleration(DEFAULT_JOINT_ACCELERATION_LOW);
 

@@ -94,11 +94,13 @@ static CANFrameId CreateCANId(CANStorage *storage, int32_t apiId, HAL_CANHandle 
     CANFrameId createdId;
     switch (storage->manufacturer) {
     case HAL_CAN_Man_Dummy://Dummy can FrameID
+        createdId.deviceId = storage->deviceId;
         createdId.forwardCANId = (storage->deviceId & 0xF) << 7 | apiId;
         createdId.replyCANId = createdId.forwardCANId;
         createdId.hanlde = handle;
         break;
     case HAL_CAN_Man_Dm://DmBot can FrameID
+        createdId.deviceId = storage->deviceId;
         createdId.forwardCANId = storage->deviceId & 0x3F;
         createdId.replyCANId = (storage->deviceId & 0x3F) | (0x1 << 4);
         createdId.hanlde = handle;
@@ -127,7 +129,7 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
     observer.wantedIP = "127.0.0.1";
     observer.incomingPacketHandler = onIncomingMsg;
     g_server->subscribe(deviceId, observer);
-
+    g_server->bindDevicesToClient(deviceId);
     return handle;
 }
 
@@ -149,41 +151,41 @@ void HAL_CleanCAN(HAL_CANHandle __attribute__((unused)) handle) {
 #endif
 }
 
-void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t *data, int32_t length, int32_t apiId, int32_t *status) {
+void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t *data, int32_t length, int32_t apiId, int32_t *status, bool reply) {
     auto can = canHandles->find(handle)->second;
     auto id = CreateCANId(can.get(), apiId, handle);
     std::scoped_lock lock(can->periodicSendsMutex);
     can->periodicSends[apiId] = -1;
-    g_server->sendMsg(id, data, length, status);
+    g_server->sendMsg(id, data, length, reply, status);
 
     //TODO:: only wait for which reply. wpi::WaitForObject(can->replyEvent.GetHandle());
 }
 
 void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t *data,
                                  int32_t length, int32_t apiId,
-                                 int32_t repeatMs, int32_t *status) {
+                                 int32_t repeatMs, int32_t *status, bool reply) {
     //How to send the heartbeat message, get the current/velocity/position/offset.
     auto can = canHandles->find(handle)->second;
     auto id = CreateCANId(can.get(), apiId, handle);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-    g_server->sendMsg(id, data, length, status);
+    g_server->sendMsg(id, data, length, reply, status);
     can->periodicSends[apiId] = repeatMs;
 }
 
-void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t *status) {
+void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t *status, bool reply) {
     auto can = canHandles->find(handle)->second;
 
     auto id = CreateCANId(can.get(), apiId, handle);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-    g_server->sendMsg(id, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
+    g_server->sendMsg(id, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, reply, status);
     can->periodicSends[apiId] = -1;
 }
 
 void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
                           int32_t *length, uint64_t *receivedTimestamp,
-                          int32_t *status) {
+                          int32_t *status, bool reply) {
     auto can = canHandles->find(handle)->second;
 
     auto messageId = CreateCANId(can.get(), apiId, handle);
@@ -191,7 +193,7 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
     uint32_t ts = 0;
     //Note:: need to work in the async mode rather than sync mode.
     //How to store the incoming data to receives?
-    g_server->sendMsg(messageId, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
+    g_server->sendMsg(messageId, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, reply, status);
     wpi::WaitForObject(can->replyEvent.GetHandle());
 
     if (*status == 0) {

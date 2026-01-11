@@ -70,22 +70,26 @@ void *UdpServer::EntryOfThread(void *argv) {
     return (void *) server;
 }
 
-void UdpServer::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, __attribute__((unused)) int32_t *status) {
+void UdpServer::sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, bool reply, __attribute__((unused)) int32_t *status) {
+    sockaddr_in *client = getClientAddrByDeviceId(frameId.deviceId);
     CANFrame frame;
-    sockaddr_in *client = getClientAddrByDeviceId(frameId.forwardCANId);
     frame.modify(frameId.forwardCANId, data, dataSize);
-    spdlog::info("<------ {0:04x} : {1:}", frame.FrameId, concatenation(frame.data, 13, " "));
-    const size_t numBytesSent = sendto(_sockfd, (uint8_t *) &frame, 5 + dataSize, 0, (struct sockaddr *) client, sizeof(_server));
+    spdlog::info("<------ {0:04x} : {1:}", frame.FrameId, concatenation((uint8_t *) (&frame), 13, " "));
+    const size_t numBytesSent = sendto(_sockfd, (uint8_t *) &frame, 13, 0, (struct sockaddr *) client, sizeof(_server));
     if (numBytesSent < dataSize) {
         if (numBytesSent <= 0) {
             spdlog::error("Failed to send data to client, error : {} ", strerror(errno));
         } else {
             spdlog::error("Only {} bytes out of {} was sent to client", numBytesSent, dataSize);
         }
-    } else {//Add reply frameId/handle to map for receiving reply.
-        std::scoped_lock lock(frameIdsMutex);
-        if (_frameIds.find(frameId.replyCANId) == _frameIds.end()) {
-            _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
+    } else {
+        if (reply) {
+            //Add reply frameId/handle to map for receiving reply.
+            std::scoped_lock lock(frameIdsMutex);
+            if (_frameIds.find(frameId.replyCANId) == _frameIds.end()) {
+                _frameIds.insert(std::make_pair(frameId.replyCANId, frameId.hanlde));
+                spdlog::info("Wait for reply from remote CAN device [{0:d}], replay FrameId : [{1:04x}].", frameId.deviceId, frameId.replyCANId);
+            }
         }
     }
 }
@@ -136,12 +140,11 @@ void UdpServer::dispatchCanMessage(std::string clientAddr, int port, const uint8
             auto storage = canHandles->find(itmap->second)->second;
             auto subscriber = _subscribers.find(storage->deviceId);
             if (subscriber != _subscribers.end()) {
-                spdlog::info("Dispatch frameId [{:d}] to device:[{:d}].", FrameId,storage->deviceId);
+                spdlog::info("Dispatch frameId [{:d}] to device:[{:d}].", FrameId, storage->deviceId);
                 subscriber->second.incomingPacketHandler(msg, msgSize);
             }
             storage->replyEvent.Set();
-        }
-        else {
+        } else {
             spdlog::info("Silent drop {}:{}-->{}", clientAddr, port, concatenation(current_ptr, length, " "));
         }
     }

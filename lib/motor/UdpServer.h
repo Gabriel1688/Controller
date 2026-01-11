@@ -71,7 +71,7 @@ public:
     * @param[in] dataSize  the size of the data to send (0-8 bytes)
     * @param[out] status    Error status variable. 0 on success.
     */
-    void sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, int32_t *status);
+    void sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, bool reply, int32_t *status);
     void subscribe(const int32_t deviceId, const client_observer_t &observer);
     void setCanHandles(std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> *p_canHandles) {
         canHandles = p_canHandles;

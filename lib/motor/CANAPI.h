@@ -40,10 +40,11 @@ enum HAL_CANManufacturer : int32_t {
  */
 #pragma pack(1)
 struct CANFrameId {
+    uint8_t deviceId;
     uint32_t forwardCANId; /* Input CAN frame Id */
     uint32_t replyCANId;   /* Response CAN frame Id */
     HAL_CANHandle hanlde;  /* CANStorage handle of this message */
-    CANFrameId() : forwardCANId(0), replyCANId(0), hanlde(0){};
+    CANFrameId() : deviceId(0), forwardCANId(0), replyCANId(0), hanlde(0) {};
 };
 #pragma pack()
 
@@ -112,7 +113,7 @@ void HAL_CleanCAN(HAL_CANHandle handle);
  * @param[out] status Error status variable. 0 on success.
  */
 void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t *data,
-                        int32_t length, int32_t apiId, int32_t *status);
+                        int32_t length, int32_t apiId,  int32_t *status, bool reply=false);
 
 /**
  * Writes a repeating packet to the CAN device with a specific ID.
@@ -130,7 +131,7 @@ void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t *data,
  */
 void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t *data,
                                  int32_t length, int32_t apiId,
-                                 int32_t repeatMs, int32_t *status);
+                                 int32_t repeatMs, int32_t *status, bool reply=false);
 
 /**
  * Stops a repeating packet with a specific ID.
@@ -141,7 +142,7 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t *data,
  * @param[in] apiId   the ID to stop repeating (0-1023)
  * @param[out] status Error status variable. 0 on success.
  */
-void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t *status);
+void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t *status, bool reply=false);
 
 /**
  * Reads a new CAN packet.
@@ -159,7 +160,7 @@ void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t *st
  */
 void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
                           int32_t *length, uint64_t *receivedTimestamp,
-                          int32_t *status);
+                          int32_t *status, bool reply=false);
 
 // observer callback. will be called for every new message received by the server
 static void onIncomingMsg(const uint8_t *msg, size_t size);
