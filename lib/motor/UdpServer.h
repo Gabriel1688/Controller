@@ -37,36 +37,32 @@ struct CANFrame {
 struct client_observer_t {
     std::string wantedIP = "";
     std::function<void(const uint8_t *msg, size_t size)> incomingPacketHandler = nullptr;
-    std::function<void(const std::string &ret)> disconnectionHandler = nullptr;
 };
 
 class UdpServer {
 private:
     int _sockfd;
-    std::atomic<bool> _isConnected;
     std::atomic<bool> _isClosed;
     sockaddr_in _server;
+    sockaddr_in _clientLeft, _clientRight;
     std::map<int32_t, client_observer_t> _subscribers;
-    std::thread *_receiveTask = nullptr;
     std::mutex _subscribersMtx;
     pthread_t thread_id;
-
     std::mutex frameIdsMutex;
     std::map<int32_t, HAL_CANHandle> _frameIds;// keep the reply frameId and handle of device.
     std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> *canHandles;
+    std::map<int, sockaddr_in *> _deviceIPs;//IP address associate to specific CAN DeviceIds;
 
-    void preprocessUdpPackage(std::string ClientAddr, int port, const uint8_t *msg, size_t msgSize);
-    void publishServerDisconnected(const std::string &ret);
+    void dispatchCanMessage(std::string ClientAddr, int port, const uint8_t *msg, size_t msgSize);
     void run();
     static void *EntryOfThread(void *argv);
     std::string concatenation(const uint8_t *elements, size_t size, const std::string delimiter);
     bool init(const std::string address, uint16_t port);
+
 public:
     UdpServer();
     ~UdpServer();
     void Start();
-    bool connectTo(const std::string &address, int port);
-
     /**
      * Sends a CAN message.
     *
@@ -76,11 +72,12 @@ public:
     * @param[out] status    Error status variable. 0 on success.
     */
     void sendMsg(CANFrameId frameId, const uint8_t *data, uint8_t dataSize, int32_t *status);
-
     void subscribe(const int32_t deviceId, const client_observer_t &observer);
-    bool isConnected() const { return _isConnected; }
     void setCanHandles(std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> *p_canHandles) {
         canHandles = p_canHandles;
     }
+    void unsubscribe(const int32_t deviceId, const client_observer_t &observer);
+    void bindDevicesToClient(int deviceId);
+    sockaddr_in *getClientAddrByDeviceId(int deviceId);
     bool close();
 };

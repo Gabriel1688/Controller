@@ -65,7 +65,7 @@ class MAXSwerveModule {
 
 static std::map<HAL_CANHandle, std::shared_ptr<CANStorage>> *canHandles;
 
-static UdpServer *g_client;
+static UdpServer *g_server;
 //static UnlimitedHandleResource<HAL_CANHandle, CANStorage, HAL_HandleEnum::CAN>*  canHandles;
 
 namespace hal {
@@ -76,7 +76,7 @@ void InitializeCANAPI() {
 
     static UdpServer server;
     server.setCanHandles(canHandles);
-    g_client = &server;
+    g_server = &server;
     server.Start();
 }
 }// namespace init
@@ -110,7 +110,6 @@ static CANFrameId CreateCANId(CANStorage *storage, int32_t apiId, HAL_CANHandle 
 }
 
 extern "C" {
-
 HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
                                 int32_t deviceId, HAL_CANDeviceType deviceType,
                                 __attribute__((unused)) int32_t *status) {
@@ -127,7 +126,7 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
     client_observer_t observer;
     observer.wantedIP = "127.0.0.1";
     observer.incomingPacketHandler = onIncomingMsg;
-    g_client->subscribe(deviceId, observer);
+    g_server->subscribe(deviceId, observer);
 
     return handle;
 }
@@ -152,13 +151,10 @@ void HAL_CleanCAN(HAL_CANHandle __attribute__((unused)) handle) {
 
 void HAL_WriteCANPacket(HAL_CANHandle handle, const uint8_t *data, int32_t length, int32_t apiId, int32_t *status) {
     auto can = canHandles->find(handle)->second;
-
     auto id = CreateCANId(can.get(), apiId, handle);
-
     std::scoped_lock lock(can->periodicSendsMutex);
     can->periodicSends[apiId] = -1;
-
-    g_client->sendMsg(id, data, length, status);
+    g_server->sendMsg(id, data, length, status);
 
     //TODO:: only wait for which reply. wpi::WaitForObject(can->replyEvent.GetHandle());
 }
@@ -171,7 +167,7 @@ void HAL_WriteCANPacketRepeating(HAL_CANHandle handle, const uint8_t *data,
     auto id = CreateCANId(can.get(), apiId, handle);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-    g_client->sendMsg(id, data, length, status);
+    g_server->sendMsg(id, data, length, status);
     can->periodicSends[apiId] = repeatMs;
 }
 
@@ -181,7 +177,7 @@ void HAL_StopCANPacketRepeating(HAL_CANHandle handle, int32_t apiId, int32_t *st
     auto id = CreateCANId(can.get(), apiId, handle);
 
     std::scoped_lock lock(can->periodicSendsMutex);
-    g_client->sendMsg(id, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
+    g_server->sendMsg(id, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
     can->periodicSends[apiId] = -1;
 }
 
@@ -195,7 +191,7 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t *data,
     uint32_t ts = 0;
     //Note:: need to work in the async mode rather than sync mode.
     //How to store the incoming data to receives?
-    g_client->sendMsg(messageId, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
+    g_server->sendMsg(messageId, nullptr, HAL_CAN_SEND_PERIOD_STOP_REPEATING, status);
     wpi::WaitForObject(can->replyEvent.GetHandle());
 
     if (*status == 0) {
